@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Lockshot | Drift Line Lock</title><link rel="stylesheet" href="styles.css"><script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script><script src="script.js" defer></script></head>
+<body data-default-game="drift">
+  <header class="topbar is-scrolled"><a class="brand" href="index.html"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a><nav class="desktop-nav"><a href="game.html">Games</a><a href="competitions.html">Competitions</a></nav></header>
+  <main><section class="game-section single-game-page" id="game" aria-labelledby="game-title">
+    <div class="game-head"><div><span>Drift Line Lock</span><h2 id="game-title">Trace the line.</h2></div><strong data-game-status>No entries unlocked yet</strong></div>
+    <div class="play-area drift-game is-active" data-game-area="drift">
+      <div class="drift-board" data-drift-board>
+        <svg class="drift-paths" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="ideal-line" data-ideal-line d="M10 76 C24 42, 42 34, 55 49 S78 78, 91 27"></path><path class="player-line" data-player-line d=""></path></svg>
+        <strong class="tap-pop" data-drift-pop aria-live="polite"></strong><p data-drift-note>Pay for entries, then trace the racing line from left to right.</p>
+        <div class="game-overlay is-open" data-drift-start-screen><div class="game-overlay-card"><h3>Drift Line Lock</h3><p>Memorise the green racing line, then trace it smoothly. Every new round changes the line.</p><button type="button" data-start-drift>Start Game</button></div></div>
+        <div class="game-overlay" data-drift-end-screen><div class="game-overlay-card"><h3>Drift Complete</h3><p>Your score is <strong data-drift-final-score>0</strong>. Continue with another unlocked round, or buy more.</p><button type="button" data-start-drift>Continue</button><a class="game-switch-link" href="game.html" data-play-different>Play a different game</a><button type="button" data-buy-more-drift>Buy More Drift Rounds</button></div></div>
+      </div>
+      <div class="spot-panel"><div><span>Rounds left</span><strong data-drift-rounds-left>0</strong></div><div><span>This score</span><strong data-drift-score>-</strong></div><div><span>Your high score</span><strong data-drift-high-score>0</strong></div><button class="submit-game" type="button" data-submit-drift disabled>5 second timer</button><a class="panel-link" href="game.html" data-play-different>Play a different game</a></div>
+    </div>
+  </section></main>
+</body></html>

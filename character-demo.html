@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Platformer Character Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #1a0a2e; }
+    canvas { display: block; }
+
+    #touch-ui {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 120px;
+      pointer-events: none;
+      display: none;
+    }
+    .touch-btn {
+      position: absolute;
+      width: 72px; height: 72px;
+      background: rgba(204,34,0,0.3);
+      border: 2px solid rgba(204,34,0,0.6);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      color: rgba(255,255,255,0.85);
+      pointer-events: all;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+    #btn-jump { bottom: 18px; right: 24px; }
+
+    @media (pointer: coarse) {
+      #touch-ui { display: block; }
+    }
+  </style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="touch-ui">
+  <div class="touch-btn" id="btn-jump">▲</div>
+</div>
+
+<script src="character.js"></script>
+<script>
+'use strict';
+
+// ── Canvas setup ──────────────────────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+
+function resize() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+const RUNNER_X       = 180;        // character locked at this screen X
+const GROUND_Y       = () => canvas.height - 100;
+const GAME_DURATION  = 30;         // seconds
+const PTS_PER_SEC    = 0.5;
+const PTS_PER_COIN   = 10;
+const SPEED_START    = 290;        // px/s
+const SPEED_MAX      = 560;        // px/s cap
+const OBS_GAP_MIN    = 1.1;        // min seconds between obstacles
+const OBS_GAP_MAX    = 2.2;        // max seconds between obstacles
+
+// ── Game state ────────────────────────────────────────────────────────────────
+let gameState  = 'idle';    // 'idle' | 'playing' | 'over'
+let survived   = false;
+let timer      = GAME_DURATION;
+let coinCount  = 0;
+let scrollDist = 0;         // total px scrolled (for parallax)
+let scrollSpeed= SPEED_START;
+let obstacles  = [];
+let coins      = [];
+let obsTimer   = 0;
+let nextObsIn  = 1.8;
+let coinTimer  = 0;
+let nextCoinIn = 1.4;
+let flashTimer = 0;         // red flash on hit (brief)
+
+// ── Character ─────────────────────────────────────────────────────────────────
+const char = new PlatformerCharacter(RUNNER_X, GROUND_Y()).bindKeys();
+const GROUND_PLAT = () => [{ x: -600, y: GROUND_Y(), w: canvas.width + 1200, h: 300 }];
+
+function resetGame() {
+  gameState   = 'playing';
+  survived    = false;
+  timer       = GAME_DURATION;
+  coinCount   = 0;
+  scrollDist  = 0;
+  scrollSpeed = SPEED_START;
+  obstacles   = [];
+  coins       = [];
+  obsTimer    = 0;
+  nextObsIn   = 1.8;
+  coinTimer   = 0;
+  nextCoinIn  = 1.4;
+  flashTimer  = 0;
+  // Reset character position
+  char.x  = RUNNER_X;
+  char.y  = GROUND_Y();   // y = feet position
+  char.vx = 0;
+  char.vy = 0;
+}
+
+// ── Obstacle spawner ──────────────────────────────────────────────────────────
+function spawnObstacle() {
+  const gy     = GROUND_Y();
+  const isWall = Math.random() < 0.38;
+  const w      = isWall ? 22 : 44;
+  const h      = isWall
+    ? (Math.random() < 0.5 ? 78 : 60)
+    : (Math.random() < 0.3 ? 88 : 44);
+  obstacles.push({ x: canvas.width + 30, y: gy - h, w, h });
+}
+
+function scheduleNextObs() {
+  const progress = 1 - timer / GAME_DURATION;              // 0→1 over the run
+  const range    = OBS_GAP_MAX - OBS_GAP_MIN;
+  nextObsIn = OBS_GAP_MIN + Math.random() * range * (1 - progress * 0.45);
+}
+
+// ── Coin spawner ──────────────────────────────────────────────────────────────
+function spawnCoin() {
+  const gy = GROUND_Y();
+  // Place coin at a height the character can reach mid-jump
+  const y = gy - 95 - Math.random() * 65;
+  coins.push({ x: canvas.width + 50, y, r: 13, got: false });
+}
+
+function scheduleNextCoin() {
+  nextCoinIn = 1.3 + Math.random() * 1.1;
+}
+
+// ── Parallax background pools ─────────────────────────────────────────────────
+const CLOUDS = Array.from({ length: 14 }, (_, i) => ({
+  ox: 80 + i * 230 + Math.sin(i * 1.7) * 60,
+  y:  40  + Math.sin(i * 2.3) * 80,
+  rx: 50  + Math.sin(i * 3.1) * 30,
+  ry: 22  + Math.sin(i * 1.9) * 10,
+  spd: 0.10 + Math.sin(i * 0.7) * 0.04,
+}));
+
+const HILLS = Array.from({ length: 11 }, (_, i) => ({
+  ox: i * 370 - 60,
+  w:  280 + Math.sin(i * 1.4) * 80,
+  h:  120 + Math.sin(i * 2.1) * 60,
+}));
+
+// ── Drawing ───────────────────────────────────────────────────────────────────
+function drawSky() {
+  const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  g.addColorStop(0,   '#3a8fd1');
+  g.addColorStop(0.6, '#87ceeb');
+  g.addColorStop(1,   '#c8e8f8');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawHills() {
+  const gy   = GROUND_Y();
+  const wrap = 370 * 11;
+  for (const h of HILLS) {
+    const sx = ((h.ox - scrollDist * 0.28) % wrap + wrap) % wrap - 200;
+    ctx.fillStyle = '#5cb85c';
+    ctx.beginPath();
+    ctx.ellipse(sx + h.w / 2, gy, h.w / 2, h.h, 0, Math.PI, 0);
+    ctx.fill();
+    ctx.fillStyle = '#4cae4c';
+    ctx.beginPath();
+    ctx.ellipse(sx + h.w / 2, gy, h.w / 2 - 10, h.h - 12, 0, Math.PI, 0);
+    ctx.fill();
+  }
+}
+
+function drawClouds() {
+  const wrap = canvas.width + 600;
+  for (const c of CLOUDS) {
+    const sx = ((c.ox - scrollDist * c.spd) % wrap + wrap) % wrap - 100;
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    ctx.beginPath();
+    ctx.ellipse(sx,               c.y,            c.rx,        c.ry,        0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(sx + c.rx * 0.6,  c.y - c.ry * 0.3, c.rx * 0.7,  c.ry * 0.8,  0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(sx - c.rx * 0.6,  c.y - c.ry * 0.2, c.rx * 0.65, c.ry * 0.75, 0, 0, Math.PI * 2); ctx.fill();
+  }
+}
+
+function drawGround() {
+  const gy   = GROUND_Y();
+  const w    = canvas.width;
+  const rest = canvas.height - gy;
+  // Grass strip
+  ctx.fillStyle = '#5b8a3a';
+  ctx.fillRect(0, gy, w, 16);
+  ctx.fillStyle = '#4a7830';
+  ctx.fillRect(0, gy + 14, w, 3);
+  // Dirt body
+  ctx.fillStyle = '#7a5030';
+  ctx.fillRect(0, gy + 16, w, rest - 16);
+  // Scrolling brick lines
+  ctx.strokeStyle = 'rgba(0,0,0,0.10)';
+  ctx.lineWidth = 1;
+  const offX = scrollDist % 48;
+  for (let bx = -offX; bx < w + 48; bx += 48) {
+    ctx.beginPath(); ctx.moveTo(bx, gy + 16); ctx.lineTo(bx, canvas.height); ctx.stroke();
+  }
+  for (let by = 26; by < rest; by += 24) {
+    ctx.beginPath(); ctx.moveTo(0, gy + 16 + by); ctx.lineTo(w, gy + 16 + by); ctx.stroke();
+  }
+}
+
+function drawObstacle(p) {
+  if (p.w < 35) {
+    // ── Stone wall ────────────────────────────────────────────────────────
+    ctx.fillStyle = '#8a8a8a';
+    ctx.fillRect(p.x, p.y, p.w, p.h);
+    ctx.fillStyle = '#6e6e6e';
+    ctx.fillRect(p.x, p.y, p.w, 6);
+    ctx.strokeStyle = 'rgba(0,0,0,0.28)';
+    ctx.lineWidth = 1;
+    const bH = 14;
+    for (let row = 0; row * bH < p.h; row++) {
+      const by = p.y + row * bH;
+      ctx.beginPath(); ctx.moveTo(p.x, by); ctx.lineTo(p.x + p.w, by); ctx.stroke();
+      const ox = (row % 2 === 0) ? p.w * 0.5 : 0;
+      ctx.beginPath();
+      ctx.moveTo(p.x + ox, by);
+      ctx.lineTo(p.x + ox, Math.min(by + bH, p.y + p.h));
+      ctx.stroke();
+    }
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
+    ctx.fillRect(p.x, p.y, 3, p.h);
+  } else {
+    // ── Wooden crate ──────────────────────────────────────────────────────
+    ctx.fillStyle = '#7a4010';
+    ctx.fillRect(p.x, p.y, p.w, p.h);
+    ctx.fillStyle = '#c07840';
+    ctx.fillRect(p.x + 3, p.y + 3, p.w - 6, p.h - 6);
+    ctx.strokeStyle = '#7a4010';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(p.x + 3, p.y + 3); ctx.lineTo(p.x + p.w - 3, p.y + p.h - 3); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(p.x + p.w - 3, p.y + 3); ctx.lineTo(p.x + 3, p.y + p.h - 3); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.fillRect(p.x + 3, p.y + 3, p.w - 6, 7);
+  }
+}
+
+function drawCoin(c) {
+  if (c.got) return;
+  const pulse = 1 + Math.sin(Date.now() * 0.005 + c.x) * 0.07;
+  ctx.save();
+  ctx.translate(c.x, c.y);
+  ctx.scale(pulse, pulse);
+  // Outer gold disc
+  ctx.beginPath();
+  ctx.arc(0, 0, c.r, 0, Math.PI * 2);
+  ctx.fillStyle = '#f5c518';
+  ctx.fill();
+  // Rim
+  ctx.strokeStyle = '#b8860b';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  // Inner highlight
+  ctx.beginPath();
+  ctx.arc(-c.r * 0.22, -c.r * 0.22, c.r * 0.45, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,255,210,0.55)';
+  ctx.fill();
+  // $ label
+  ctx.fillStyle = '#7a5800';
+  ctx.font = `bold ${Math.round(c.r * 1.15)}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('$', 0, 1);
+  ctx.restore();
+}
+
+function drawHUD() {
+  if (gameState === 'idle') return;
+  const t    = Math.ceil(Math.max(0, timer));
+  const pts  = calcScore();
+  const low  = timer < 8;
+
+  // Semi-transparent top bar
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.38)';
+  ctx.fillRect(0, 0, canvas.width, 50);
+
+  // Timer (red when < 8s)
+  ctx.font = 'bold 22px sans-serif';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = low ? '#ff4444' : '#ffffff';
+  ctx.textAlign = 'left';
+  ctx.fillText(`⏱ ${t}s`, 20, 26);
+
+  // Score (centre)
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'center';
+  ctx.fillText(`Score: ${pts}`, canvas.width / 2, 26);
+
+  // Coins (right)
+  ctx.textAlign = 'right';
+  ctx.fillText(`🪙 ${coinCount}`, canvas.width - 20, 26);
+
+  ctx.restore();
+
+  // Red flash overlay on obstacle hit
+  if (flashTimer > 0) {
+    ctx.save();
+    ctx.globalAlpha = Math.min(flashTimer * 4, 0.45);
+    ctx.fillStyle = '#ff0000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+  }
+}
+
+function calcScore() {
+  const elapsed = GAME_DURATION - Math.max(0, timer);
+  return Math.round((elapsed * PTS_PER_SEC + coinCount * PTS_PER_COIN) * 10) / 10;
+}
+
+function drawPanel(title, sub1, sub2, btnLabel) {
+  const pw = Math.min(440, canvas.width - 48);
+  const ph = 230;
+  const px = (canvas.width  - pw) / 2;
+  const py = (canvas.height - ph) / 2;
+
+  // Panel background
+  ctx.save();
+  ctx.fillStyle = 'rgba(8,8,28,0.88)';
+  ctx.beginPath();
+  ctx.roundRect(px, py, pw, ph, 18);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Title
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 30px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText(title, canvas.width / 2, py + 56);
+
+  // Sub lines
+  ctx.font = '19px sans-serif';
+  ctx.fillStyle = '#ffe066';
+  ctx.fillText(sub1, canvas.width / 2, py + 98);
+  if (sub2) {
+    ctx.font = '15px sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.fillText(sub2, canvas.width / 2, py + 126);
+  }
+
+  // Button
+  const bw = 170, bh = 46;
+  const bx = (canvas.width - bw) / 2;
+  const by = py + ph - 66;
+  ctx.fillStyle = '#e8333a';
+  ctx.beginPath();
+  ctx.roundRect(bx, by, bw, bh, 12);
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 18px sans-serif';
+  ctx.fillText(btnLabel, canvas.width / 2, by + 29);
+  ctx.restore();
+}
+
+// ── Collision helpers ─────────────────────────────────────────────────────────
+function charHitsObs(obs) {
+  // char box: x ∈ [char.x - hw, char.x + hw], y ∈ [char.y - hh, char.y]
+  const L = char.x - char.hw + 3;   // tiny inset so edge-grazing is forgiven
+  const R = char.x + char.hw - 3;
+  const T = char.y - char.hh + 4;
+  const B = char.y - 4;
+  return L < obs.x + obs.w && R > obs.x && T < obs.y + obs.h && B > obs.y;
+}
+
+function charHitsCoin(c) {
+  const midY = char.y - char.hh / 2;
+  const dx = char.x - c.x;
+  const dy = midY - c.y;
+  return Math.sqrt(dx * dx + dy * dy) < c.r + 16;
+}
+
+// ── Input ─────────────────────────────────────────────────────────────────────
+function tryStart() {
+  if (gameState === 'idle' || gameState === 'over') resetGame();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+    if (gameState === 'idle' || gameState === 'over') { resetGame(); e.preventDefault(); }
+  }
+});
+canvas.addEventListener('click', tryStart);
+
+// Touch jump button
+const btnJump = document.getElementById('btn-jump');
+if (btnJump) {
+  btnJump.addEventListener('touchstart', e => {
+    e.preventDefault();
+    if (gameState !== 'playing') { tryStart(); return; }
+    char._keys.jump = true;
+    char._keys._jp  = true;
+  }, { passive: false });
+  btnJump.addEventListener('touchend',    e => { e.preventDefault(); if (gameState === 'playing') char._keys.jump = false; }, { passive: false });
+  btnJump.addEventListener('touchcancel', e => { e.preventDefault(); if (gameState === 'playing') char._keys.jump = false; }, { passive: false });
+}
+
+// ── Game loop ─────────────────────────────────────────────────────────────────
+let lastTime = null;
+
+function frame(ts) {
+  if (!lastTime) lastTime = ts;
+  const dt = Math.min((ts - lastTime) / 1000, 0.05);
+  lastTime = ts;
+
+  // ── Update ────────────────────────────────────────────────────────────
+  if (gameState === 'playing') {
+    // Ramp scroll speed
+    scrollSpeed = Math.min(SPEED_MAX, scrollSpeed + 15 * dt);
+    scrollDist += scrollSpeed * dt;
+
+    // Countdown
+    timer -= dt;
+    if (timer <= 0) {
+      timer    = 0;
+      survived = true;
+      gameState = 'over';
+    }
+
+    // Obstacle spawning
+    obsTimer += dt;
+    if (obsTimer >= nextObsIn) {
+      spawnObstacle();
+      obsTimer = 0;
+      scheduleNextObs();
+    }
+
+    // Coin spawning
+    coinTimer += dt;
+    if (coinTimer >= nextCoinIn) {
+      spawnCoin();
+      coinTimer = 0;
+      scheduleNextCoin();
+    }
+
+    // Move obstacles & coins left
+    for (const o of obstacles) o.x -= scrollSpeed * dt;
+    for (const c of coins)     c.x -= scrollSpeed * dt;
+    obstacles = obstacles.filter(o => o.x + o.w > -20);
+    coins     = coins.filter(c => !c.got && c.x + c.r > -20);
+
+    // Lock char to runner X, suppress horizontal movement
+    char._keys.left  = false;
+    char._keys.right = false;
+    char.update(dt, GROUND_PLAT());
+    char.x = RUNNER_X;
+
+    // Flash timer decay
+    if (flashTimer > 0) flashTimer = Math.max(0, flashTimer - dt);
+
+    // Obstacle collision → game over
+    for (const o of obstacles) {
+      if (charHitsObs(o)) {
+        survived  = false;
+        gameState = 'over';
+        break;
+      }
+    }
+
+    // Coin collection
+    if (gameState === 'playing') {
+      for (const c of coins) {
+        if (!c.got && charHitsCoin(c)) {
+          c.got = true;
+          coinCount++;
+        }
+      }
+    }
+  }
+
+  // ── Draw ──────────────────────────────────────────────────────────────
+  drawSky();
+  drawHills();
+  drawClouds();
+  drawGround();
+
+  // Game objects (only when not idle)
+  if (gameState !== 'idle') {
+    for (const o of obstacles) drawObstacle(o);
+    for (const c of coins)     drawCoin(c);
+    char.draw(ctx);
+  }
+
+  drawHUD();
+
+  // Overlay panels
+  if (gameState === 'idle') {
+    drawPanel(
+      '🏃 Runner',
+      'Jump over obstacles & grab coins!',
+      'Survive 30 s · 0.5 pts/sec · 10 pts/coin',
+      'Play'
+    );
+  } else if (gameState === 'over') {
+    const elapsed  = GAME_DURATION - Math.max(0, timer);
+    const timePts  = Math.round(elapsed * PTS_PER_SEC * 10) / 10;
+    const coinPts  = coinCount * PTS_PER_COIN;
+    const total    = Math.round((timePts + coinPts) * 10) / 10;
+    drawPanel(
+      survived ? '🎉 You made it!' : '💀 Run over',
+      `Total: ${total} pts`,
+      `⏱ ${timePts} survival  +  🪙 ${coinPts} coins`,
+      'Try again'
+    );
+  }
+
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

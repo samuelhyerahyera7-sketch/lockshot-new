@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lockshot | Slice Lock</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body data-default-game="slice">
+  <header class="topbar is-scrolled"><a class="brand" href="index.html"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a><nav class="desktop-nav"><a href="game.html">Games</a><a href="competitions.html">Competitions</a></nav></header>
+  <main>
+    <section class="game-section single-game-page" id="game" aria-labelledby="game-title">
+      <div class="game-head"><div><span>Slice Lock</span><h2 id="game-title">Time the peeler.</h2></div><strong data-slice-status>No entries unlocked yet</strong></div>
+      <div class="play-area slice-game is-active">
+        <div class="slice-board" data-slice-board>
+          <div class="slice-stage">
+            <div class="slice-tool" data-slice-tool aria-hidden="true"><span></span></div>
+            <button class="citrus-core" type="button" data-slice-action aria-label="Peel current potato strip">
+              <span class="peel-piece strip-1" data-piece="0"></span>
+              <span class="peel-piece strip-2" data-piece="1"></span>
+              <span class="peel-piece strip-3" data-piece="2"></span>
+              <span class="peel-piece strip-4" data-piece="3"></span>
+              <span class="slice-grid" aria-hidden="true"></span>
+            </button>
+            <span class="slice-spark" data-slice-spark aria-hidden="true"></span>
+          </div>
+          <div class="slice-attempts" aria-label="Peel attempts"><span data-slice-dot></span><span data-slice-dot></span><span data-slice-dot></span><span data-slice-dot></span></div>
+          <button class="slice-peel-button" type="button" data-slice-action>Peel</button>
+          <strong class="tap-pop" data-slice-pop aria-live="polite"></strong>
+          <p data-slice-note>The peeler moves left to right. Press Peel when it is over an unpeeled potato strip.</p>
+          <div class="game-overlay is-open" data-slice-start-screen><div class="game-overlay-card"><h3>Slice Lock</h3><p>The blade faces down. You get 4 slices to turn the whole potato white. Any brown sliver left means the peel is not clean.</p><button type="button" data-start-slice>Start Game</button></div></div>
+          <div class="game-overlay" data-slice-end-screen><div class="game-overlay-card"><h3 data-slice-result>Slice Complete</h3><p data-slice-end-text>Your score is 0.</p><button type="button" data-start-slice>Continue</button><a class="game-switch-link" href="game.html">Play a different game</a><button type="button" data-buy-more-slice>Buy More Slice Rounds</button></div></div>
+        </div>
+        <div class="spot-panel"><div><span>Rounds left</span><strong data-slice-rounds-left>0</strong></div><div><span>Time</span><strong data-slice-time>30.0s</strong></div><div><span>Slices left</span><strong data-slice-attempts-left>4</strong></div><div><span>Potato left</span><strong data-slice-left>100%</strong></div><div><span>Your high score</span><strong data-slice-high-score>0</strong></div><a class="panel-link" href="game.html">Play a different game</a></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    (() => {
+      const board = document.querySelector("[data-slice-board]");
+      const tool = document.querySelector("[data-slice-tool]");
+      const spark = document.querySelector("[data-slice-spark]");
+      const actionButtons = document.querySelectorAll("[data-slice-action]");
+      const pieces = [...document.querySelectorAll("[data-piece]")];
+      const dots = [...document.querySelectorAll("[data-slice-dot]")];
+      const note = document.querySelector("[data-slice-note]");
+      const pop = document.querySelector("[data-slice-pop]");
+      const status = document.querySelector("[data-slice-status]");
+      const startScreen = document.querySelector("[data-slice-start-screen]");
+      const endScreen = document.querySelector("[data-slice-end-screen]");
+      const result = document.querySelector("[data-slice-result]");
+      const endText = document.querySelector("[data-slice-end-text]");
+      const roundsLeft = document.querySelector("[data-slice-rounds-left]");
+      const timeLabel = document.querySelector("[data-slice-time]");
+      const attemptsLeft = document.querySelector("[data-slice-attempts-left]");
+      const piecesLeft = document.querySelector("[data-slice-left]");
+      const highScoreLabel = document.querySelector("[data-slice-high-score]");
+      const buyMore = document.querySelector("[data-buy-more-slice]");
+      const startButtons = document.querySelectorAll("[data-start-slice]");
+      const totalPieces = pieces.length;
+      const sliceWidth = 32;
+      const params = new URLSearchParams(window.location.search);
+      let attempts = Number(params.get("attempts") || localStorage.getItem("lockshotPaidAttempts") || 0);
+      let highScore = Number(localStorage.getItem("lockshotHighSlice") || 0);
+      let live = false;
+      let showEnd = false;
+      let peelAttempts = 4;
+      let score = 0;
+      let peeledSlices = [];
+      let toolPosition = 0;
+      let toolDirection = 1;
+      let animation = null;
+      let lastFrame = 0;
+      let roundStartedAt = 0;
+      let timeLeft = 30;
+      let lastPeelAt = 0;
+      let pointerPeelActive = false;
+      let suppressPeelUntil = 0;
+
+      function saveAttempts() {
+        localStorage.setItem("lockshotPaidAttempts", String(attempts));
+      }
+
+      function render() {
+        const coverage = calculateCoverage();
+        const left = Math.max(0, 100 - coverage);
+        if (status) status.textContent = attempts ? `${attempts} round${attempts === 1 ? "" : "s"} unlocked` : "No entries unlocked yet";
+        if (roundsLeft) roundsLeft.textContent = attempts;
+        if (timeLabel) timeLabel.textContent = `${timeLeft.toFixed(1)}s`;
+        if (attemptsLeft) attemptsLeft.textContent = peelAttempts;
+        if (piecesLeft) piecesLeft.textContent = `${left}%`;
+        if (highScoreLabel) highScoreLabel.textContent = highScore;
+        pieces.forEach((piece, index) => {
+          const slice = peeledSlices[index];
+          piece.classList.toggle("is-peeled", Boolean(slice));
+          if (slice) {
+            piece.style.setProperty("--slice-left", `${slice.left}%`);
+            piece.style.setProperty("--slice-width", `${slice.width}%`);
+            piece.style.setProperty("--slice-right", `${Math.min(100, slice.left + slice.width)}%`);
+          }
+        });
+        dots.forEach((dot, index) => dot.classList.toggle("is-used", index >= peelAttempts));
+        if (tool) tool.style.setProperty("--tool-x", `${8 + toolPosition * 0.84}%`);
+        if (board) board.classList.toggle("is-live", live);
+        actionButtons.forEach((button) => {
+          button.disabled = !live || peelAttempts <= 0;
+          button.classList.toggle("is-live", live);
+        });
+        if (startScreen) startScreen.classList.toggle("is-open", attempts > 0 && !live && !showEnd);
+        if (endScreen) endScreen.classList.toggle("is-open", showEnd);
+        if (buyMore) buyMore.hidden = attempts > 0;
+      }
+
+      function paintPop(text, miss = false) {
+        if (!pop) return;
+        pop.textContent = text;
+        pop.classList.toggle("is-miss", miss);
+        pop.classList.add("is-visible");
+        window.setTimeout(() => pop.classList.remove("is-visible"), 650);
+      }
+
+      function stopTool() {
+        if (!animation) return;
+        cancelAnimationFrame(animation);
+        animation = null;
+      }
+
+      function calculateCoverage() {
+        const covered = Array(100).fill(false);
+        peeledSlices.forEach((slice) => {
+          const start = Math.max(0, Math.floor(slice.left));
+          const end = Math.min(100, Math.ceil(slice.left + slice.width));
+          for (let index = start; index < end; index += 1) covered[index] = true;
+        });
+        return covered.filter(Boolean).length;
+      }
+
+      function tickTool(now) {
+        if (!live) return;
+        const delta = Math.min(0.05, (now - lastFrame) / 1000 || 0.016);
+        lastFrame = now;
+        timeLeft = Math.max(0, 30 - ((now - roundStartedAt) / 1000));
+        if (timeLeft <= 0) {
+          finish("time");
+          return;
+        }
+        toolPosition += toolDirection * delta * 132;
+        if (toolPosition >= 100) {
+          toolPosition = 0;
+        }
+        render();
+        animation = requestAnimationFrame(tickTool);
+      }
+
+      function finish(reason = "steps") {
+        live = false;
+        stopTool();
+        attempts = Math.max(0, attempts - 1);
+        saveAttempts();
+        const coverage = calculateCoverage();
+        const left = Math.max(0, 100 - coverage);
+        const won = left === 0;
+        score = won ? Math.round(1200 + timeLeft * 14) : Math.max(40, coverage * 9 - left * 7);
+        highScore = Math.max(highScore, score);
+        localStorage.setItem("lockshotHighSlice", String(highScore));
+        if (result) result.textContent = won ? "Clean Peel" : reason === "time" ? "Time Up" : "Piece Left";
+        if (endText) endText.textContent = won
+          ? `Clean peel. The whole potato turned white. Score ${score}. ${attempts ? "Continue with another unlocked round." : "Buy more rounds to play again."}`
+          : reason === "time"
+            ? `${left}% of the potato was still brown when time ran out. Score ${score}.`
+            : `${left}% brown potato left after 4 slices. Score ${score}.`;
+        if (note) note.textContent = won ? "Perfect peel. Nothing left." : reason === "time" ? "Time ran out before the peel was clean." : "A brown sliver was left after slice 4.";
+        paintPop(won ? "+1000" : `${left}% left`, !won);
+        showEnd = true;
+        render();
+      }
+
+      function startRound(event) {
+        event?.preventDefault?.();
+        event?.stopPropagation?.();
+        if (live) return;
+        if (!attempts) {
+          if (note) note.textContent = "Buy entries to unlock Slice Lock.";
+          return;
+        }
+        live = true;
+        showEnd = false;
+        peelAttempts = 4;
+        score = 0;
+        peeledSlices = [];
+        pieces.forEach((piece) => {
+          piece.classList.remove("is-peeled", "is-slicing");
+          piece.removeAttribute("style");
+        });
+        toolPosition = 0;
+        toolDirection = 1;
+        timeLeft = 30;
+        roundStartedAt = performance.now();
+        suppressPeelUntil = roundStartedAt + 520;
+        lastFrame = roundStartedAt;
+        if (note) note.textContent = "Watch the blade. Each press peels a band. Cover every brown sliver in 4 slices.";
+        render();
+        animation = requestAnimationFrame(tickTool);
+      }
+
+      function peel(event) {
+        event?.preventDefault?.();
+        const now = performance.now();
+        if (now < suppressPeelUntil) return;
+        if (now - lastPeelAt < 520) return;
+        lastPeelAt = now;
+        if (!live || peelAttempts <= 0) return;
+        peelAttempts -= 1;
+        const left = Math.max(0, Math.min(100 - sliceWidth, toolPosition - sliceWidth / 2));
+        const slice = { left, width: sliceWidth };
+        peeledSlices.push(slice);
+        if (spark) {
+          spark.style.setProperty("--spark-x", `${left + sliceWidth / 2}%`);
+          spark.classList.remove("is-visible");
+          void spark.offsetWidth;
+          spark.classList.add("is-visible");
+        }
+        const piece = pieces[peeledSlices.length - 1];
+        if (piece) {
+          piece.classList.remove("is-slicing");
+          piece.style.setProperty("--slice-left", `${slice.left}%`);
+          piece.style.setProperty("--slice-width", `${slice.width}%`);
+          piece.style.setProperty("--slice-right", `${Math.min(100, slice.left + slice.width)}%`);
+          void piece.offsetWidth;
+          piece.classList.add("is-peeled", "is-slicing");
+        }
+        const remaining = Math.max(0, 100 - calculateCoverage());
+        if (note) note.textContent = `${remaining}% potato left. ${peelAttempts} slice${peelAttempts === 1 ? "" : "s"} left.`;
+        paintPop("Slice");
+        if (remaining === 0 || peelAttempts === 0) {
+          window.setTimeout(() => finish(), 520);
+        }
+        render();
+      }
+
+      startButtons.forEach((button) => {
+        button.addEventListener("pointerdown", startRound);
+        button.addEventListener("click", startRound);
+        button.addEventListener("pointerup", startRound);
+        button.addEventListener("touchstart", startRound, { passive: false });
+        button.addEventListener("touchend", startRound, { passive: false });
+      });
+      actionButtons.forEach((button) => {
+        button.addEventListener("pointerdown", (event) => {
+          pointerPeelActive = true;
+          peel(event);
+        });
+        button.addEventListener("click", (event) => {
+          if (pointerPeelActive) {
+            event.preventDefault();
+            pointerPeelActive = false;
+            return;
+          }
+          peel(event);
+        });
+      });
+      if (buyMore) {
+        buyMore.addEventListener("click", () => {
+          const url = new URL("checkout.html", window.location.href);
+          url.searchParams.set("entry", "R500 2-Hour Cashpool - Slice Lock round");
+          url.searchParams.set("price", "10");
+          url.searchParams.set("qty", "1");
+          url.searchParams.set("game", "slice");
+          window.location.href = url.href;
+        });
+      }
+      render();
+    })();
+  </script>
+</body>
+</html>

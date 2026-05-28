@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lockshot | Timer Lock</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-default-game="reaction">
+  <header class="topbar is-scrolled"><a class="brand" href="index.html"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a><nav class="desktop-nav"><a href="game.html">Games</a><a href="competitions.html">Competitions</a></nav></header>
+  <main>
+    <section class="game-section single-game-page reaction-page" id="game" aria-labelledby="game-title">
+      <div class="game-head"><div><span>Timer Lock</span><h2 id="game-title">Stop on the target.</h2></div><strong data-reaction-status>No entries unlocked yet</strong></div>
+      <div class="play-area reaction-game is-active">
+        <div class="reaction-board">
+          <div class="reaction-target"><span>Target time</span><strong data-target-time>4.57s</strong></div>
+          <div class="reaction-clock" data-reaction-clock>0.00s</div>
+          <div class="reaction-result-card" data-reaction-result-card aria-live="polite"><span>Your stop</span><strong data-reaction-stop-display>-</strong><em data-reaction-diff-display>Waiting for lock</em></div>
+          <button class="reaction-pad" type="button" data-reaction-pad>Stop</button>
+          <p data-reaction-note>Press Start Game. A target from 1.00s to 10.00s appears. Stop the timer as close as you can.</p>
+          <strong class="tap-pop" data-reaction-pop aria-live="polite"></strong>
+          <div class="game-overlay is-open" data-reaction-start-screen><div class="game-overlay-card"><h3>Timer Lock</h3><p>A random target time appears. Stop the timer exactly on that second to win the round.</p><button type="button" data-start-reaction>Start Game</button></div></div>
+          <div class="game-overlay" data-reaction-end-screen><div class="game-overlay-card"><h3 data-reaction-result>Timer Complete</h3><p data-reaction-end-text>Your score is 0.</p><button type="button" data-start-reaction>Continue</button><a class="game-switch-link" href="game.html">Play a different game</a><button type="button" data-buy-more-reaction>Buy More Timer Rounds</button></div></div>
+        </div>
+        <div class="spot-panel"><div><span>Rounds left</span><strong data-reaction-rounds-left>0</strong></div><div><span>Target</span><strong data-target-panel>4.57s</strong></div><div><span>Your stop</span><strong data-stop-panel>-</strong></div><div><span>Your high score</span><strong data-reaction-high-score>0</strong></div><a class="panel-link" href="game.html">Play a different game</a></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    (() => {
+      const pad = document.querySelector("[data-reaction-pad]");
+      const note = document.querySelector("[data-reaction-note]");
+      const pop = document.querySelector("[data-reaction-pop]");
+      const status = document.querySelector("[data-reaction-status]");
+      const clock = document.querySelector("[data-reaction-clock]");
+      const resultCard = document.querySelector("[data-reaction-result-card]");
+      const stopDisplay = document.querySelector("[data-reaction-stop-display]");
+      const diffDisplay = document.querySelector("[data-reaction-diff-display]");
+      const targetLabel = document.querySelector("[data-target-time]");
+      const targetPanel = document.querySelector("[data-target-panel]");
+      const stopPanel = document.querySelector("[data-stop-panel]");
+      const startScreen = document.querySelector("[data-reaction-start-screen]");
+      const endScreen = document.querySelector("[data-reaction-end-screen]");
+      const result = document.querySelector("[data-reaction-result]");
+      const endText = document.querySelector("[data-reaction-end-text]");
+      const roundsLeft = document.querySelector("[data-reaction-rounds-left]");
+      const highScoreLabel = document.querySelector("[data-reaction-high-score]");
+      const buyMore = document.querySelector("[data-buy-more-reaction]");
+      const startButtons = document.querySelectorAll("[data-start-reaction]");
+      const params = new URLSearchParams(window.location.search);
+      const urlAttempts = Number(params.get("attempts") || 0);
+      let attempts = urlAttempts || Number(localStorage.getItem("lockshotPaidAttempts") || 0);
+      let highScore = Number(localStorage.getItem("lockshotHighReaction") || 0);
+      let target = 4.57;
+      let elapsed = 0;
+      let stopTime = null;
+      let live = false;
+      let startedAt = 0;
+      let animation = null;
+      let score = 0;
+      let showEnd = false;
+
+      function saveAttempts() {
+        localStorage.setItem("lockshotPaidAttempts", String(attempts));
+      }
+
+      function paintPop(text, miss = false) {
+        if (!pop) return;
+        pop.textContent = text;
+        pop.classList.toggle("is-miss", miss);
+        pop.classList.add("is-visible");
+        window.setTimeout(() => pop.classList.remove("is-visible"), 650);
+      }
+
+      function render() {
+        if (status) status.textContent = attempts ? `${attempts} round${attempts === 1 ? "" : "s"} unlocked` : "No entries unlocked yet";
+        if (roundsLeft) roundsLeft.textContent = attempts;
+        if (clock) clock.textContent = `${elapsed.toFixed(2)}s`;
+        if (targetLabel) targetLabel.textContent = `${target.toFixed(2)}s`;
+        if (targetPanel) targetPanel.textContent = `${target.toFixed(2)}s`;
+        if (stopPanel) stopPanel.textContent = stopTime === null ? "-" : `${stopTime.toFixed(2)}s`;
+        if (stopDisplay) stopDisplay.textContent = stopTime === null ? "-" : `${stopTime.toFixed(2)}s`;
+        if (highScoreLabel) highScoreLabel.textContent = highScore;
+        if (startScreen) startScreen.classList.toggle("is-open", attempts > 0 && !live && score === 0);
+        if (endScreen) endScreen.classList.toggle("is-open", showEnd);
+        if (resultCard) resultCard.classList.toggle("is-visible", stopTime !== null);
+        if (buyMore) buyMore.hidden = attempts > 0;
+        if (pad) {
+          pad.disabled = !live;
+          pad.textContent = live ? "Stop" : "Locked";
+          pad.classList.toggle("is-live", live);
+        }
+      }
+
+      function stopAnimation() {
+        if (!animation) return;
+        window.cancelAnimationFrame(animation);
+        animation = null;
+      }
+
+      function finish() {
+        if (!live) return;
+        live = false;
+        stopAnimation();
+        stopTime = elapsed;
+        attempts = Math.max(0, attempts - 1);
+        saveAttempts();
+        const difference = Math.abs(stopTime - target);
+        score = Math.max(1, Math.round(1000 - difference * 520));
+        highScore = Math.max(highScore, score);
+        localStorage.setItem("lockshotHighReaction", String(highScore));
+        if (diffDisplay) diffDisplay.textContent = `${difference.toFixed(2)}s away - ${score} points`;
+        if (result) result.textContent = difference <= 0.03 ? "Perfect Lock" : difference <= 0.12 ? "Close Lock" : "Timer Complete";
+        if (endText) endText.textContent = `Target ${target.toFixed(2)}s. You stopped at ${stopTime.toFixed(2)}s. Score ${score}. ${attempts ? "Continue with another unlocked round." : "Buy more rounds to play again."}`;
+        if (note) note.textContent = `You were ${difference.toFixed(2)}s away from the target.`;
+        paintPop(difference <= 0.03 ? "Perfect" : `+${score}`, difference > 0.3);
+        render();
+        window.setTimeout(() => {
+          showEnd = true;
+          render();
+        }, 900);
+      }
+
+      function startRound() {
+        if (!attempts) {
+          if (note) note.textContent = "Buy entries to unlock Timer Lock.";
+          return;
+        }
+        stopAnimation();
+        target = 1 + Math.random() * 9;
+        elapsed = 0;
+        stopTime = null;
+        score = 0;
+        showEnd = false;
+        if (diffDisplay) diffDisplay.textContent = "Waiting for lock";
+        live = true;
+        startedAt = performance.now();
+        if (note) note.textContent = `Stop the timer exactly at ${target.toFixed(2)}s.`;
+        const tick = (now) => {
+          elapsed = Math.min(10.99, (now - startedAt) / 1000);
+          if (elapsed >= 10.99) {
+            finish();
+            return;
+          }
+          render();
+          animation = window.requestAnimationFrame(tick);
+        };
+        animation = window.requestAnimationFrame(tick);
+        render();
+      }
+
+      startButtons.forEach((button) => button.addEventListener("click", startRound));
+      if (pad) pad.addEventListener("click", finish);
+      if (buyMore) {
+        buyMore.addEventListener("click", () => {
+          const url = new URL("checkout.html", window.location.href);
+          url.searchParams.set("entry", "Weekly Cash: R10,000 - Timer Lock round");
+          url.searchParams.set("price", "10");
+          url.searchParams.set("qty", "1");
+          url.searchParams.set("game", "reaction");
+          window.location.href = url.href;
+        });
+      }
+      render();
+    })();
+  </script>
+</body>
+</html>

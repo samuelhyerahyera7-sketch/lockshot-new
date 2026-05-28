@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cap Dash</title>
+    <link rel="stylesheet" href="runner.css" />
+  </head>
+  <body>
+    <main class="game-shell" aria-label="Cap Dash game">
+      <canvas id="runner" width="960" height="540" aria-label="Side scrolling jumping game"></canvas>
+
+      <section class="topbar" aria-label="Score">
+        <div>
+          <span>Score</span>
+          <strong id="score">0</strong>
+        </div>
+        <div>
+          <span>Coins</span>
+          <strong id="coins">0</strong>
+        </div>
+      </section>
+
+      <section id="menu" class="panel" aria-label="Game menu">
+        <h1>Cap Dash</h1>
+        <p>Jump over hazards, grab coins, and keep running as the world gets faster.</p>
+        <button id="start" type="button">Start</button>
+      </section>
+
+      <section id="gameOver" class="panel hidden" aria-label="Game over">
+        <h2>Run over</h2>
+        <p id="finalScore">Score: 0</p>
+        <button id="restart" type="button">Try again</button>
+      </section>
+
+      <div class="hint" aria-hidden="true">Tap, click, Space, or Up to jump</div>
+    </main>
+
+    <script src="character.js"></script>
+    <script src="runner.js"></script>
+  </body>
+</html>

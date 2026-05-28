@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lockshot | Weekly and Monthly Skill Competitions</title>
+  <meta name="description" content="Lockshot runs weekly and monthly skill competitions built around fast, competitive games.">
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="auth-config.js" defer></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body class="home-page">
+  <header class="topbar" aria-label="Site header">
+    <a class="brand" href="index.html" aria-label="Lockshot home">
+      <span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Desktop navigation">
+      <a href="competitions.html">Competitions</a>
+      <a href="sports-iq.html">Sports Predict</a>
+      <a href="index.html#how">About</a>
+      <a href="index.html#rewards">Rewards</a>
+      <a href="terms.html">Terms</a>
+    </nav>
+
+    <nav class="top-actions" aria-label="Account actions">
+      <a class="account-action" href="account.html" aria-label="Account">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="7" r="4"></circle>
+          <path d="M4 21c1.4-4.4 4.1-6.6 8-6.6s6.6 2.2 8 6.6"></path>
+        </svg>
+      </a>
+      <button type="button" class="cart-icon" data-open-cart aria-label="Open entry slip">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 4h2l2.2 11.2h10.9L21 7H7"></path>
+          <circle cx="9" cy="20" r="1.7"></circle>
+          <circle cx="18" cy="20" r="1.7"></circle>
+        </svg>
+        <span data-cart-count>0</span>
+      </button>
+      <a class="login-button" href="account.html">Log in</a>
+      <button type="button" class="menu-action" data-open-menu aria-label="Menu">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 6h16"></path>
+          <path d="M4 12h16"></path>
+          <path d="M4 18h16"></path>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-bg hero-bg-weekly is-active" data-hero-slide="weekly" role="img" aria-label="Weekly giveaway competition"></div>
+      <div class="hero-bg hero-bg-monthly" data-hero-slide="monthly" role="img" aria-label="Monthly giveaway competition"></div>
+      <div class="hero-bg hero-bg-sports" data-hero-slide="sports" role="img" aria-label="Sports Predict"></div>
+      <div class="hero-shade"></div>
+
+      <div class="hero-message">
+        <p data-hero-kicker>Weekly giveaway</p>
+        <h1 id="hero-title" data-hero-title>R2,500 every week</h1>
+        <div class="countdown single-countdown" aria-label="Competition countdown">
+          <div class="timer-card is-active" data-timer-card="weekly">
+            <div class="count-label"><strong>Weekly</strong><span>Game<br>Ends</span></div>
+            <div class="timer-values">
+              <div><strong data-weekly-days>02</strong><span>Days</span></div>
+              <div><strong data-weekly-hours>05</strong><span>Hours</span></div>
+              <div><strong data-weekly-minutes>00</strong><span>Minutes</span></div>
+              <div><strong data-weekly-seconds>01</strong><span>Seconds</span></div>
+            </div>
+          </div>
+          <div class="timer-card" data-timer-card="monthly" hidden>
+            <div class="count-label"><strong>Monthly</strong><span>Game<br>Ends</span></div>
+            <div class="timer-values">
+              <div><strong data-monthly-days>26</strong><span>Days</span></div>
+              <div><strong data-monthly-hours>05</strong><span>Hours</span></div>
+              <div><strong data-monthly-minutes>00</strong><span>Minutes</span></div>
+              <div><strong data-monthly-seconds>01</strong><span>Seconds</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <a class="play-button" href="competitions.html" data-hero-button>Enter Weekly</a>
+        </div>
+        <div class="slider-dots" aria-hidden="true">
+          <span class="active" data-slide-dot="weekly"></span><span data-slide-dot="monthly"></span><span data-slide-dot="sports"></span>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="trust-strip" aria-label="Lockshot stats">
+      <div class="trust-track">
+        <span><strong>Weekly</strong> Cash Prizes</span>
+        <span><strong>Monthly</strong> Big-Ticket Draws</span>
+        <span><strong>Sports</strong> Predict Challenges</span>
+        <span><strong>SA</strong> Skill Based Competitions</span>
+      </div>
+    </section>
+
+    <section class="match-iq-home" aria-labelledby="match-iq-home-title">
+      <div>
+        <span>Sports challenge</span>
+        <h2 id="match-iq-home-title">Sports Predict</h2>
+        <p>Read sample football fixtures, submit match analysis, and climb a skill score leaderboard.</p>
+      </div>
+      <a class="play-button secondary-play-button" href="sports-iq.html">Try Sports Predict</a>
+    </section>
+
+    <section class="section competitions" id="competitions" aria-label="Lockshot competitions">
+      <div class="filter-row" aria-label="Competition filters">
+        <button type="button">Under R25</button>
+        <button type="button">Under R50</button>
+        <button type="button">Cash</button>
+        <button type="button">Cars</button>
+      </div>
+
+      <div class="competition-lane">
+        <div>
+          <span>Weekly competition</span>
+          <h3>Money Prizes</h3>
+        </div>
+        <p>Win cash every week. Pick a prize pool, play the skill game, and submit your score before the weekly timer closes.</p>
+      </div>
+
+      <div class="cars">
+        <article class="car-card cash-card">
+          <div class="card-copy">
+            <span>Weekly Giveaway</span>
+            <h3>R2,500 Prize Pool</h3>
+            <p>Top 5 weekly positions share R2,500 / R1,000 / R500 / R250 / R100.</p>
+          </div>
+          <div class="prize-visual cash-visual"><strong>R2.5k</strong></div>
+          <div class="card-foot">
+            <strong>R5.00</strong>
+            <button type="button" data-add="Weekly Giveaway: R2,500" data-price="5.00">
+              <span>Add</span>
+              <i data-lucide="chevrons-right"></i>
+            </button>
+          </div>
+        </article>
+
+        <article class="car-card cash-card">
+          <div class="card-copy">
+            <span>Monthly Giveaway</span>
+            <h3>R10,000 Prize Pool</h3>
+            <p>Monthly winners use the same payout ratios with the bigger pool.</p>
+          </div>
+          <div class="prize-visual cash-visual"><strong>R10k</strong></div>
+          <div class="card-foot">
+            <strong>R10.00</strong>
+            <button type="button" data-add="Monthly Giveaway: R10,000" data-price="10.00">
+              <span>Add</span>
+              <i data-lucide="chevrons-right"></i>
+            </button>
+          </div>
+        </article>
+      </div>
+
+    </section>
+
+    <section class="section how" id="how">
+      <h2>How Lockshot Works</h2>
+      <div class="steps">
+        <article><strong>1</strong><span>Pick weekly cash or a monthly prize</span></article>
+        <article><strong>2</strong><span>Play the skill round</span></article>
+        <article><strong>3</strong><span>Submit before the draw closes</span></article>
+      </div>
+    </section>
+
+    <section class="rewards" id="rewards">
+      <div>
+        <span>Rewards</span>
+        <h2>Invite friends. Get more shots.</h2>
+        <p>Give your friends a Lockshot link and earn bonus entries when they join a weekly or monthly competition.</p>
+      </div>
+      <a class="play-button reward-button" href="competitions.html">Get my link</a>
+    </section>
+
+    <section class="section account-section" id="account">
+      <div class="account-grid">
+        <div class="account-copy">
+          <span>Player account</span>
+          <h2>Almost there. Log in and play.</h2>
+          <p>Create an account before buying entries. Your high scores, prize history, and tickets will live here.</p>
+          <div class="account-status-card" data-account-card>
+            <strong data-account-state>Not signed in</strong>
+            <span data-account-detail>Create an account or log in to start playing.</span>
+          </div>
+        </div>
+
+        <div class="auth-card">
+          <div class="social-login" aria-label="Social sign in">
+            <button type="button" data-social-login="Facebook"><strong>f</strong><span>Facebook</span></button>
+            <button type="button" data-social-login="Google"><strong>G</strong><span>Google</span></button>
+          </div>
+
+          <div class="auth-tabs" role="tablist" aria-label="Account options">
+            <button class="is-active" type="button" data-auth-tab="login">Log in</button>
+            <button type="button" data-auth-tab="signup">Sign up</button>
+          </div>
+
+          <form class="auth-form" data-auth-form="signup">
+            <label>
+              Full name
+              <input type="text" data-signup-name placeholder="Your name">
+            </label>
+            <label>
+              Email or mobile number
+              <input type="text" data-signup-contact placeholder="you@example.com">
+            </label>
+            <label>
+              Password
+              <input type="password" data-signup-password placeholder="Create a password">
+            </label>
+            <label class="legal-check">
+              <input type="checkbox" data-terms-check>
+              <span>I have read and agree to the <a href="terms.html">Terms and Conditions of Service</a>, <a href="privacy.html">Privacy Policy</a> and Cookie Policy.</span>
+            </label>
+            <label class="legal-check">
+              <input type="checkbox" data-age-check>
+              <span>I confirm that I am over 18 years old.</span>
+            </label>
+            <button type="submit">Sign up</button>
+          </form>
+
+          <form class="auth-form is-active" data-auth-form="login">
+            <label>
+              Email
+              <input type="text" data-login-contact placeholder="you@example.com">
+            </label>
+            <label>
+              Password
+              <input type="password" data-login-password placeholder="Your password">
+            </label>
+            <button type="submit">Log in</button>
+            <button class="forgot-button" type="button" data-forgot-password>Forgot password?</button>
+          </form>
+
+          <p class="auth-message" data-auth-message>Account is required before entries can be added.</p>
+          <button class="sign-out-button" type="button" data-sign-out hidden>Sign out</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="checkout-section" id="checkout" aria-labelledby="checkout-title">
+      <div class="checkout-copy">
+        <span>Secure checkout</span>
+        <h2 id="checkout-title">Payment page.</h2>
+        <p>Review your basket, choose a payment method, and continue to the skill game. This is a prototype checkout ready for a real payment gateway.</p>
+      </div>
+
+      <form class="checkout-card">
+        <div class="checkout-summary">
+          <span>Basket</span>
+          <strong data-checkout-items>No entries yet</strong>
+          <p data-checkout-detail>Add a competition entry above to build your basket.</p>
+        </div>
+
+        <div class="method-grid" aria-label="Payment methods">
+          <label><input type="radio" name="method" checked> OTT</label>
+          <label><input type="radio" name="method"> Card</label>
+          <label><input type="radio" name="method"> Mastercard</label>
+          <label><input type="radio" name="method"> Apple Pay</label>
+        </div>
+
+        <label class="checkout-field">
+          Email or mobile number
+          <input type="text" placeholder="you@example.com">
+        </label>
+
+        <div class="checkout-total">
+          <span>Total to pay</span>
+          <strong data-checkout-total>R0.00</strong>
+        </div>
+        <p class="checkout-status" data-checkout-status>Payment gateway will connect here.</p>
+
+        <button class="pay-button" type="button" data-start-game>
+          <span>Pay now</span>
+          <i data-lucide="lock-keyhole"></i>
+        </button>
+      </form>
+    </section>
+
+    <section class="legal-section" id="terms" aria-labelledby="terms-title">
+      <div class="legal-card">
+        <span>Legal</span>
+        <h2 id="terms-title">Terms of service</h2>
+        <p>Welcome to Lockshot Technologies (Pty) Ltd ("Lockshot", "we", "our", "us", or the "Promoter"). Lockshot offers a South African platform that enables participants to purchase tickets that give access to online skill games and competitions for cash, cars and other prizes.</p>
+        <p>By using this website and the services offered by us, you agree to these legally binding Terms and Conditions, together with the Privacy Policy and Cookie Policy. If you do not agree to these Terms, you must not use this website or any related services.</p>
+        <h3>Qualifying persons</h3>
+        <p>Participants must be 18 years or older and residents of South Africa. Employees, immediate family members, agents, representatives, and any person connected with the creation or administration of Lockshot competitions are not eligible to participate.</p>
+        <h3>Competition entry process</h3>
+        <p>Participants enter by purchasing tickets and participating in the skill-based game connected to the selected competition. Availability, pricing, entry limits and competition periods are specified at the point of sale.</p>
+        <h3>Customer account</h3>
+        <p>You need a Lockshot account to enter a competition. You may register using an email address or supported social sign-in. Each participant may only use one account, and multiple accounts used to abuse entry limits may be disqualified.</p>
+        <h3>Competition judgment</h3>
+        <p>Winning entries are determined by the rules of the relevant skill game and competition. Lockshot may use independent judges, score verification, tie-break processes, and fraud prevention reviews where required. Judges' and verified results are final.</p>
+        <h3>Prizes</h3>
+        <p>Weekly competitions are cash-focused. Monthly competitions may include vehicles or other high-value prizes. Cash alternatives, prize delivery timelines, runner-up prizes, and prize substitutions will be specified on the relevant competition page.</p>
+        <h3>Fraud and abuse prevention</h3>
+        <p>Lockshot may disqualify any entrant or void any entry suspected of breaching these Terms, creating multiple accounts, using automated tools, manipulating the system, exploiting technical vulnerabilities, or coordinating entries unfairly.</p>
+        <h3>Limits of liability</h3>
+        <p>To the extent permitted by law, Lockshot is not liable for indirect, consequential, special, incidental or punitive damages arising from use of the website, services, competitions, prizes, technical interruptions or third-party services.</p>
+      </div>
+    </section>
+
+    <section class="legal-section" id="privacy" aria-labelledby="privacy-title">
+      <div class="legal-card">
+        <span>Legal</span>
+        <h2 id="privacy-title">Privacy policy</h2>
+        <p>Last updated: December 2025. Lockshot Technologies (Pty) Ltd is committed to protecting your privacy and handling personal information in a safe and responsible manner.</p>
+        <h3>Information we collect</h3>
+        <p>We may collect your name, email address, phone number, device information, payment-related information handled by payment providers, competition entries, game scores and account activity.</p>
+        <h3>How we use information</h3>
+        <p>We use personal information to register your account, process transactions, manage competition entries, communicate with you, improve the service, prevent fraud and comply with legal obligations.</p>
+        <h3>Sharing information</h3>
+        <p>We do not sell personal information. We may share information with service providers, payment processors, legal authorities, or other parties where required to operate the service or comply with the law.</p>
+        <h3>Your rights</h3>
+        <p>You may request access to, correction of, or deletion of personal information we hold about you, subject to legal retention obligations. You may also withdraw consent where processing depends on consent.</p>
+        <h3>Security</h3>
+        <p>We use reasonable technical and organisational measures to protect personal information. No internet transmission or electronic storage method is completely secure, but we work to protect your data responsibly.</p>
+        <h3>Contact</h3>
+        <p>For privacy questions, contact Lockshot support. The Information Regulator in South Africa can also receive complaints about personal information processing.</p>
+      </div>
+    </section>
+
+    <section class="game-section" id="game" aria-labelledby="game-title">
+      <div class="game-head">
+        <div>
+          <span>Game choice</span>
+          <h2 id="game-title">Play Lockshot.</h2>
+        </div>
+        <strong data-game-status>No entries unlocked yet</strong>
+      </div>
+
+      <div class="score-summary" aria-label="Your high scores">
+        <article><span>Penalty</span><strong data-scoreboard-penalty>0</strong></article>
+        <article><span>Gear</span><strong data-scoreboard-gear>0</strong></article>
+        <article><span>Drift</span><strong data-scoreboard-drift>0</strong></article>
+        <article><span>Boost</span><strong data-scoreboard-boost>0</strong></article>
+      </div>
+
+      <div class="game-picker stable-games" aria-label="Choose a skill game">
+        <button class="game-choice is-active" type="button" data-game-choice="penalty">
+          <strong>Penalty Lock</strong>
+          <span>Tap the fast-moving ball inside the goal.</span>
+        </button>
+        <button class="game-choice" type="button" data-game-choice="gear">
+          <strong>Gear Shift Lock</strong>
+          <span>Tap the perfect shift zone.</span>
+        </button>
+        <button class="game-choice" type="button" data-game-choice="drift">
+          <strong>Drift Line Lock</strong>
+          <span>Trace the cleanest racing line.</span>
+        </button>
+        <button class="game-choice" type="button" data-game-choice="boost">
+          <strong>Boost Lock</strong>
+          <span>Lock a rising charge before the system overloads.</span>
+        </button>
+      </div>
+
+      <div class="play-area" data-game-area="spot" hidden>
+        <div class="spot-board" data-spot-board>
+          <button class="spot-marker" type="button" data-spot-marker aria-label="Your selected ball position"></button>
+          <p data-game-note>Pay for entries, then place your marker where the missing ball should be.</p>
+        </div>
+
+        <div class="spot-panel">
+          <div>
+            <span>Attempts left</span>
+            <strong data-attempts-left>0</strong>
+          </div>
+          <div>
+            <span>This score</span>
+            <strong data-current-score>-</strong>
+          </div>
+          <div>
+            <span>Your high score</span>
+            <strong data-player-high-score>0</strong>
+          </div>
+          <button class="submit-game" type="button" data-submit-spot disabled>Submit Lockshot</button>
+        </div>
+      </div>
+
+      <div class="play-area penalty-game is-active" data-game-area="penalty">
+        <div class="penalty-board" data-penalty-board>
+          <div class="goal-frame" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <button class="penalty-ball" type="button" data-penalty-ball aria-label="Moving ball"></button>
+          <button class="penalty-tap" type="button" data-penalty-tap aria-label="Your tap position"></button>
+          <strong class="tap-pop" data-tap-pop aria-live="polite"></strong>
+          <p data-penalty-note>Pay for entries, then one entry unlocks a full 3-shot round.</p>
+          <div class="game-overlay is-open" data-penalty-start-screen>
+            <div class="game-overlay-card">
+              <h3>Penalty Lock Challenge</h3>
+              <p>Tap closest to the moving ball inside the goal. One paid round gives you 3 shots, and each shot gets faster.</p>
+              <button type="button" data-start-penalty>Start Game</button>
+            </div>
+          </div>
+          <div class="game-overlay" data-penalty-end-screen>
+            <div class="game-overlay-card">
+              <h3>Game Complete</h3>
+              <p>Your final round score is <strong data-penalty-final-score>0</strong>. Get more rounds to try beat your high score.</p>
+              <button type="button" data-buy-more-tries>Pay for more tries</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="spot-panel">
+          <div>
+            <span>Rounds left</span>
+            <strong data-penalty-attempts-left>0</strong>
+          </div>
+          <div>
+            <span>Shot</span>
+            <strong data-penalty-shot-count>1 / 3</strong>
+          </div>
+          <div>
+            <span>Round score</span>
+            <strong data-penalty-current-score>-</strong>
+          </div>
+          <div>
+            <span>Your high score</span>
+            <strong data-penalty-high-score>0</strong>
+          </div>
+          <button class="submit-game" type="button" data-reset-penalty disabled>Round in progress</button>
+        </div>
+      </div>
+
+      <div class="play-area gear-game" data-game-area="gear">
+        <div class="gear-board" data-gear-board>
+          <div class="rev-dial">
+            <span>RPM</span>
+            <strong data-gear-rpm>0</strong>
+            <div class="shift-zone" aria-hidden="true"></div>
+            <div class="rev-needle" data-gear-needle></div>
+          </div>
+          <strong class="tap-pop" data-gear-pop aria-live="polite"></strong>
+          <p data-gear-note>Pay for entries, then start the rev challenge. Tap inside the green zone.</p>
+          <div class="game-overlay is-open" data-gear-start-screen>
+            <div class="game-overlay-card">
+              <h3>Gear Shift Lock</h3>
+              <p>Hit the perfect green shift zone. One paid round gives you 3 shifts, and each shift gets faster.</p>
+              <button type="button" data-start-gear>Start Game</button>
+            </div>
+          </div>
+          <div class="game-overlay" data-gear-end-screen>
+            <div class="game-overlay-card">
+              <h3>Shift Complete</h3>
+              <p>Your final round score is <strong data-gear-final-score>0</strong>. Pay for more tries to chase a better high score.</p>
+              <button type="button" data-buy-more-gear>Pay for more tries</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="spot-panel">
+          <div>
+            <span>Rounds left</span>
+            <strong data-gear-rounds-left>0</strong>
+          </div>
+          <div>
+            <span>Shift</span>
+            <strong data-gear-shift-count>1 / 3</strong>
+          </div>
+          <div>
+            <span>Round score</span>
+            <strong data-gear-score>-</strong>
+          </div>
+          <div>
+            <span>Your high score</span>
+            <strong data-gear-high-score>0</strong>
+          </div>
+          <button class="submit-game" type="button" data-gear-tap disabled>Shift Now</button>
+        </div>
+      </div>
+
+      <div class="play-area drift-game" data-game-area="drift">
+        <div class="drift-board" data-drift-board>
+          <svg class="drift-paths" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path class="ideal-line" data-ideal-line d="M10 76 C24 42, 42 34, 55 49 S78 78, 91 27"></path>
+            <path class="player-line" data-player-line d=""></path>
+          </svg>
+          <strong class="tap-pop" data-drift-pop aria-live="polite"></strong>
+          <p data-drift-note>Pay for entries, then trace the racing line from left to right.</p>
+          <div class="game-overlay is-open" data-drift-start-screen>
+            <div class="game-overlay-card">
+              <h3>Drift Line Lock</h3>
+              <p>Memorise the green racing line, then trace it smoothly. One paid round gives you one draw.</p>
+              <button type="button" data-start-drift>Start Game</button>
+            </div>
+          </div>
+          <div class="game-overlay" data-drift-end-screen>
+            <div class="game-overlay-card">
+              <h3>Drift Complete</h3>
+              <p>Your score is <strong data-drift-final-score>0</strong>. Pay for more tries to run it again.</p>
+              <button type="button" data-buy-more-drift>Pay for more tries</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="spot-panel">
+          <div>
+            <span>Rounds left</span>
+            <strong data-drift-rounds-left>0</strong>
+          </div>
+          <div>
+            <span>This score</span>
+            <strong data-drift-score>-</strong>
+          </div>
+          <div>
+            <span>Your high score</span>
+            <strong data-drift-high-score>0</strong>
+          </div>
+          <button class="submit-game" type="button" data-submit-drift disabled>Submit Drift</button>
+        </div>
+      </div>
+
+      <div class="play-area boost-game" data-game-area="boost">
+        <div class="boost-board" data-boost-board>
+          <div class="boost-track" aria-hidden="true">
+            <div class="boost-line" data-boost-line></div>
+            <div class="boost-jet" data-boost-jet></div>
+          </div>
+          <div class="boost-readout">
+            <span>Multiplier</span>
+            <strong data-boost-multiplier>1.00x</strong>
+          </div>
+          <strong class="tap-pop" data-boost-pop aria-live="polite"></strong>
+          <p data-boost-note>Pay for entries, then launch Boost Lock. Lock your score before the system overloads.</p>
+          <div class="game-overlay is-open" data-boost-start-screen>
+            <div class="game-overlay-card">
+              <h3>Boost Lock</h3>
+              <p>The charge builds over time. Lock early for a safer score, or hold longer for bigger points before the system overloads.</p>
+              <button type="button" data-start-boost>Start Game</button>
+            </div>
+          </div>
+          <div class="game-overlay" data-boost-end-screen>
+            <div class="game-overlay-card">
+              <h3>Boost Complete</h3>
+              <p>Your score is <strong data-boost-final-score>0</strong>. Pay for more tries to launch again.</p>
+              <button type="button" data-buy-more-boost>Pay for more tries</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="spot-panel">
+          <div>
+            <span>Rounds left</span>
+            <strong data-boost-rounds-left>0</strong>
+          </div>
+          <div>
+            <span>This multiplier</span>
+            <strong data-boost-panel-multiplier>1.00x</strong>
+          </div>
+          <div>
+            <span>This score</span>
+            <strong data-boost-score>-</strong>
+          </div>
+          <div>
+            <span>Your high score</span>
+            <strong data-boost-high-score>0</strong>
+          </div>
+          <button class="submit-game" type="button" data-boost-lock-score disabled>Lock Score</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <a class="brand footer-brand" href="index.html"><span>Lock</span><span>shot</span></a>
+    <p>South African skill-based competitions with weekly cash prizes and monthly high-value draws.</p>
+    <div>
+      <a href="competitions.html">Competitions</a>
+      <a href="index.html#how">How it works</a>
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+    </div>
+  </footer>
+
+  <nav class="bottom-nav" aria-label="Mobile navigation">
+    <a class="active" href="index.html"><i data-lucide="home"></i><span>Home</span></a>
+    <a href="competitions.html"><i data-lucide="gamepad-2"></i><span>Games</span></a>
+    <a href="sports-iq.html"><i data-lucide="trophy"></i><span>Sports</span></a>
+    <a href="account.html"><i data-lucide="user"></i><span>Account</span></a>
+  </nav>
+
+  <aside class="quick-play-panel" data-quick-play-panel hidden aria-label="Available tokens">
+    <button class="quick-play-trigger" type="button" data-quick-play-trigger aria-expanded="false">
+      <span>Play now</span>
+      <strong data-quick-total-count>0</strong>
+    </button>
+    <div class="quick-play-options" data-quick-play-options hidden>
+      <a href="game.html" data-quick-play-weekly hidden><strong data-quick-weekly-count>0</strong> Weekly</a>
+      <a href="game.html" data-quick-play-monthly hidden><strong data-quick-monthly-count>0</strong> Monthly</a>
+    </div>
+  </aside>
+
+  <div class="menu-overlay" data-menu-overlay aria-hidden="true">
+    <button type="button" class="menu-close" data-close-menu aria-label="Close menu">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M6 6l12 12"></path>
+        <path d="M18 6L6 18"></path>
+      </svg>
+    </button>
+    <nav class="menu-links" aria-label="Menu navigation">
+      <a href="competitions.html">Competitions</a>
+      <a href="account.html">My Account</a>
+      <a href="index.html#rewards">Rewards</a>
+      <a href="index.html#how">How to Play</a>
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
+  </div>
+
+  <aside class="entry-slip" data-cart-drawer aria-label="Entry slip" aria-hidden="true">
+    <button class="slip-close" type="button" data-close-cart aria-label="Close entry slip"><i data-lucide="x"></i></button>
+    <div class="competition-chooser" data-competition-chooser>
+      <strong>Choose competition</strong>
+      <button class="is-active" type="button" data-slip-choice="Weekly Giveaway: R2,500" data-price="5.00">Weekly Giveaway <span>R5 entry</span></button>
+      <button type="button" data-slip-choice="Monthly Giveaway: R10,000" data-price="10.00">Monthly Giveaway <span>R10 entry</span></button>
+    </div>
+    <div class="slip-price">
+      <strong data-slip-price>R5.00</strong>
+      <span data-slip-name>Weekly Giveaway: R2,500</span>
+    </div>
+
+    <div class="quantity-area">
+      <span>Quantity</span>
+      <div class="quantity-control">
+        <button type="button" data-slip-step="-1" aria-label="Decrease entries">-</button>
+        <strong data-slip-qty>1</strong>
+        <button type="button" data-slip-step="1" aria-label="Increase entries">+</button>
+      </div>
+      <p>Tickets for this competition</p>
+    </div>
+
+    <div class="bulk-box" aria-label="Bulk buy discounts">
+      <strong>Bulk buy discounts</strong>
+      <div class="bulk-options">
+        <button type="button" data-bulk-qty="3" data-discount="5">
+          <span>3</span>
+          <em>-5%</em>
+        </button>
+        <button type="button" data-bulk-qty="5" data-discount="10">
+          <span>5</span>
+          <em>-10%</em>
+        </button>
+        <button type="button" data-bulk-qty="10" data-discount="15">
+          <span>10</span>
+          <em>-15%</em>
+        </button>
+      </div>
+    </div>
+
+    <button class="basket-button" type="button" data-confirm-add>
+      <span>Add to basket</span>
+      <i data-lucide="chevrons-right"></i>
+    </button>
+  </aside>
+  <div class="scrim" data-scrim></div>
+</body>
+</html>

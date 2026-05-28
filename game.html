@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lockshot | Choose Game</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body class="game-menu-page">
+  <header class="topbar is-scrolled"><a class="brand" href="index.html"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a><nav class="desktop-nav"><a href="competitions.html">Competitions</a><a href="account.html">Account</a></nav></header>
+  <main>
+    <section class="game-section game-menu" id="game" aria-labelledby="game-title">
+      <div class="game-head"><div><span>Choose game</span><h2 id="game-title">Pick your challenge.</h2></div><strong data-game-status>No entries unlocked yet</strong></div>
+      <section class="cashpool-leaderboard main-leaderboard game-menu-leaderboard" aria-labelledby="game-leaderboard-title">
+        <div>
+          <span data-standings-kicker>Live leaderboard</span>
+          <h3 id="game-leaderboard-title" data-standings-title>Weekly standings</h3>
+          <p data-player-leaderboard-position>Your position appears here after you submit a score.</p>
+          <div class="standings-switch" aria-label="Choose leaderboard">
+            <button type="button" data-standings-tab="weekly">Weekly</button>
+            <button type="button" data-standings-tab="monthly">Monthly</button>
+          </div>
+        </div>
+        <ol>
+          <li><strong>1</strong><span data-main-leader-name>Waiting for scores</span><em data-main-leader-score>0 pts</em></li>
+          <li><strong>2</strong><span data-main-leader-name>Next player</span><em data-main-leader-score>0 pts</em></li>
+          <li><strong>3</strong><span data-main-leader-name>Next player</span><em data-main-leader-score>0 pts</em></li>
+        </ol>
+      </section>
+      <div class="game-picker stable-games game-menu-grid" aria-label="Choose a skill game">
+        <button class="game-choice is-active" type="button" data-game-choice="penalty" data-game-href="penalty.html"><strong>Penalty Lock</strong><small data-game-points>0 pts</small><span>Tap the fast-moving ball inside the goal.</span><em data-token-play>Play</em></button>
+        <button class="game-choice" type="button" data-game-choice="gear" data-game-href="gear.html"><strong>Gear Shift Lock</strong><small data-game-points>0 pts</small><span>Tap the perfect shift zone.</span><em data-token-play>Play</em></button>
+        <button class="game-choice" type="button" data-game-choice="drift" data-game-href="drift.html"><strong>Drift Line Lock</strong><small data-game-points>0 pts</small><span>Trace the cleanest racing line.</span><em data-token-play>Play</em></button>
+        <button class="game-choice" type="button" data-game-choice="boost" data-game-href="boost.html"><strong>Boost Lock</strong><small data-game-points>0 pts</small><span>Lock the rising odometer before overload.</span><em data-token-play>Play</em></button>
+        <button class="game-choice" type="button" data-game-choice="reaction" data-game-href="reaction.html"><strong>Timer Lock</strong><small data-game-points>0 pts</small><span>Stop the timer on the exact target second.</span><em data-token-play>Play</em></button>
+        <button class="game-choice" type="button" data-game-choice="circle" data-game-href="circle.html"><strong>Circle Lock</strong><small data-game-points>0 pts</small><span>Drag the safe zone and keep the ball inside.</span><em data-token-play>Play</em></button>
+        <button class="game-choice" type="button" data-game-choice="slice" data-game-href="slice.html"><strong>Slice Lock</strong><small data-game-points>0 pts</small><span>Peel every section in only 4 attempts.</span><em data-token-play>Play</em></button>
+        <button class="game-choice" type="button" data-game-choice="car" data-game-href="arcade.html?game=car"><strong>Traffic Dodge</strong><small data-game-points>0 pts</small><span>Move left and right through traffic.</span><em data-token-play>Play</em></button>
+        <button class="game-choice" type="button" data-game-choice="boxball" data-game-href="arcade.html?game=boxball"><strong>Box Ball</strong><small data-game-points>0 pts</small><span>Keep the ball away from the edges.</span><em data-token-play>Play</em></button>
+        <button class="game-choice" type="button" data-game-choice="dino" data-game-href="arcade.html?game=dino"><strong>Jump Runner</strong><small data-game-points>0 pts</small><span>Jump obstacles in a fast side runner.</span><em data-token-play>Play</em></button>
+<button class="game-choice" type="button" data-game-choice="color" data-game-href="arcade.html?game=color"><strong>Color Rush</strong><small data-game-points>0 pts</small><span>Hit matching colors under pressure.</span><em data-token-play>Play</em></button>
+        <button class="game-choice" type="button" data-game-choice="memory" data-game-href="arcade.html?game=memory"><strong>8 Colour Tower</strong><small data-game-points>0 pts</small><span>Study eight clean colour blocks, then repeat them fast.</span><em data-token-play>Play</em></button>
+        <button class="game-choice" type="button" data-game-choice="tunnel" data-game-href="arcade.html?game=tunnel"><strong>Tunnel Rush</strong><small data-game-points>0 pts</small><span>Hold to float through a winding tunnel. Don't hit the walls!</span><em data-token-play>Play</em></button>
+        <button class="game-choice" type="button" data-game-choice="burger" data-game-href="arcade.html?game=burger"><strong>Burger Stack</strong><small data-game-points>0 pts</small><span>Tap to drop each ingredient and build the perfect burger.</span><em data-token-play>Play</em></button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "lockshot",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.mjs",
+    "build": "echo Static site ready"
+  }
+}

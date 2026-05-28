@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Lockshot | Boost Lock</title><link rel="stylesheet" href="styles.css"><script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script><script src="script.js" defer></script></head>
+<body data-default-game="boost">
+  <header class="topbar is-scrolled"><a class="brand" href="index.html"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a><nav class="desktop-nav"><a href="game.html">Games</a><a href="competitions.html">Competitions</a></nav></header>
+  <main><section class="game-section single-game-page" id="game" aria-labelledby="game-title">
+    <div class="game-head"><div><span>Boost Lock</span><h2 id="game-title">Watch the odometer.</h2></div><strong data-game-status>No entries unlocked yet</strong></div>
+    <div class="play-area boost-game is-active" data-game-area="boost">
+      <div class="boost-board" data-boost-board>
+        <div class="boost-track" aria-hidden="true"><div class="boost-line" data-boost-line></div><div class="boost-jet" data-boost-jet></div></div>
+        <div class="boost-readout"><span>Boost Odometer</span><strong data-boost-multiplier>1.00x</strong><em data-boost-risk>Stable</em></div>
+        <strong class="tap-pop" data-boost-pop aria-live="polite"></strong><p data-boost-note>Pay for entries, then launch Boost Lock. Lock your score before the odometer overloads.</p>
+        <div class="game-overlay is-open" data-boost-start-screen><div class="game-overlay-card"><h3>Boost Lock</h3><p>The odometer climbs over time. Lock early for a safer score, or hold longer for bigger points before overload.</p><button type="button" data-start-boost>Start Game</button></div></div>
+        <div class="game-overlay" data-boost-end-screen><div class="game-overlay-card"><h3>Boost Complete</h3><p>Your score is <strong data-boost-final-score>0</strong>. Continue while rounds remain.</p><button type="button" data-start-boost>Continue</button><a class="game-switch-link" href="game.html" data-play-different>Play a different game</a><button type="button" data-buy-more-boost>Buy More Boost Rounds</button></div></div>
+      </div>
+      <div class="spot-panel"><div><span>Rounds left</span><strong data-boost-rounds-left>0</strong></div><div><span>This multiplier</span><strong data-boost-panel-multiplier>1.00x</strong></div><div><span>This score</span><strong data-boost-score>-</strong></div><div><span>Your high score</span><strong data-boost-high-score>0</strong></div><button class="submit-game" type="button" data-boost-lock-score disabled>Lock Score</button><a class="panel-link" href="game.html" data-play-different>Play a different game</a></div>
+    </div>
+  </section></main>
+</body></html>

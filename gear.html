@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Lockshot | Gear Shift Lock</title><link rel="stylesheet" href="styles.css"><script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script><script src="script.js" defer></script></head>
+<body data-default-game="gear">
+  <header class="topbar is-scrolled"><a class="brand" href="index.html"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a><nav class="desktop-nav"><a href="game.html">Games</a><a href="competitions.html">Competitions</a></nav></header>
+  <main><section class="game-section single-game-page" id="game" aria-labelledby="game-title">
+    <div class="game-head"><div><span>Gear Shift Lock</span><h2 id="game-title">Hit the shift zone.</h2></div><strong data-game-status>No entries unlocked yet</strong></div>
+    <div class="play-area gear-game is-active" data-game-area="gear">
+      <div class="gear-board" data-gear-board>
+        <div class="rev-dial" data-gear-dial><div class="speed-numbers" aria-hidden="true"><span class="speed-number n6">6</span><span class="speed-number n7">7</span><span class="speed-number n8">8</span><span class="speed-number n9">9</span><span class="speed-number n10">10</span><span class="speed-number n11">11</span><span class="speed-number n12">12</span><span class="speed-number n1">1</span><span class="speed-number n2">2</span><span class="speed-number n3">3</span></div><span class="rpm-label">RPM</span><strong data-gear-rpm>0</strong><div class="shift-zone" aria-hidden="true"></div><div class="rev-needle" data-gear-needle></div></div>
+        <strong class="tap-pop" data-gear-pop aria-live="polite"></strong><p data-gear-note>Pay for entries, then start the rev challenge. Tap inside the green zone.</p>
+        <div class="game-overlay is-open" data-gear-start-screen><div class="game-overlay-card"><h3>Gear Shift Lock</h3><p>Hit the perfect green shift zone. One paid round gives you 3 shifts.</p><button type="button" data-start-gear>Start Game</button></div></div>
+        <div class="game-overlay" data-gear-end-screen><div class="game-overlay-card"><h3>Shift Complete</h3><p>Your final round score is <strong data-gear-final-score>0</strong>. Continue with another unlocked round, or buy more.</p><button type="button" data-start-gear>Continue</button><a class="game-switch-link" href="game.html" data-play-different>Play a different game</a><button type="button" data-buy-more-gear>Buy More Gear Rounds</button></div></div>
+      </div>
+      <div class="spot-panel"><div><span>Rounds left</span><strong data-gear-rounds-left>0</strong></div><div><span>Shift</span><strong data-gear-shift-count>1 / 3</strong></div><div><span>Round score</span><strong data-gear-score>-</strong></div><div><span>Your high score</span><strong data-gear-high-score>0</strong></div><button class="submit-game" type="button" data-gear-tap disabled>Shift Now</button><a class="panel-link" href="game.html" data-play-different>Play a different game</a></div>
+    </div>
+  </section></main>
+</body></html>

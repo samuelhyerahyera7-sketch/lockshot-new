@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($nvmPath = \"$env:APPDATA\\\\nvm\"; if \\(Test-Path $nvmPath\\) { Get-ChildItem $nvmPath } else { \"NVM not found\" }; $nodePaths = @\\(\"C:\\\\Program Files\\\\nodejs\\\\node.exe\",\"C:\\\\Program Files \\(x86\\)\\\\nodejs\\\\node.exe\",\"$env:LOCALAPPDATA\\\\Programs\\\\nodejs\\\\node.exe\"\\); foreach \\($p in $nodePaths\\) { if \\(Test-Path $p\\) { \"Found: $p\" } })",
+      "PowerShell(python --version 2>&1)",
+      "PowerShell(python3 --version 2>&1)",
+      "mcp__Claude_in_Chrome__list_connected_browsers",
+      "PowerShell(@\\(\"node\",\"npm\",\"npx\",\"python\",\"python3\",\"php\",\"ruby\",\"deno\",\"bun\"\\) | ForEach-Object { $r = Get-Command $_ -ErrorAction SilentlyContinue; if \\($r\\) { \"FOUND: $_ -> $\\($r.Source\\)\" } else { \"missing: $_\" } })",
+      "mcp__Claude_Preview__preview_start",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(python3 -c ' *)",
+      "PowerShell(Start-Process \"http://localhost:4173/character-demo.html\")",
+      "Bash(where npx *)",
+      "Bash(npx --yes serve --version)",
+      "Bash(npm --version)",
+      "mcp__Claude_in_Chrome__computer"
+    ]
+  }
+}

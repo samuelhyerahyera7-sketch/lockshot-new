@@ -1,0 +1,142 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #182131;
+  color: #17202a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 78% 18%, rgba(255, 217, 112, 0.28), transparent 20rem),
+    linear-gradient(135deg, #1c3143, #51335d 56%, #1b1f37);
+}
+
+.game-shell {
+  position: relative;
+  width: min(100vw - 24px, 980px);
+  aspect-ratio: 16 / 9;
+  min-height: 320px;
+  max-height: calc(100vh - 24px);
+  overflow: hidden;
+  border-radius: 8px;
+  background: #8bd6ff;
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.42);
+}
+
+#runner {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.topbar {
+  position: absolute;
+  top: 16px;
+  left: 18px;
+  right: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  pointer-events: none;
+  color: #fff;
+  text-shadow: 0 3px 0 rgba(31, 42, 57, 0.45);
+}
+
+.topbar span {
+  display: block;
+  font-size: clamp(0.7rem, 1.8vw, 0.82rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.topbar strong {
+  display: block;
+  margin-top: 2px;
+  font-size: clamp(1.7rem, 5vw, 3.1rem);
+  line-height: 0.9;
+}
+
+.panel {
+  position: absolute;
+  left: clamp(18px, 5vw, 52px);
+  bottom: clamp(24px, 7vw, 72px);
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  max-width: min(420px, calc(100% - 36px));
+}
+
+.panel h1,
+.panel h2,
+.panel p {
+  margin: 0;
+  color: #fff;
+  text-shadow: 0 4px 0 rgba(34, 39, 58, 0.42);
+}
+
+.panel h1,
+.panel h2 {
+  font-size: clamp(2.6rem, 9vw, 5.6rem);
+  line-height: 0.88;
+}
+
+.panel p {
+  max-width: 25rem;
+  font-size: clamp(0.95rem, 2.2vw, 1.1rem);
+  font-weight: 800;
+}
+
+.panel button {
+  min-width: 118px;
+  min-height: 48px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 22px;
+  background: #ffe063;
+  color: #25202d;
+  font: inherit;
+  font-weight: 1000;
+  box-shadow: 0 7px 0 #c46d24, 0 14px 22px rgba(0, 0, 0, 0.25);
+}
+
+.panel button:active {
+  transform: translateY(4px);
+  box-shadow: 0 3px 0 #c46d24, 0 8px 15px rgba(0, 0, 0, 0.22);
+}
+
+.hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(0.78rem, 2vw, 0.95rem);
+  font-weight: 900;
+  text-shadow: 0 2px 0 rgba(31, 42, 57, 0.45);
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 560px) {
+  .game-shell {
+    width: 100vw;
+    height: 100vh;
+    max-height: none;
+    aspect-ratio: auto;
+    border-radius: 0;
+  }
+}

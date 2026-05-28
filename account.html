@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lockshot | Account</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="auth-config.js" defer></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body class="account-page">
+  <header class="topbar is-scrolled" aria-label="Site header">
+    <a class="brand" href="index.html"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a>
+    <nav class="desktop-nav"><a href="competitions.html">Competitions</a><a href="terms.html">Terms</a></nav>
+  </header>
+  <main>
+    <section class="section account-section" id="account">
+      <div class="account-grid">
+        <div class="account-copy">
+          <h2>Your Lockshot account</h2>
+          <p data-account-state>Not signed in</p>
+          <span data-account-detail>Create an account or log in to start playing.</span>
+          <div class="account-wallet-card money-won-card" aria-label="Money won">
+            <span>Money won</span>
+            <strong data-account-money-won>R0.00</strong>
+            <p data-account-money-note>Verified winnings will appear here after result checks.</p>
+            <div class="money-won-row">
+              <small>Pending review</small>
+              <em data-account-pending-won>R0.00</em>
+            </div>
+          </div>
+          <div class="account-token-grid" aria-label="Player tokens">
+            <div class="account-wallet-card token-wallet-card" aria-label="Weekly giveaway tokens">
+              <span>Weekly giveaway</span>
+              <strong data-account-weekly-token-count>0</strong>
+              <p data-account-weekly-token-note>No weekly tokens available.</p>
+              <a class="account-token-play" href="game.html" data-account-weekly-play hidden>Play weekly</a>
+            </div>
+            <div class="account-wallet-card token-wallet-card monthly-token-card" aria-label="Monthly giveaway tokens">
+              <span>Monthly giveaway</span>
+              <strong data-account-monthly-token-count>0</strong>
+              <p data-account-monthly-token-note>No monthly tokens available.</p>
+              <a class="account-token-play" href="game.html" data-account-monthly-play hidden>Play monthly</a>
+            </div>
+          </div>
+        </div>
+        <div class="auth-card">
+          <p class="auth-intro">Sign up with</p>
+          <div class="social-login" aria-label="Social sign in"><button type="button" data-social-login="Facebook"><strong>f</strong><span>Facebook</span></button><button type="button" data-social-login="Google"><strong>G</strong><span>Google</span></button></div>
+          <div class="auth-tabs" role="tablist" aria-label="Account options"><button class="is-active" type="button" data-auth-tab="login">Log in</button><button type="button" data-auth-tab="signup">Sign up</button></div>
+          <form class="auth-form" data-auth-form="signup"><label>Full name<input type="text" data-signup-name placeholder="Your name"></label><label>Email<input type="email" data-signup-contact placeholder="you@example.com"></label><label>Password<input type="password" data-signup-password placeholder="Create a password"></label><label class="legal-check"><input type="checkbox" data-terms-check><span>I have read and agree to the <a href="terms.html">Terms and Conditions of Service</a>, <a href="privacy.html">Privacy Policy</a> and Cookie Policy.</span></label><label class="legal-check"><input type="checkbox" data-age-check><span>I confirm that I am over 18 years old.</span></label><button type="submit">Sign up</button></form>
+          <form class="auth-form is-active" data-auth-form="login"><label>Email<input type="email" data-login-contact placeholder="you@example.com"></label><label>Password<input type="password" data-login-password placeholder="Your password"></label><button type="submit">Log in</button><button class="forgot-button" type="button" data-forgot-password>Forgot password?</button></form>
+          <p class="auth-message" data-auth-message>Account is required before entries can be added.</p>
+          <button class="sign-out-button" type="button" data-sign-out hidden>Sign out</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <nav class="bottom-nav" aria-label="Mobile navigation"><a href="index.html"><i data-lucide="home"></i><span>Home</span></a><a href="competitions.html"><i data-lucide="gamepad-2"></i><span>Games</span></a><a href="sports-iq.html"><i data-lucide="trophy"></i><span>Sports</span></a><a class="active" href="account.html"><i data-lucide="user"></i><span>Account</span></a></nav>
+</body>
+</html>

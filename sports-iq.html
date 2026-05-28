@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lockshot | Sports Predict</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="auth-config.js" defer></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body class="sports-iq-page">
+  <header class="topbar sports-topbar is-scrolled" aria-label="Site header">
+    <a class="brand" href="index.html" aria-label="Lockshot home"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a>
+    <nav class="desktop-nav" aria-label="Desktop navigation">
+      <a href="competitions.html">Competitions</a>
+      <a href="sports-iq.html">Sports Predict</a>
+      <a href="account.html">Account</a>
+    </nav>
+  </header>
+
+  <main class="sports-app" data-sports-iq-app>
+    <section class="sports-hero" aria-labelledby="sports-iq-title">
+      <div class="live-orbit" aria-hidden="true"></div>
+      <div class="sports-hero-copy">
+        <span class="live-chip"><i data-lucide="radio"></i> Live competition lobby</span>
+        <p>Only real live fixtures appear here</p>
+        <h1 id="sports-iq-title">Sports Predict</h1>
+      </div>
+
+      <article class="featured-match-card">
+        <div class="match-card-topline">
+          <span><i data-lucide="zap"></i> Prediction status: <strong data-featured-trending>Waiting for live fixture</strong></span>
+          <strong><span class="live-dot"></span> <span data-featured-live-meta>Checking API Sports</span></strong>
+        </div>
+
+        <div class="teams-stage">
+          <div class="team-lockup">
+            <div class="team-badge home-badge" data-featured-home-badge>--</div>
+            <strong data-featured-home>No live</strong>
+          </div>
+          <div class="versus-stack">
+            <span data-featured-status-label>Status</span>
+            <strong data-sports-countdown data-featured-score>--</strong>
+            <em>vs</em>
+          </div>
+          <div class="team-lockup">
+            <div class="team-badge away-badge" data-featured-away-badge>--</div>
+            <strong data-featured-away>fixture</strong>
+          </div>
+        </div>
+
+        <div class="hero-metrics">
+          <div><span>Open Live Games</span><strong data-live-game-count>0</strong></div>
+          <div><span>Entries</span><strong data-live-entry-count>0</strong></div>
+          <div><span>Leaderboard</span><strong>Pending</strong></div>
+        </div>
+
+        <a class="lock-pick-button" href="#live-fixtures">Pick a Match — R5</a>
+      </article>
+    </section>
+
+    <section class="sports-strip" aria-label="Sports Predict status">
+      <div class="ticker-track">
+        <span>Real fixtures only</span>
+        <span>Live games only</span>
+        <span>Pay per prediction competition</span>
+        <span>Leaderboards open per live game</span>
+      </div>
+    </section>
+
+    <section class="sports-fixtures-panel" id="live-fixtures" aria-labelledby="fixtures-title">
+      <div class="sports-section-head sports-section-head--with-tokens">
+        <div>
+          <span>Pick a match to predict</span>
+          <h2 id="fixtures-title">Choose your game</h2>
+        </div>
+        <div class="sports-token-badge" data-sports-token-badge aria-live="polite">
+          <span class="stb-label">Your entries</span>
+          <strong class="stb-count" data-sports-token-count>0</strong>
+        </div>
+      </div>
+      <div class="sports-tabs" aria-label="Choose sport">
+        <button class="is-active" type="button" data-sport-filter="soccer">Soccer</button>
+        <button type="button" data-sport-filter="rugby">Rugby</button>
+        <button type="button" data-sport-filter="formula-one">Formula One</button>
+        <button type="button" data-sport-filter="cricket">Cricket</button>
+        <button type="button" data-sport-filter="netball">Netball</button>
+      </div>
+      <p data-sports-api-status>Checking for real live soccer games from API Sports.</p>
+      <div class="fixture-feed" data-sports-fixtures>
+        <article class="fixture-empty"><span>Loading</span><strong>Checking live soccer games</strong><em>No competition opens until a real live fixture is returned.</em></article>
+      </div>
+    </section>
+
+    <section class="sports-enter-panel" aria-labelledby="sports-enter-title">
+      <div class="sports-section-head">
+        <span>How it works</span>
+        <h2 id="sports-enter-title">R5 entry · 30 points · Cash prizes</h2>
+      </div>
+
+      <div class="sports-enter-main">
+        <article class="sports-entry-card">
+          <div class="sports-entry-card-top">
+            <div class="sports-entry-fee-block">
+              <span>Entry fee</span>
+              <strong>R5</strong>
+              <p>Pick a match above, predict the details, earn points and climb the board.</p>
+            </div>
+            <div class="sports-prize-podium" aria-label="Prize structure">
+              <div class="podium-place podium-2nd">
+                <span class="podium-position">2nd</span>
+                <strong class="podium-prize">R100</strong>
+              </div>
+              <div class="podium-place podium-1st">
+                <span class="podium-position">1st</span>
+                <strong class="podium-prize">R250</strong>
+              </div>
+              <div class="podium-place podium-3rd">
+                <span class="podium-position">3rd</span>
+                <strong class="podium-prize">R50</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="sports-points-grid">
+            <div class="points-item"><strong>10 pts</strong><span>Exact scoreline</span></div>
+            <div class="points-item"><strong>5 pts</strong><span>Possession split</span></div>
+            <div class="points-item"><strong>4 pts</strong><span>First goal scorer</span></div>
+            <div class="points-item"><strong>3 pts</strong><span>Total corners</span></div>
+            <div class="points-item"><strong>3 pts</strong><span>Total cards</span></div>
+            <div class="points-item"><strong>3 pts</strong><span>Man of the Match</span></div>
+            <div class="points-item"><strong>2 pts</strong><span>First goal minute</span></div>
+            <div class="points-item points-item--total"><strong>30 pts</strong><span>Max per match</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="sports-entry-lock" aria-label="Sports prediction entry required">
+      <strong>Tap a match above to enter</strong>
+      <p>Pick any fixture from the list, pay R5, and your prediction form opens instantly for that match.</p>
+    </section>
+
+    <section class="prediction-arena sports-tournament-arena" id="prediction-arena" aria-labelledby="prediction-title">
+      <div class="pred-arena-head">
+        <div class="sports-section-head">
+          <span>Your predictions</span>
+          <h2 id="prediction-title">Submit your calls</h2>
+        </div>
+        <p class="pred-arena-intro">Select a match from the live feed, fill in every field below, then hit <strong>Submit Predictions</strong>. Your entry is scored against official results when the match ends — closest calls win.</p>
+      </div>
+
+      <div class="pred-match-banner" data-pred-match-banner>
+        <div class="pred-match-teams">
+          <span class="pred-match-badge" data-pred-home-badge>--</span>
+          <div class="pred-match-centre">
+            <strong data-pred-match-name>Select a match above</strong>
+            <em data-pred-match-meta>No match selected</em>
+          </div>
+          <span class="pred-match-badge" data-pred-away-badge>--</span>
+        </div>
+      </div>
+
+      <div class="sport-choice-row" role="group" aria-label="Choose sport">
+        <button class="is-active" type="button" data-tournament-sport="soccer"><i data-lucide="circle-dot"></i><span>Soccer</span></button>
+        <button type="button" data-tournament-sport="rugby"><i data-lucide="shield"></i><span>Rugby</span></button>
+        <button type="button" data-tournament-sport="cricket"><i data-lucide="badge"></i><span>Cricket</span></button>
+        <button type="button" data-tournament-sport="formula-one"><i data-lucide="gauge"></i><span>F1</span></button>
+        <button type="button" data-tournament-sport="netball"><i data-lucide="circle"></i><span>Netball</span></button>
+      </div>
+
+      <!-- Multi-ticket tab switcher — hidden until user has 2+ entries -->
+      <div id="pred-ticket-switcher" class="pred-ticket-switcher" hidden></div>
+
+      <div class="pred-fields-grid">
+        <div class="pred-field pred-field--wide pred-field--scoreline" data-tournament-field="score">
+          <div class="pred-field-top">
+            <span data-field-label>Scoreline</span>
+            <em data-field-points class="pred-pts-badge">10 pts</em>
+          </div>
+
+          <!-- Number steppers – shown for soccer / rugby / netball -->
+          <div class="scoreline-steppers" data-scoreline-steppers>
+            <div class="score-half">
+              <span class="score-team-name" data-score-home-label>Home</span>
+              <button class="score-adj" type="button" data-score-adjust="home" data-delta="1" aria-label="Increase home score">
+                <i data-lucide="chevron-up"></i>
+              </button>
+              <strong class="score-num" data-home-score>0</strong>
+              <button class="score-adj" type="button" data-score-adjust="home" data-delta="-1" aria-label="Decrease home score">
+                <i data-lucide="chevron-down"></i>
+              </button>
+            </div>
+            <span class="score-divider">—</span>
+            <div class="score-half">
+              <span class="score-team-name" data-score-away-label>Away</span>
+              <button class="score-adj" type="button" data-score-adjust="away" data-delta="1" aria-label="Increase away score">
+                <i data-lucide="chevron-up"></i>
+              </button>
+              <strong class="score-num" data-away-score>0</strong>
+              <button class="score-adj" type="button" data-score-adjust="away" data-delta="-1" aria-label="Decrease away score">
+                <i data-lucide="chevron-down"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Free-text fallback – shown for cricket (not F1 — F1 uses podium pickers below) -->
+          <input class="score-text-input" type="text" placeholder="e.g. 18 runs" data-field-input data-scoreline-text hidden>
+
+          <!-- F1 podium pickers – 3 driver selectors, hidden for non-F1 sports -->
+          <div class="f1-podium-pickers" id="f1-podium-pickers" hidden>
+            <div class="f1-podium-row">
+              <span class="f1-pos-badge f1-pos-p1">P1</span>
+              <div class="pp-selected-row" data-picker-open="podiumP1">
+                <i data-lucide="trophy"></i>
+                <span class="pp-selected-name" data-player-label="podiumP1">Pick a driver</span>
+                <i data-lucide="chevron-down" class="pp-chevron"></i>
+              </div>
+              <input type="hidden" data-player-input="podiumP1">
+            </div>
+            <div class="f1-podium-row">
+              <span class="f1-pos-badge f1-pos-p2">P2</span>
+              <div class="pp-selected-row" data-picker-open="podiumP2">
+                <i data-lucide="medal"></i>
+                <span class="pp-selected-name" data-player-label="podiumP2">Pick a driver</span>
+                <i data-lucide="chevron-down" class="pp-chevron"></i>
+              </div>
+              <input type="hidden" data-player-input="podiumP2">
+            </div>
+            <div class="f1-podium-row">
+              <span class="f1-pos-badge f1-pos-p3">P3</span>
+              <div class="pp-selected-row" data-picker-open="podiumP3">
+                <i data-lucide="award"></i>
+                <span class="pp-selected-name" data-player-label="podiumP3">Pick a driver</span>
+                <i data-lucide="chevron-down" class="pp-chevron"></i>
+              </div>
+              <input type="hidden" data-player-input="podiumP3">
+            </div>
+          </div>
+
+          <!-- Hidden combined value read by JS on lock -->
+          <input type="hidden" data-scoreline-prediction value="0 - 0">
+        </div>
+        <div class="pred-field pred-field--possession" data-tournament-field="control">
+          <div class="pred-field-top">
+            <span data-field-label>Possession</span>
+            <em data-field-points class="pred-pts-badge">5 pts</em>
+          </div>
+          <div class="possession-widget">
+            <div class="possession-team-row">
+              <span class="possession-team" data-possession-home-label>Home</span>
+              <span class="possession-team possession-team--away" data-possession-away-label>Away</span>
+            </div>
+            <div class="possession-bar" aria-hidden="true">
+              <div class="possession-bar-fill possession-bar-fill--home" data-possession-home-fill style="width:50%"></div>
+              <div class="possession-bar-fill possession-bar-fill--away" data-possession-away-fill style="width:50%"></div>
+            </div>
+            <div class="possession-pct-row">
+              <strong class="possession-pct" data-possession-home-pct>50%</strong>
+              <strong class="possession-pct possession-pct--away" data-possession-away-pct>50%</strong>
+            </div>
+            <input type="range" min="0" max="100" value="50"
+                   class="possession-slider"
+                   data-field-input data-possession-slider
+                   aria-label="Possession — slide left for home, right for away">
+          </div>
+          <input type="hidden" data-possession-value value="50% - 50%">
+        </div>
+        </label>
+        <label class="pred-field" data-tournament-field="setPiece">
+          <div class="pred-field-top">
+            <span data-field-label>Corners</span>
+            <em data-field-points class="pred-pts-badge">3 pts</em>
+          </div>
+          <input type="number" min="0" placeholder="9" data-field-input>
+        </label>
+        <label class="pred-field" data-tournament-field="discipline">
+          <div class="pred-field-top">
+            <span data-field-label>Cards</span>
+            <em data-field-points class="pred-pts-badge">3 pts</em>
+          </div>
+          <input type="number" min="0" placeholder="4" data-field-input>
+        </label>
+        <div class="pred-field pred-field--wide pred-field--player-pick" data-tournament-field="firstScorer">
+          <div class="pred-field-top">
+            <span data-field-label>First scorer</span>
+            <em data-field-points class="pred-pts-badge">4 pts</em>
+          </div>
+          <div class="pp-selected-row" data-picker-open="firstScorer">
+            <i data-lucide="user"></i>
+            <span class="pp-selected-name" data-player-label="firstScorer" data-picker-default>Pick a player</span>
+            <i data-lucide="chevron-down" class="pp-chevron"></i>
+          </div>
+          <input type="hidden" data-field-input data-player-input="firstScorer">
+        </div>
+        <label class="pred-field" data-tournament-field="firstTime">
+          <div class="pred-field-top">
+            <span data-field-label>Minute of first goal</span>
+            <em data-field-points class="pred-pts-badge">2 pts</em>
+          </div>
+          <input type="number" min="1" max="120" placeholder="23" data-field-input>
+        </label>
+        <div class="pred-field pred-field--wide pred-field--player-pick" data-tournament-field="player">
+          <div class="pred-field-top">
+            <span data-field-label>Man of the Match</span>
+            <em data-field-points class="pred-pts-badge">3 pts</em>
+          </div>
+          <div class="pp-selected-row" data-picker-open="motm">
+            <i data-lucide="star"></i>
+            <span class="pp-selected-name" data-player-label="motm" data-picker-default>Pick a player</span>
+            <i data-lucide="chevron-down" class="pp-chevron"></i>
+          </div>
+          <input type="hidden" data-field-input data-player-input="motm">
+        </div>
+
+        <!-- Shared player picker panel (shown below whichever field is tapped) -->
+        <div class="pred-field--wide pred-player-picker-wrap" id="player-picker-panel" hidden>
+          <div class="player-picker-inner" data-player-picker data-picker-target="firstScorer">
+            <p class="pp-empty">Select a match above to load squads.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pred-max-pts">
+        <i data-lucide="zap"></i>
+        <span>Fill all 7 fields correctly to score the maximum <strong>30 points</strong></span>
+      </div>
+
+      <button class="pred-submit-btn" type="button" data-lock-pick>
+        <i data-lucide="lock-keyhole"></i>
+        <span data-lock-label>Submit Predictions</span>
+      </button>
+
+      <div class="pred-locked-state" data-locked-state aria-live="polite">
+        <i data-lucide="check-circle"></i>
+        <div>
+          <strong>Predictions locked!</strong>
+          <span data-tournament-lock-summary>Your entry is recorded. Scores are verified after full time.</span>
+          <a class="pred-locked-standings-link" href="#sports-standings">View standings ↓</a>
+        </div>
+      </div>
+
+      <div class="pred-ticket" id="pred-ticket" hidden>
+        <div class="pred-ticket-header">
+          <div class="pred-ticket-logo-row">
+            <span class="pred-ticket-brand">Lock<strong>shot</strong></span>
+            <span class="pred-ticket-chip">PREDICTION TICKET</span>
+          </div>
+          <strong class="pred-ticket-match" data-ticket-match>—</strong>
+          <em class="pred-ticket-meta" data-ticket-meta>—</em>
+        </div>
+        <div class="pred-ticket-perforation" aria-hidden="true"></div>
+        <div class="pred-ticket-rows" data-ticket-rows></div>
+        <div class="pred-ticket-perforation" aria-hidden="true"></div>
+        <div class="pred-ticket-footer">
+          <span>Max <strong>30 pts</strong> · Verified after full time</span>
+          <span class="pred-ticket-status"><i data-lucide="lock-keyhole"></i> Locked</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="sports-live-board" id="sports-standings" aria-labelledby="board-title">
+      <div class="sports-section-head">
+        <span data-board-fixture-kicker>Live game leaderboard</span>
+        <h2 id="board-title">Current standings</h2>
+      </div>
+
+      <div class="sports-podium-row" aria-label="Top 3 prizes">
+        <div class="sports-podium-card sports-podium-2nd">
+          <span class="podium-rank">2nd</span>
+          <span class="podium-name" data-board-name-2>—</span>
+          <strong class="podium-pts" data-board-pts-2>0 pts</strong>
+          <em class="podium-winnings">R100</em>
+        </div>
+        <div class="sports-podium-card sports-podium-1st">
+          <i data-lucide="trophy"></i>
+          <span class="podium-rank">1st</span>
+          <span class="podium-name" data-board-name-1>—</span>
+          <strong class="podium-pts" data-board-pts-1>0 pts</strong>
+          <em class="podium-winnings">R250</em>
+        </div>
+        <div class="sports-podium-card sports-podium-3rd">
+          <span class="podium-rank">3rd</span>
+          <span class="podium-name" data-board-name-3>—</span>
+          <strong class="podium-pts" data-board-pts-3>0 pts</strong>
+          <em class="podium-winnings">R50</em>
+        </div>
+      </div>
+
+      <ol class="sports-board-list">
+        <li data-board-row><strong data-board-pos>-</strong><span data-board-player>Waiting for entries</span><em data-board-score>0 pts</em></li>
+        <li data-board-row><strong data-board-pos>-</strong><span data-board-player>Waiting for entries</span><em data-board-score>0 pts</em></li>
+        <li data-board-row><strong data-board-pos>-</strong><span data-board-player>Waiting for entries</span><em data-board-score>0 pts</em></li>
+        <li data-board-row><strong data-board-pos>-</strong><span data-board-player>Waiting for entries</span><em data-board-score>0 pts</em></li>
+        <li data-board-row><strong data-board-pos>-</strong><span data-board-player>Waiting for entries</span><em data-board-score>0 pts</em></li>
+      </ol>
+
+      <div class="sports-board-you" data-board-you-row hidden>
+        <span>Your position</span>
+        <strong data-board-you-pos>—</strong>
+        <em data-board-you-pts>0 pts</em>
+      </div>
+
+      <p class="verification-note"><i data-lucide="shield-check"></i> Standings update after each verified prediction. Winners paid within 24 hrs of full-time.</p>
+    </section>
+  </main>
+
+  <nav class="sports-bottom-nav" aria-label="Sports Predict navigation">
+    <a class="active" href="#live-fixtures" data-sports-nav><i data-lucide="radio"></i><span>Live</span></a>
+    <a href="#prediction-arena" data-sports-nav><i data-lucide="activity"></i><span>Predict</span></a>
+    <a href="#sports-standings" data-sports-nav><i data-lucide="trophy"></i><span>Board</span></a>
+    <a href="#sports-results" data-sports-nav><i data-lucide="shield-check"></i><span>Results</span></a>
+    <a href="account.html"><i data-lucide="user"></i><span>Profile</span></a>
+  </nav>
+
+  <aside class="sports-entry-slip" data-cart-drawer aria-label="Entry slip" aria-hidden="true">
+    <button class="ses-close" type="button" data-close-cart aria-label="Close">
+      <i data-lucide="x"></i>
+    </button>
+
+    <div class="ses-match">
+      <span class="ses-tag">Predicting</span>
+      <strong class="ses-match-name" data-slip-name>Sports Predict</strong>
+    </div>
+
+    <div class="ses-meta-row">
+      <div class="ses-meta-cell">
+        <span>Entry fee</span>
+        <strong>R5</strong>
+      </div>
+      <div class="ses-meta-cell">
+        <span>1st prize</span>
+        <strong>R250</strong>
+      </div>
+      <div class="ses-meta-cell">
+        <span>Max points</span>
+        <strong>30 pts</strong>
+      </div>
+    </div>
+
+    <div class="ses-stepper-section">
+      <span class="ses-stepper-label">How many entries?</span>
+      <div class="ses-stepper">
+        <button class="ses-step ses-step--minus" type="button" data-slip-step="-1" aria-label="Remove one entry">
+          <i data-lucide="minus"></i>
+        </button>
+        <div class="ses-qty-display">
+          <strong data-slip-qty>1</strong>
+          <span>entr<span data-slip-entry-label>y</span></span>
+        </div>
+        <button class="ses-step ses-step--plus" type="button" data-slip-step="1" aria-label="Add one entry">
+          <i data-lucide="plus"></i>
+        </button>
+      </div>
+      <p class="ses-stepper-hint">Each entry is one set of predictions for this match</p>
+    </div>
+
+    <div class="ses-total-row">
+      <span>Total to pay</span>
+      <strong data-slip-price>R5.00</strong>
+    </div>
+
+    <button class="ses-confirm-btn" type="button" data-confirm-add>
+      <span>Confirm &amp; Predict</span>
+      <i data-lucide="arrow-right"></i>
+    </button>
+
+    <!-- bulk options kept hidden for JS compatibility -->
+    <div hidden aria-hidden="true">
+      <button type="button" data-bulk-qty="3" data-discount="5"><span>3</span><em>-5%</em></button>
+      <button type="button" data-bulk-qty="5" data-discount="10"><span>5</span><em>-10%</em></button>
+      <button type="button" data-bulk-qty="10" data-discount="15"><span>10</span><em>-15%</em></button>
+    </div>
+  </aside>
+  <div class="scrim" data-scrim></div>
+</body>
+</html>

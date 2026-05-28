@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Lockshot | Checkout</title><link rel="stylesheet" href="styles.css"><script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script><script src="script.js" defer></script></head>
+<body>
+  <header class="topbar is-scrolled"><a class="brand" href="index.html"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a><nav class="desktop-nav"><a href="competitions.html">Competitions</a><a href="account.html">Account</a></nav></header>
+  <main>
+    <section class="checkout-section" id="checkout" aria-labelledby="checkout-title">
+      <div class="checkout-copy"><span>Secure checkout</span><h2 id="checkout-title">Payment page.</h2><p>Review your basket, choose a payment method, and continue to the skill game.</p></div>
+      <form class="checkout-card">
+        <div class="checkout-summary"><span>Basket</span><strong data-checkout-items>No entries yet</strong><p data-checkout-detail>Add a competition entry above to build your basket.</p></div>
+        <div class="checkout-qty" aria-label="Choose number of game rounds">
+          <span>Rounds</span>
+          <div class="quantity-control"><button type="button" data-checkout-step="-1" aria-label="Decrease rounds">-</button><strong data-checkout-qty>1</strong><button type="button" data-checkout-step="1" aria-label="Increase rounds">+</button></div>
+          <div class="checkout-bulk"><button type="button" data-checkout-bulk="3">3</button><button type="button" data-checkout-bulk="5">5</button><button type="button" data-checkout-bulk="10">10</button></div>
+        </div>
+        <div class="checkout-total"><span>Total to pay</span><strong data-checkout-total>R0.00</strong></div>
+        <button class="pay-button" type="button" data-start-game><span data-pay-label>Buy Entry & Play</span><i data-lucide="lock-keyhole"></i></button>
+        <div class="method-grid" aria-label="Payment methods"><label><input type="radio" name="method" checked> OTT</label><label><input type="radio" name="method"> Card</label><label><input type="radio" name="method"> Mastercard</label><label><input type="radio" name="method"> Apple Pay</label></div>
+        <label class="checkout-field">Email or mobile number<input type="text" placeholder="you@example.com"></label>
+        <p class="checkout-status" data-checkout-status>Payment gateway will connect here.</p>
+      </form>
+    </section>
+  </main>
+</body></html>

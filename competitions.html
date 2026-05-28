@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lockshot | Competitions</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body class="competitions-page">
+  <header class="topbar is-scrolled" aria-label="Site header">
+    <a class="brand" href="index.html" aria-label="Lockshot home"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a>
+    <nav class="desktop-nav" aria-label="Desktop navigation">
+      <a href="competitions.html">Competitions</a>
+      <a href="index.html#how">About</a>
+      <a href="terms.html">Terms</a>
+    </nav>
+    <nav class="top-actions" aria-label="Account actions">
+      <a class="account-action" href="account.html" aria-label="Account"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="4"></circle><path d="M4 21c1.4-4.4 4.1-6.6 8-6.6s6.6 2.2 8 6.6"></path></svg></a>
+      <button type="button" class="cart-icon" data-open-cart aria-label="Open entry slip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 11.2h10.9L21 7H7"></path><circle cx="9" cy="20" r="1.7"></circle><circle cx="18" cy="20" r="1.7"></circle></svg><span data-cart-count>0</span></button>
+      <a class="login-button" href="account.html">Log in</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="section competitions" id="competitions" aria-label="Lockshot competitions">
+      <div class="filter-row" aria-label="Competition filters">
+        <button type="button">Under R25</button><button type="button">Under R50</button><button type="button">Cash</button><button type="button">Cars</button>
+      </div>
+      <section class="cashpool-leaderboard main-leaderboard" aria-labelledby="main-leaderboard-title">
+        <div>
+          <span>Live leaderboard</span>
+          <h3 id="main-leaderboard-title">Weekly giveaway standings</h3>
+          <p data-player-leaderboard-position>Your position appears here after you submit a score.</p>
+        </div>
+        <ol>
+          <li><strong>1</strong><span data-main-leader-name>Waiting for scores</span><em data-main-leader-score>0 pts</em></li>
+          <li><strong>2</strong><span data-main-leader-name>Next player</span><em data-main-leader-score>0 pts</em></li>
+          <li><strong>3</strong><span data-main-leader-name>Next player</span><em data-main-leader-score>0 pts</em></li>
+        </ol>
+      </section>
+      <div class="cars">
+        <article class="car-card cash-card"><div class="card-copy"><span>Weekly Giveaway</span><h3>R2,500 Prize Pool</h3><p>Top 5 paid weekly: R2,500 / R1,000 / R500 / R250 / R100</p></div><div class="prize-visual cash-visual"><strong>R2.5k</strong></div><div class="card-foot"><strong>R5.00</strong><div class="card-actions"><button type="button" data-add="Weekly Giveaway: R2,500" data-price="5.00"><span>Add</span><i data-lucide="chevrons-right"></i></button><button type="button" data-prize-play="Weekly Giveaway: R2,500" data-price="5.00"><span>Play</span><i data-lucide="play"></i></button></div></div></article>
+        <article class="car-card cash-card"><div class="card-copy"><span>Monthly Giveaway</span><h3>R10,000 Prize Pool</h3><p>Top 5 paid monthly: R10,000 / R4,000 / R2,000 / R1,000 / R400</p></div><div class="prize-visual cash-visual"><strong>R10k</strong></div><div class="card-foot"><strong>R10.00</strong><div class="card-actions"><button type="button" data-add="Monthly Giveaway: R10,000" data-price="10.00"><span>Add</span><i data-lucide="chevrons-right"></i></button><button type="button" data-prize-play="Monthly Giveaway: R10,000" data-price="10.00"><span>Play</span><i data-lucide="play"></i></button></div></div></article>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Mobile navigation">
+    <a href="index.html"><i data-lucide="home"></i><span>Home</span></a>
+    <a class="active" href="competitions.html"><i data-lucide="gamepad-2"></i><span>Games</span></a>
+    <a href="sports-iq.html"><i data-lucide="trophy"></i><span>Sports</span></a>
+    <a href="account.html"><i data-lucide="user"></i><span>Account</span></a>
+  </nav>
+
+  <aside class="entry-slip" data-cart-drawer aria-label="Entry slip" aria-hidden="true">
+    <button class="slip-close" type="button" data-close-cart aria-label="Close entry slip"><i data-lucide="x"></i></button>
+    <div class="competition-chooser" data-competition-chooser>
+      <strong>Choose competition</strong>
+      <button class="is-active" type="button" data-slip-choice="Weekly Giveaway: R2,500" data-price="5.00">Weekly Giveaway <span>R5 entry</span></button>
+      <button type="button" data-slip-choice="Monthly Giveaway: R10,000" data-price="10.00">Monthly Giveaway <span>R10 entry</span></button>
+    </div>
+    <div class="slip-price"><strong data-slip-price>R5.00</strong><span data-slip-name>Weekly Giveaway: R2,500</span></div>
+    <div class="quantity-area"><span>Quantity</span><div class="quantity-control"><button type="button" data-slip-step="-1" aria-label="Decrease entries">-</button><strong data-slip-qty>1</strong><button type="button" data-slip-step="1" aria-label="Increase entries">+</button></div><p>Tickets for this competition</p></div>
+    <div class="bulk-box" aria-label="Bulk buy discounts">
+      <strong>Bulk buy discounts</strong>
+      <div class="bulk-options">
+        <button type="button" data-bulk-qty="3"><span>3</span><em>-5%</em></button>
+        <button type="button" data-bulk-qty="5"><span>5</span><em>-10%</em></button>
+        <button type="button" data-bulk-qty="10"><span>10</span><em>-15%</em></button>
+      </div>
+    </div>
+    <button class="basket-button" type="button" data-confirm-add><span>Add to basket</span><i data-lucide="chevrons-right"></i></button>
+  </aside>
+  <div class="scrim" data-scrim></div>
+</body>
+</html>

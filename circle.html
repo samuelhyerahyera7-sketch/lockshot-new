@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lockshot | Circle Lock</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body data-default-game="circle">
+  <header class="topbar is-scrolled"><a class="brand" href="index.html"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a><nav class="desktop-nav"><a href="game.html">Games</a><a href="competitions.html">Competitions</a></nav></header>
+  <main>
+    <section class="game-section single-game-page" id="game" aria-labelledby="game-title">
+      <div class="game-head"><div><span>Circle Lock</span><h2 id="game-title">Keep it inside.</h2></div><strong data-circle-status>No entries unlocked yet</strong></div>
+      <div class="play-area circle-game is-active">
+        <div class="circle-board" data-circle-board>
+          <div class="circle-zone" data-circle-zone></div>
+          <button class="circle-ball" type="button" data-circle-ball aria-label="Moving ball"></button>
+          <div class="circle-hud"><span>Time</span><strong data-circle-time>0.00s</strong></div>
+          <div class="circle-target" data-circle-target aria-hidden="true"></div>
+          <strong class="tap-pop" data-circle-pop aria-live="polite"></strong>
+          <p data-circle-note>Press and drag anywhere. The glowing ring follows your finger. Keep the ball inside.</p>
+          <div class="game-overlay is-open" data-circle-start-screen><div class="game-overlay-card"><h3>Circle Lock</h3><p>Press, drag, and chase the ball with the glowing ring. Survive as long as you can.</p><button type="button" data-start-circle>Start Game</button></div></div>
+          <div class="game-overlay" data-circle-end-screen><div class="game-overlay-card"><h3 data-circle-result>Circle Broken</h3><p data-circle-end-text>Your score is 0.</p><button type="button" data-start-circle>Continue</button><a class="game-switch-link" href="game.html">Play a different game</a><button type="button" data-buy-more-circle>Buy More Circle Rounds</button></div></div>
+        </div>
+        <div class="spot-panel"><div><span>Rounds left</span><strong data-circle-rounds-left>0</strong></div><div><span>Survival</span><strong data-circle-panel-time>0.00s</strong></div><div><span>This score</span><strong data-circle-score>-</strong></div><div><span>Your high score</span><strong data-circle-high-score>0</strong></div><button class="submit-game" type="button" data-start-circle>Start Circle</button><a class="panel-link" href="game.html">Play a different game</a></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    (() => {
+      const board = document.querySelector("[data-circle-board]");
+      const zone = document.querySelector("[data-circle-zone]");
+      const ball = document.querySelector("[data-circle-ball]");
+      const target = document.querySelector("[data-circle-target]");
+      const note = document.querySelector("[data-circle-note]");
+      const pop = document.querySelector("[data-circle-pop]");
+      const status = document.querySelector("[data-circle-status]");
+      const startScreen = document.querySelector("[data-circle-start-screen]");
+      const endScreen = document.querySelector("[data-circle-end-screen]");
+      const endText = document.querySelector("[data-circle-end-text]");
+      const result = document.querySelector("[data-circle-result]");
+      const roundsLeft = document.querySelector("[data-circle-rounds-left]");
+      const timeLabel = document.querySelector("[data-circle-time]");
+      const panelTime = document.querySelector("[data-circle-panel-time]");
+      const scoreLabel = document.querySelector("[data-circle-score]");
+      const highScoreLabel = document.querySelector("[data-circle-high-score]");
+      const buyMore = document.querySelector("[data-buy-more-circle]");
+      const startButtons = document.querySelectorAll("[data-start-circle]");
+      const params = new URLSearchParams(window.location.search);
+      let attempts = Number(params.get("attempts") || localStorage.getItem("lockshotPaidAttempts") || 0);
+      let highScore = Number(localStorage.getItem("lockshotHighCircle") || 0);
+      let live = false;
+      let showEnd = false;
+      let startTime = 0;
+      let elapsed = 0;
+      let score = 0;
+      let animation = null;
+      let lastTick = 0;
+      let zonePos = { x: 50, y: 50 };
+      let targetPos = { x: 50, y: 50 };
+      let ballPos = { x: 50, y: 50 };
+      let velocity = { x: 0.16, y: -0.14 };
+      let hasControl = false;
+
+      function saveAttempts() {
+        localStorage.setItem("lockshotPaidAttempts", String(attempts));
+      }
+
+      function render() {
+        if (status) status.textContent = attempts ? `${attempts} round${attempts === 1 ? "" : "s"} unlocked` : "No entries unlocked yet";
+        if (roundsLeft) roundsLeft.textContent = attempts;
+        if (timeLabel) timeLabel.textContent = `${elapsed.toFixed(2)}s`;
+        if (panelTime) panelTime.textContent = `${elapsed.toFixed(2)}s`;
+        if (scoreLabel) scoreLabel.textContent = score || "-";
+        if (highScoreLabel) highScoreLabel.textContent = highScore;
+        if (zone) {
+          zone.style.setProperty("--zone-x", `${zonePos.x}%`);
+          zone.style.setProperty("--zone-y", `${zonePos.y}%`);
+        }
+        if (target) {
+          target.style.setProperty("--target-x", `${targetPos.x}%`);
+          target.style.setProperty("--target-y", `${targetPos.y}%`);
+          target.classList.toggle("is-visible", live && hasControl);
+        }
+        if (ball) {
+          ball.style.setProperty("--ball-x", `${ballPos.x}%`);
+          ball.style.setProperty("--ball-y", `${ballPos.y}%`);
+        }
+        if (startScreen) startScreen.classList.toggle("is-open", attempts > 0 && !live && !showEnd);
+        if (endScreen) endScreen.classList.toggle("is-open", showEnd);
+        if (board) board.classList.toggle("is-live", live);
+        if (buyMore) buyMore.hidden = attempts > 0;
+        startButtons.forEach((button) => {
+          button.disabled = !attempts && !live;
+          if (!button.closest("[data-circle-end-screen]")) button.textContent = live ? "Live" : "Start Game";
+        });
+      }
+
+      function paintPop(text, miss = false) {
+        if (!pop) return;
+        pop.textContent = text;
+        pop.classList.toggle("is-miss", miss);
+        pop.classList.add("is-visible");
+        window.setTimeout(() => pop.classList.remove("is-visible"), 650);
+      }
+
+      function stopLoop() {
+        if (!animation) return;
+        cancelAnimationFrame(animation);
+        animation = null;
+      }
+
+      function finish(reason) {
+        if (!live) return;
+        live = false;
+        stopLoop();
+        attempts = Math.max(0, attempts - 1);
+        saveAttempts();
+        score = Math.max(1, Math.round(elapsed * 115));
+        highScore = Math.max(highScore, score);
+        localStorage.setItem("lockshotHighCircle", String(highScore));
+        if (result) result.textContent = reason === "win" ? "Perfect Hold" : "Circle Broken";
+        if (endText) endText.textContent = `You held the ball for ${elapsed.toFixed(2)}s. Score ${score}. ${attempts ? "Continue with another unlocked round." : "Buy more rounds to play again."}`;
+        if (note) note.textContent = reason === "win" ? "Full hold complete." : "The ball touched outside the circle.";
+        paintPop(reason === "win" ? `+${score}` : "Out", reason !== "win");
+        showEnd = true;
+        render();
+      }
+
+      function tick(now) {
+        if (!live) return;
+        const delta = Math.min(0.04, (now - lastTick) / 1000 || 0.016);
+        lastTick = now;
+        elapsed = (now - startTime) / 1000;
+        const speed = 1.15 + Math.min(1.65, elapsed / 10);
+        ballPos.x += velocity.x * speed * delta * 60;
+        ballPos.y += velocity.y * speed * delta * 60;
+        if (ballPos.x < 5 || ballPos.x > 95) velocity.x *= -1;
+        if (ballPos.y < 8 || ballPos.y > 92) velocity.y *= -1;
+        ballPos.x = Math.max(5, Math.min(95, ballPos.x));
+        ballPos.y = Math.max(8, Math.min(92, ballPos.y));
+        if (!hasControl && elapsed < 3) {
+          targetPos.x = ballPos.x;
+          targetPos.y = ballPos.y;
+        }
+        zonePos.x += (targetPos.x - zonePos.x) * 0.26;
+        zonePos.y += (targetPos.y - zonePos.y) * 0.26;
+        const distance = Math.hypot(ballPos.x - zonePos.x, ballPos.y - zonePos.y);
+        if (elapsed > 2.2 && distance > 24) {
+          finish("out");
+          return;
+        }
+        if (elapsed >= 20) {
+          finish("win");
+          return;
+        }
+        render();
+        animation = requestAnimationFrame(tick);
+      }
+
+      function startRound(event) {
+        event?.preventDefault?.();
+        event?.stopPropagation?.();
+        if (live) return;
+        if (!attempts) {
+          if (note) note.textContent = "Buy entries to unlock Circle Lock.";
+          return;
+        }
+        stopLoop();
+        live = true;
+        showEnd = false;
+        elapsed = 0;
+        score = 0;
+        zonePos = { x: 50, y: 50 };
+        targetPos = { x: 50, y: 50 };
+        ballPos = { x: 50, y: 50 };
+        hasControl = false;
+        velocity = { x: Math.random() > 0.5 ? 0.16 : -0.16, y: Math.random() > 0.5 ? 0.14 : -0.14 };
+        startTime = performance.now();
+        lastTick = startTime;
+        if (note) note.textContent = "Drag anywhere on the board. You get a short grace moment.";
+        render();
+        animation = requestAnimationFrame(tick);
+      }
+
+      function moveZone(event) {
+        if (!live || !board) return;
+        const rect = board.getBoundingClientRect();
+        zonePos.x = Math.max(18, Math.min(82, ((event.clientX - rect.left) / rect.width) * 100));
+        zonePos.y = Math.max(18, Math.min(82, ((event.clientY - rect.top) / rect.height) * 100));
+        targetPos = { ...zonePos };
+        hasControl = true;
+        render();
+      }
+
+      startButtons.forEach((button) => {
+        button.addEventListener("pointerdown", startRound);
+        button.addEventListener("click", startRound);
+        button.addEventListener("pointerup", startRound);
+        button.addEventListener("touchstart", startRound, { passive: false });
+        button.addEventListener("touchend", startRound, { passive: false });
+      });
+      if (board) {
+        board.addEventListener("pointerdown", (event) => {
+          if (event.target.closest("[data-start-circle]")) return;
+          board.setPointerCapture?.(event.pointerId);
+          moveZone(event);
+        });
+        board.addEventListener("pointermove", moveZone);
+      }
+      if (buyMore) {
+        buyMore.addEventListener("click", () => {
+          const url = new URL("checkout.html", window.location.href);
+          url.searchParams.set("entry", "R500 2-Hour Cashpool - Circle Lock round");
+          url.searchParams.set("price", "10");
+          url.searchParams.set("qty", "1");
+          url.searchParams.set("game", "circle");
+          window.location.href = url.href;
+        });
+      }
+      render();
+    })();
+  </script>
+</body>
+</html>
