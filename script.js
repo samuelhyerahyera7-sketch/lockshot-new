@@ -3450,12 +3450,22 @@ function initSportsIqExperience() {
 
   document.querySelectorAll("[data-sports-nav]").forEach((link) => {
     link.addEventListener("click", (event) => {
-      const target = document.querySelector(link.getAttribute("href"));
+      let href = link.getAttribute("href");
+      let target = document.querySelector(href);
       if (!target) return;
       event.preventDefault();
+
+      // If the target is hidden (e.g. prediction-arena requires payment),
+      // fall back to the live fixtures panel so the user can pick a match and pay.
+      if (getComputedStyle(target).display === "none") {
+        href = "#live-fixtures";
+        target = document.querySelector(href);
+        if (!target) return;
+      }
+
       document.querySelectorAll("[data-sports-nav]").forEach((item) => item.classList.toggle("active", item === link));
       target.scrollIntoView({ behavior: "smooth", block: "start" });
-      history.replaceState(null, "", link.getAttribute("href"));
+      history.replaceState(null, "", href);
     });
   });
 
