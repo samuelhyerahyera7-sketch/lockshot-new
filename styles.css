@@ -5016,7 +5016,7 @@ body[data-page="game"] .chat-button {
 }
 
 .home-page .count-label {
-  padding-inline: 6px;
+  padding-inline: 4px;
   overflow: hidden;
 }
 
@@ -5031,11 +5031,11 @@ body[data-page="game"] .chat-button {
 
 @media (max-width: 720px) {
   .home-page .timer-card {
-    grid-template-columns: minmax(64px, 0.86fr) repeat(4, minmax(42px, 1fr));
+    grid-template-columns: minmax(72px, 0.9fr) repeat(4, minmax(42px, 1fr));
   }
 
   .home-page .count-label strong {
-    font-size: 0.72rem;
+    font-size: 0.65rem;
   }
 
   .home-page .count-label span {
@@ -5046,11 +5046,11 @@ body[data-page="game"] .chat-button {
 
 @media (max-width: 420px) {
   .home-page .timer-card {
-    grid-template-columns: minmax(58px, 0.84fr) repeat(4, minmax(34px, 1fr));
+    grid-template-columns: minmax(72px, 0.9fr) repeat(4, minmax(34px, 1fr));
   }
 
   .home-page .count-label strong {
-    font-size: 0.64rem;
+    font-size: 0.62rem;
   }
 
   .home-page .count-label span {
