@@ -4795,3 +4795,47 @@ window.setTimeout(updateHeader, 250);
 updateCountdown();
 setInterval(updateCountdown, 1000);
 setInterval(() => setHeroSlide(activeHeroSlide + 1), 5200);
+
+/* ── Competition cards auto-scroll (mobile only) ── */
+function initCardsAutoScroll() {
+  const cars = document.querySelector('.competitions-page .cars');
+  if (!cars || window.innerWidth > 720) return;
+
+  let userInteracting = false;
+  let paused = false;
+  let dir = 1; // 1 = drift right toward R10k, -1 = drift back to R2.5k
+  const speed = 0.6; // px per rAF tick (~36 px/s at 60 fps)
+
+  // Disable snap so the rAF animation can move freely
+  cars.style.scrollSnapType = 'none';
+
+  cars.addEventListener('touchstart', () => {
+    userInteracting = true;
+    cars.style.scrollSnapType = 'x mandatory'; // restore snap for manual swipe
+  }, { passive: true });
+  cars.addEventListener('touchend', () => {
+    setTimeout(() => {
+      userInteracting = false;
+      cars.style.scrollSnapType = 'none'; // disable again for auto-scroll
+    }, 4000);
+  }, { passive: true });
+
+  function tick() {
+    if (!userInteracting && !paused) {
+      cars.scrollLeft += speed * dir;
+      const maxScroll = cars.scrollWidth - cars.clientWidth;
+
+      if (dir === 1 && cars.scrollLeft >= maxScroll - 1) {
+        paused = true;
+        setTimeout(() => { dir = -1; paused = false; }, 2500); // pause at R10k end
+      } else if (dir === -1 && cars.scrollLeft <= 1) {
+        paused = true;
+        setTimeout(() => { dir = 1; paused = false; }, 2500);  // pause at R2.5k end
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+
+  setTimeout(tick, 1200); // small delay before starting
+}
+initCardsAutoScroll();
