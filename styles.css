@@ -346,6 +346,17 @@ img { display: block; max-width: 100%; }
   opacity: 1;
 }
 
+@keyframes hero-pull-out {
+  from { transform: scale(1.12); }
+  to   { transform: scale(1.0); }
+}
+
+@media (max-width: 720px) {
+  .hero-bg.is-active {
+    animation: hero-pull-out 6s ease-out forwards;
+  }
+}
+
 .hero-bg-weekly {
   background-image: url("hero-monthly.jpg.jpeg");
   background-size: cover;
