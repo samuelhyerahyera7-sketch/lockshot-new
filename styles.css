@@ -6601,9 +6601,10 @@ body[data-page="game"] .chat-button {
 
 .pred-field-top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
+  gap: 4px 8px;
+  flex-wrap: wrap;
 }
 
 .pred-field-top [data-field-label] {
