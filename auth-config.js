@@ -1,6 +1,6 @@
 window.LOCKSHOT_SUPABASE = {
-  url: "https://ttfcyoryxqifccuuhzht.supabase.co",
-  anonKey: "sb_publishable_RjLnXg325k_FStu1uTYtQA_dOY5lAkk"
+  url: "https://asyytiinwznouwiqjeol.supabase.co",
+  anonKey: "sb_publishable_P8N-fczfUkHQwMv6h8998w_Q-HSkULZ"
 };
 
 // Your email address — only this account can access the admin dashboard
