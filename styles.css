@@ -1178,6 +1178,26 @@ h2 {
   background:
     radial-gradient(circle at 85% 0%, rgba(4, 245, 41, 0.18), transparent 30%),
     linear-gradient(135deg, #071312, #111923);
+  transition: background 0.7s ease, border-color 0.7s ease;
+}
+
+/* ── Monthly leaderboard skin (amber / orange) ── */
+.cashpool-leaderboard.mode-monthly {
+  background:
+    radial-gradient(circle at 85% 0%, rgba(255, 160, 20, 0.22), transparent 32%),
+    linear-gradient(135deg, #130d04, #1a1409);
+  border-color: rgba(255, 160, 20, 0.28) !important;
+}
+.cashpool-leaderboard.mode-monthly > div > span,
+.cashpool-leaderboard.mode-monthly span:first-child {
+  color: #ffab1e;
+}
+.cashpool-leaderboard.mode-monthly .standings-switch button.is-active {
+  background: #ffab1e;
+  color: #1a0e00;
+}
+.cashpool-leaderboard.mode-monthly .cashpool-leaderboard li strong {
+  color: #ffab1e;
 }
 
 .cashpool-leaderboard span:first-child,

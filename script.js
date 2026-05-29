@@ -3366,6 +3366,10 @@ function renderMainLeaderboard() {
   document.querySelectorAll("[data-standings-tab]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.standingsTab === type);
   });
+  // Apply colour skin
+  document.querySelectorAll(".main-leaderboard").forEach((board) => {
+    board.classList.toggle("mode-monthly", type === "monthly");
+  });
 
   const rows = getMainCompetitionLeaderboard(type);
   rows.slice(0, 3).forEach((row, index) => {
@@ -3386,15 +3390,36 @@ function initStandingsSwitch() {
   const buttons = document.querySelectorAll("[data-standings-tab]");
   if (!buttons.length) return;
   activeStandingsType = getPrizeStandingsType();
+
+  const CYCLE = ["weekly", "monthly"];
+  let cycleTimer = null;
+
+  function switchTo(type) {
+    activeStandingsType = type;
+    renderMainLeaderboard();
+  }
+
+  function startCycle() {
+    clearInterval(cycleTimer);
+    let idx = CYCLE.indexOf(activeStandingsType);
+    if (idx < 0) idx = 0;
+    cycleTimer = setInterval(() => {
+      idx = (idx + 1) % CYCLE.length;
+      switchTo(CYCLE[idx]);
+    }, 5000);
+  }
+
   buttons.forEach((button) => {
     if (button.dataset.standingsReady === "true") return;
     button.dataset.standingsReady = "true";
     button.addEventListener("click", () => {
-      activeStandingsType = button.dataset.standingsTab || "weekly";
-      renderMainLeaderboard();
+      switchTo(button.dataset.standingsTab || "weekly");
+      startCycle(); // reset the 5 s clock from the tab the user picked
     });
   });
+
   renderMainLeaderboard();
+  startCycle();
 }
 
 function initMatchIqChallenge() {
