@@ -268,6 +268,8 @@ const driftLineVariants = [
 ];
 let activeHeroSlide = 0;
 let lastDriftLineIndex = -1;
+let _sportsTickets = [];
+let _activeTicketIdx = 0;
 
 hydrateCartFromUrl();
 hydratePaidAttemptsFromUrl();
@@ -934,8 +936,6 @@ function setSportsPredictionMatch(source) {
 }
 
 // ── Multi-ticket state ───────────────────────────────────────────────────────
-let _sportsTickets = [];
-let _activeTicketIdx = 0;
 
 function _defaultTicket() {
   return {

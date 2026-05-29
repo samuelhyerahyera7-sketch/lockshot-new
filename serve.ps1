@@ -19,6 +19,7 @@ while ($listener.IsListening) {
                 $ct = if ($types.ContainsKey($ext)) { $types[$ext] } else { "application/octet-stream" }
                 $bytes = [System.IO.File]::ReadAllBytes($file)
                 $res.ContentType = $ct
+                $res.Headers.Add("Cache-Control", "no-store, no-cache, must-revalidate")
                 $res.ContentLength64 = $bytes.Length
                 $res.OutputStream.Write($bytes, 0, $bytes.Length)
             } else {
