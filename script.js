@@ -3784,13 +3784,15 @@ function initSportsIqExperience() {
     if (!row) return;
     let paused = false;
     let stopped = false;
+    let pos = 0; // float accumulator — scrollLeft only accepts integers
     function drift() {
       if (stopped) return;
       if (!paused && row.offsetParent !== null) {
         const maxScroll = row.scrollWidth - row.clientWidth;
         if (maxScroll > 0) {
-          row.scrollLeft += 0.4;
-          if (row.scrollLeft >= maxScroll - 1) row.scrollLeft = 0;
+          pos += 0.4;
+          if (pos >= maxScroll) pos = 0;
+          row.scrollLeft = Math.round(pos);
         }
       }
       requestAnimationFrame(drift);
