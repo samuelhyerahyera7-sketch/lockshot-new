@@ -3783,28 +3783,28 @@ function initSportsIqExperience() {
     const row = document.querySelector(".sport-choice-row");
     if (!row) return;
     let paused = false;
-    let rafId;
+    let stopped = false;
     function drift() {
-      if (!paused) {
-        row.scrollLeft += 0.4;
-        // Loop back to start once we've reached the end
-        if (row.scrollLeft >= row.scrollWidth - row.clientWidth - 1) {
-          row.scrollLeft = 0;
+      if (stopped) return;
+      // Only scroll when the row is actually rendered and overflows
+      if (!paused && row.offsetParent !== null) {
+        const maxScroll = row.scrollWidth - row.clientWidth;
+        if (maxScroll > 0) {
+          row.scrollLeft += 0.4;
+          if (row.scrollLeft >= maxScroll - 1) {
+            row.scrollLeft = 0;
+          }
         }
       }
-      rafId = requestAnimationFrame(drift);
+      requestAnimationFrame(drift);
     }
-    // Pause while the user is interacting
     row.addEventListener("mouseenter",  () => { paused = true;  }, { passive: true });
     row.addEventListener("touchstart",  () => { paused = true;  }, { passive: true });
     row.addEventListener("mouseleave",  () => { paused = false; }, { passive: true });
     row.addEventListener("touchend",    () => { paused = false; }, { passive: true });
-    // Also stop drifting when the user actually picks a sport tab
-    row.addEventListener("click", () => {
-      paused = true;
-      cancelAnimationFrame(rafId);
-    }, { once: true });
-    rafId = requestAnimationFrame(drift);
+    // Stop permanently once the user deliberately picks a sport
+    row.addEventListener("click", () => { stopped = true; }, { once: true });
+    requestAnimationFrame(drift);
   })();
 
   document.querySelectorAll("[data-sport-filter]").forEach((button) => {

@@ -6642,7 +6642,7 @@ body[data-page="game"] .chat-button {
   white-space: nowrap;
 }
 
-.pred-field input {
+.pred-field input:not([type="range"]):not([type="hidden"]) {
   width: 100%;
   min-height: 46px;
   padding: 0 12px;
@@ -6657,11 +6657,11 @@ body[data-page="game"] .chat-button {
   transition: border-color 0.15s ease;
 }
 
-.pred-field input::placeholder {
+.pred-field input:not([type="range"]):not([type="hidden"])::placeholder {
   color: rgba(255, 255, 255, 0.28);
 }
 
-.pred-field input:focus {
+.pred-field input:not([type="range"]):not([type="hidden"]):focus {
   border-color: rgba(4, 245, 41, 0.55);
 }
 
