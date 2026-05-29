@@ -5600,6 +5600,7 @@ body[data-page="game"] .chat-button {
   grid-auto-columns: max-content;
   gap: 8px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   padding-bottom: 4px;
   scrollbar-width: none;
 }

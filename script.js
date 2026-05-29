@@ -3785,23 +3785,39 @@ function initSportsIqExperience() {
     let paused = false;
     let stopped = false;
     let pos = 0; // float accumulator — scrollLeft only accepts integers
+    let resumeTimer = null;
+
     function drift() {
       if (stopped) return;
       if (!paused && row.offsetParent !== null) {
         const maxScroll = row.scrollWidth - row.clientWidth;
         if (maxScroll > 0) {
-          pos += 0.4;
+          pos += 0.18; // slow drift
           if (pos >= maxScroll) pos = 0;
           row.scrollLeft = Math.round(pos);
         }
       }
       requestAnimationFrame(drift);
     }
-    row.addEventListener("mouseenter", () => { paused = true;  }, { passive: true });
-    row.addEventListener("touchstart", () => { paused = true;  }, { passive: true });
+
+    row.addEventListener("mouseenter", () => { paused = true; }, { passive: true });
     row.addEventListener("mouseleave", () => { paused = false; }, { passive: true });
-    row.addEventListener("touchend",   () => { paused = false; }, { passive: true });
-    row.addEventListener("click",      () => { stopped = true; }, { once: true });
+
+    // On touch: pause immediately; after finger lifts wait 1.5 s then
+    // resume from wherever the user scrolled to (no jump).
+    row.addEventListener("touchstart", () => {
+      paused = true;
+      clearTimeout(resumeTimer);
+    }, { passive: true });
+
+    row.addEventListener("touchend", () => {
+      resumeTimer = setTimeout(() => {
+        pos = row.scrollLeft; // sync so drift continues from current position
+        paused = false;
+      }, 1500);
+    }, { passive: true });
+
+    row.addEventListener("click", () => { stopped = true; }, { once: true });
     requestAnimationFrame(drift);
   }
 
