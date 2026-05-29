@@ -3391,6 +3391,8 @@ function initStandingsSwitch() {
   if (!buttons.length) return;
   activeStandingsType = getPrizeStandingsType();
 
+  // Auto-cycle only on pages that opt in with data-standings-auto-cycle
+  const shouldAutoCycle = !!document.querySelector("[data-standings-auto-cycle]");
   const CYCLE = ["weekly", "monthly"];
   let cycleTimer = null;
 
@@ -3400,6 +3402,7 @@ function initStandingsSwitch() {
   }
 
   function startCycle() {
+    if (!shouldAutoCycle) return;
     clearInterval(cycleTimer);
     let idx = CYCLE.indexOf(activeStandingsType);
     if (idx < 0) idx = 0;

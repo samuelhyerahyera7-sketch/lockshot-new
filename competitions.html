@@ -26,11 +26,15 @@
   <main>
     <section class="section competitions" id="competitions" aria-label="Lockshot competitions">
 
-      <section class="cashpool-leaderboard main-leaderboard" aria-labelledby="main-leaderboard-title">
+      <section class="cashpool-leaderboard main-leaderboard" data-standings-auto-cycle aria-labelledby="main-leaderboard-title">
         <div>
-          <span>Live leaderboard</span>
-          <h3 id="main-leaderboard-title">Weekly giveaway standings</h3>
+          <span data-standings-kicker>Live leaderboard</span>
+          <h3 id="main-leaderboard-title" data-standings-title>Weekly giveaway standings</h3>
           <p data-player-leaderboard-position>Your position appears here after you submit a score.</p>
+          <div class="standings-switch" aria-label="Choose leaderboard">
+            <button type="button" data-standings-tab="weekly">Weekly</button>
+            <button type="button" data-standings-tab="monthly">Monthly</button>
+          </div>
         </div>
         <ol>
           <li><strong>1</strong><span data-main-leader-name>Waiting for scores</span><em data-main-leader-score>0 pts</em></li>
