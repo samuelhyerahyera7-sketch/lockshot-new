@@ -3765,6 +3765,35 @@ function initSportsIqExperience() {
     });
   });
 
+  // Slow-scroll hint so users know more sport tabs are off-screen
+  (function initSportRowDrift() {
+    const row = document.querySelector(".sport-choice-row");
+    if (!row) return;
+    let paused = false;
+    let rafId;
+    function drift() {
+      if (!paused) {
+        row.scrollLeft += 0.4;
+        // Loop back to start once we've reached the end
+        if (row.scrollLeft >= row.scrollWidth - row.clientWidth - 1) {
+          row.scrollLeft = 0;
+        }
+      }
+      rafId = requestAnimationFrame(drift);
+    }
+    // Pause while the user is interacting
+    row.addEventListener("mouseenter",  () => { paused = true;  }, { passive: true });
+    row.addEventListener("touchstart",  () => { paused = true;  }, { passive: true });
+    row.addEventListener("mouseleave",  () => { paused = false; }, { passive: true });
+    row.addEventListener("touchend",    () => { paused = false; }, { passive: true });
+    // Also stop drifting when the user actually picks a sport tab
+    row.addEventListener("click", () => {
+      paused = true;
+      cancelAnimationFrame(rafId);
+    }, { once: true });
+    rafId = requestAnimationFrame(drift);
+  })();
+
   document.querySelectorAll("[data-sport-filter]").forEach((button) => {
     button.addEventListener("click", () => {
       activeSportsFilter = button.dataset.sportFilter || "soccer";
