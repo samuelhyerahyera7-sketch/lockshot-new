@@ -8910,6 +8910,7 @@ body[data-default-game] .panel-link {
 body.game-menu-page {
   background: #060d0c;
   color: white;
+  padding-bottom: 120px; /* clear the fixed bottom-nav */
 }
 
 .game-menu-page .game-section {
