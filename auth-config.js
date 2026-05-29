@@ -4,7 +4,7 @@ window.LOCKSHOT_SUPABASE = {
 };
 
 // Your email address — only this account can access the admin dashboard
-window.LOCKSHOT_ADMIN_EMAIL = ""; // ← put your email here
+window.LOCKSHOT_ADMIN_EMAIL = "samuelhyera.hyera7@gmail.com";
 
 window.LOCKSHOT_SPORTS_API = {
   baseUrl: "https://v3.football.api-sports.io",
