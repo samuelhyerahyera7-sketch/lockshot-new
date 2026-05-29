@@ -3,6 +3,9 @@ window.LOCKSHOT_SUPABASE = {
   anonKey: "sb_publishable_RjLnXg325k_FStu1uTYtQA_dOY5lAkk"
 };
 
+// Your email address — only this account can access the admin dashboard
+window.LOCKSHOT_ADMIN_EMAIL = ""; // ← put your email here
+
 window.LOCKSHOT_SPORTS_API = {
   baseUrl: "https://v3.football.api-sports.io",
   key: "d092f7d41e2ce9b43bbc6b0daa8926f8"

@@ -354,13 +354,21 @@ async function upsertSupabaseProfile(user) {
   const client = getSupabaseClient();
   if (!client || !user?.id) return;
 
+  // Detect OAuth provider (google / facebook / email)
+  const identities = user.identities || [];
+  const detectedProvider = identities.length > 0
+    ? identities[0].provider
+    : (user.app_metadata?.provider || "email");
+
   await client.from("profiles").upsert({
     id: user.id,
     email: user.email,
     full_name: user.user_metadata?.full_name || user.email || "Lockshot player",
-    skill_score: 0,
+    last_sign_in: new Date().toISOString(),
+    provider: detectedProvider,
     updated_at: new Date().toISOString()
-  });
+    // NOTE: skill_score is NOT set here — it must not be reset on every login
+  }, { onConflict: "id", ignoreDuplicates: false });
 }
 
 async function loadSupabaseLeaderboard() {
@@ -1792,6 +1800,26 @@ async function syncSupabaseUser() {
     enforceProtectedRoutes();
     return;
   }
+
+  // Check if admin has blocked this account
+  const { data: profile } = await client
+    .from("profiles")
+    .select("blocked")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.blocked) {
+    await client.auth.signOut();
+    storeCurrentUser(null);
+    if (!window.location.pathname.endsWith("account.html")) {
+      window.location.href = "account.html?blocked=1";
+    } else {
+      const msg = document.querySelector("[data-auth-message]");
+      if (msg) msg.textContent = "Your account has been suspended. Please contact support.";
+    }
+    return;
+  }
+
   storeCurrentUser({
     id: user.id,
     name: user.user_metadata?.full_name || user.email || "Lockshot player",

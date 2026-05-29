@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lockshot | Admin Dashboard</title>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #00e87a;
+      --amber: #ffab1e;
+      --red:   #ff4466;
+      --bg:    #0a0a0f;
+      --card:  #12121a;
+      --border: rgba(255,255,255,0.08);
+      --text:  #e8e8f0;
+      --muted: rgba(255,255,255,0.45);
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+    }
+
+    /* ── Guard screen ─────────────────────────────────────── */
+    #guard {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+      gap: 12px;
+      padding: 24px;
+      text-align: center;
+    }
+    #guard h1 { font-size: 1.4rem; }
+    #guard p  { color: var(--muted); font-size: 0.9rem; }
+    #guard a  { color: var(--green); text-decoration: none; font-size: 0.9rem; }
+
+    /* ── Dashboard shell ─────────────────────────────────── */
+    #dashboard { display: none; }
+
+    header.admin-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--card);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header.admin-bar .brand {
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+    header.admin-bar .brand span { color: var(--green); }
+    header.admin-bar small { color: var(--muted); font-size: 0.75rem; }
+    header.admin-bar button {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    header.admin-bar button:hover { background: rgba(255,255,255,0.12); }
+
+    main.admin-main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    /* ── Stat cards ──────────────────────────────────────── */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+    }
+    .stat-card em { display: block; font-size: 0.72rem; color: var(--muted); font-style: normal; margin-bottom: 4px; }
+    .stat-card strong { font-size: 1.8rem; font-weight: 800; }
+    .stat-card.green strong { color: var(--green); }
+    .stat-card.amber strong { color: var(--amber); }
+    .stat-card.red   strong { color: var(--red); }
+
+    /* ── Section headings ────────────────────────────────── */
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-head h2 { font-size: 1rem; font-weight: 700; }
+    .section-head input {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      outline: none;
+      width: 200px;
+    }
+    .section-head input::placeholder { color: var(--muted); }
+
+    /* ── Table ───────────────────────────────────────────── */
+    .table-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      overflow-x: auto;
+      margin-bottom: 32px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    thead th {
+      text-align: left;
+      padding: 11px 14px;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
+    tbody td { padding: 11px 14px; vertical-align: middle; white-space: nowrap; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .badge-green  { background: rgba(0,232,122,0.15); color: var(--green); }
+    .badge-amber  { background: rgba(255,171,30,0.15); color: var(--amber); }
+    .badge-red    { background: rgba(255,68,102,0.15);  color: var(--red); }
+    .badge-muted  { background: rgba(255,255,255,0.07); color: var(--muted); }
+
+    .online-dot {
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 5px var(--green);
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    /* action buttons */
+    .btn-block, .btn-unblock {
+      padding: 4px 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-block   { background: rgba(255,68,102,0.18); color: var(--red); }
+    .btn-unblock { background: rgba(0,232,122,0.15);  color: var(--green); }
+    .btn-block:hover, .btn-unblock:hover { opacity: 0.75; }
+
+    /* ── Empty / loading state ───────────────────────────── */
+    .tbl-empty {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    /* ── Refresh button ──────────────────────────────────── */
+    .refresh-btn {
+      background: rgba(0,232,122,0.1);
+      border: 1px solid rgba(0,232,122,0.25);
+      color: var(--green);
+      padding: 7px 16px;
+      border-radius: 9px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .refresh-btn:hover { background: rgba(0,232,122,0.18); }
+
+    /* ── Toast ───────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1e1e2e;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-size: 0.85rem;
+      transition: transform 0.3s ease;
+      z-index: 999;
+      pointer-events: none;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- Access denied screen (shown until admin verified) -->
+  <div id="guard">
+    <h1>🔒 Lockshot Admin</h1>
+    <p id="guard-msg">Checking access…</p>
+    <a href="index.html">← Back to site</a>
+  </div>
+
+  <!-- Dashboard (hidden until admin verified) -->
+  <div id="dashboard">
+    <header class="admin-bar">
+      <div>
+        <div class="brand">Lock<span>shot</span> Admin</div>
+        <small id="admin-email-label"></small>
+      </div>
+      <button id="sign-out-btn">Sign out</button>
+    </header>
+
+    <main class="admin-main">
+
+      <!-- Stats -->
+      <div class="stat-row">
+        <div class="stat-card green">
+          <em>Total users</em>
+          <strong id="stat-total">—</strong>
+        </div>
+        <div class="stat-card amber">
+          <em>Online now</em>
+          <strong id="stat-online">—</strong>
+        </div>
+        <div class="stat-card">
+          <em>Total entries</em>
+          <strong id="stat-entries">—</strong>
+        </div>
+        <div class="stat-card red">
+          <em>Blocked</em>
+          <strong id="stat-blocked">—</strong>
+        </div>
+      </div>
+
+      <!-- Users table -->
+      <div class="section-head">
+        <h2>All users</h2>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="search" id="user-search" placeholder="Search name or email…">
+          <button class="refresh-btn" id="refresh-btn">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="users-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Sign-in method</th>
+              <th>Last seen</th>
+              <th>Joined</th>
+              <th>Entries</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody">
+            <tr><td colspan="8" class="tbl-empty">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Recent entries table -->
+      <div class="section-head">
+        <h2>Recent entry activity</h2>
+      </div>
+      <div class="table-wrap">
+        <table id="entries-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Competition</th>
+              <th>Qty</th>
+              <th>Amount (R)</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="entries-tbody">
+            <tr><td colspan="5" class="tbl-empty">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <div id="toast"></div>
+
+<script>
+(async () => {
+  const guard      = document.getElementById("guard");
+  const guardMsg   = document.getElementById("guard-msg");
+  const dashboard  = document.getElementById("dashboard");
+  const toast      = document.getElementById("toast");
+
+  // ── helpers ──────────────────────────────────────────────
+  function showToast(msg, ms = 2800) {
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), ms);
+  }
+
+  function timeAgo(iso) {
+    if (!iso) return "—";
+    const diff = Date.now() - new Date(iso).getTime();
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return "just now";
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    const d = Math.floor(h / 24);
+    return `${d}d ago`;
+  }
+
+  function isOnline(iso) {
+    if (!iso) return false;
+    return Date.now() - new Date(iso).getTime() < 5 * 60 * 1000; // within 5 min
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return "—";
+    return new Date(iso).toLocaleDateString("en-ZA", { day: "2-digit", month: "short", year: "numeric" });
+  }
+
+  function providerBadge(p) {
+    if (!p || p === "email") return `<span class="badge badge-muted">Email</span>`;
+    if (p === "google")   return `<span class="badge badge-amber">Google</span>`;
+    if (p === "facebook") return `<span class="badge badge-amber">Facebook</span>`;
+    return `<span class="badge badge-muted">${p}</span>`;
+  }
+
+  // ── Supabase init ─────────────────────────────────────────
+  const cfg = window.LOCKSHOT_SUPABASE;
+  if (!cfg?.url || !cfg?.anonKey) {
+    guardMsg.textContent = "Supabase not configured in auth-config.js.";
+    return;
+  }
+  const sb = window.supabase.createClient(cfg.url, cfg.anonKey);
+
+  // ── Auth check ────────────────────────────────────────────
+  const { data: { user } } = await sb.auth.getUser();
+  const adminEmail = (window.LOCKSHOT_ADMIN_EMAIL || "").trim().toLowerCase();
+
+  if (!user) {
+    guardMsg.innerHTML = 'You need to be logged in. <a href="account.html">Log in →</a>';
+    return;
+  }
+
+  if (!adminEmail) {
+    guardMsg.textContent = "Set LOCKSHOT_ADMIN_EMAIL in auth-config.js first.";
+    return;
+  }
+
+  if (user.email?.toLowerCase() !== adminEmail) {
+    guardMsg.textContent = "Access denied — this page is admin only.";
+    return;
+  }
+
+  // Admin verified ✓
+  guard.style.display = "none";
+  dashboard.style.display = "block";
+  document.getElementById("admin-email-label").textContent = user.email;
+
+  // ── Data stores ───────────────────────────────────────────
+  let allUsers    = [];
+  let entryCounts = {}; // userId → count
+
+  // ── Load users ────────────────────────────────────────────
+  async function loadUsers() {
+    const { data, error } = await sb
+      .from("profiles")
+      .select("id, full_name, email, provider, last_sign_in, updated_at, blocked, skill_score")
+      .order("last_sign_in", { ascending: false, nullsLast: true });
+
+    if (error) { showToast("Error loading users: " + error.message); return; }
+    allUsers = data || [];
+    renderUsers(allUsers);
+    updateStats();
+  }
+
+  // ── Load entry counts per user ────────────────────────────
+  async function loadEntryCounts() {
+    const { data, error } = await sb
+      .from("entries")
+      .select("user_id");
+
+    if (error || !data) return; // entries table may not exist yet
+    entryCounts = {};
+    data.forEach(r => { entryCounts[r.user_id] = (entryCounts[r.user_id] || 0) + 1; });
+    renderUsers(getFilteredUsers());
+    updateStats();
+  }
+
+  // ── Load recent entries ───────────────────────────────────
+  async function loadRecentEntries() {
+    const { data, error } = await sb
+      .from("entries")
+      .select("user_id, competition, qty, amount, created_at, profiles(full_name, email)")
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    const tbody = document.getElementById("entries-tbody");
+    if (error || !data?.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="tbl-empty">No entries recorded yet.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = data.map(e => `
+      <tr>
+        <td>${e.profiles?.full_name || "—"}<br><small style="color:var(--muted)">${e.profiles?.email || ""}</small></td>
+        <td>${e.competition}</td>
+        <td>${e.qty}</td>
+        <td>R${parseFloat(e.amount).toFixed(2)}</td>
+        <td>${fmtDate(e.created_at)}</td>
+      </tr>
+    `).join("");
+
+    // update total entries stat
+    document.getElementById("stat-entries").textContent = data.length >= 50 ? "50+" : data.length;
+  }
+
+  // ── Render users table ────────────────────────────────────
+  function renderUsers(users) {
+    const tbody = document.getElementById("users-tbody");
+    if (!users.length) {
+      tbody.innerHTML = `<tr><td colspan="8" class="tbl-empty">No users found.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = users.map(u => {
+      const online  = isOnline(u.last_sign_in);
+      const blocked = !!u.blocked;
+      const entries = entryCounts[u.id] || 0;
+
+      return `
+        <tr>
+          <td>${u.full_name || "—"}</td>
+          <td style="color:var(--muted)">${u.email || "—"}</td>
+          <td>${providerBadge(u.provider)}</td>
+          <td>
+            ${online ? '<span class="online-dot"></span>' : ""}
+            ${timeAgo(u.last_sign_in)}
+          </td>
+          <td>${fmtDate(u.updated_at)}</td>
+          <td>${entries || "0"}</td>
+          <td>
+            ${blocked
+              ? '<span class="badge badge-red">Blocked</span>'
+              : online
+                ? '<span class="badge badge-green">Online</span>'
+                : '<span class="badge badge-muted">Active</span>'}
+          </td>
+          <td>
+            ${blocked
+              ? `<button class="btn-unblock" data-uid="${u.id}">Unblock</button>`
+              : `<button class="btn-block" data-uid="${u.id}">Block</button>`}
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  // ── Update stat cards ─────────────────────────────────────
+  function updateStats() {
+    document.getElementById("stat-total").textContent   = allUsers.length;
+    document.getElementById("stat-online").textContent  = allUsers.filter(u => isOnline(u.last_sign_in)).length;
+    document.getElementById("stat-blocked").textContent = allUsers.filter(u => u.blocked).length;
+  }
+
+  // ── Search filter ─────────────────────────────────────────
+  function getFilteredUsers() {
+    const q = (document.getElementById("user-search").value || "").toLowerCase();
+    if (!q) return allUsers;
+    return allUsers.filter(u =>
+      (u.full_name || "").toLowerCase().includes(q) ||
+      (u.email || "").toLowerCase().includes(q)
+    );
+  }
+
+  document.getElementById("user-search").addEventListener("input", () => {
+    renderUsers(getFilteredUsers());
+  });
+
+  // ── Block / Unblock ───────────────────────────────────────
+  document.getElementById("users-tbody").addEventListener("click", async (e) => {
+    const btn = e.target.closest("[data-uid]");
+    if (!btn) return;
+    const uid     = btn.dataset.uid;
+    const doBlock = btn.classList.contains("btn-block");
+
+    btn.disabled = true;
+    btn.textContent = doBlock ? "Blocking…" : "Unblocking…";
+
+    const { error } = await sb
+      .from("profiles")
+      .update({ blocked: doBlock })
+      .eq("id", uid);
+
+    if (error) {
+      showToast("Error: " + error.message);
+      btn.disabled = false;
+      btn.textContent = doBlock ? "Block" : "Unblock";
+      return;
+    }
+
+    showToast(doBlock ? "User blocked." : "User unblocked.");
+    await loadUsers();
+  });
+
+  // ── Sign out ──────────────────────────────────────────────
+  document.getElementById("sign-out-btn").addEventListener("click", async () => {
+    await sb.auth.signOut();
+    window.location.href = "index.html";
+  });
+
+  // ── Refresh button ────────────────────────────────────────
+  document.getElementById("refresh-btn").addEventListener("click", async () => {
+    document.getElementById("refresh-btn").textContent = "↻ Loading…";
+    await Promise.all([loadUsers(), loadEntryCounts(), loadRecentEntries()]);
+    document.getElementById("refresh-btn").textContent = "↻ Refresh";
+    showToast("Data refreshed.");
+  });
+
+  // ── Auto-refresh every 30s ────────────────────────────────
+  setInterval(async () => {
+    await Promise.all([loadUsers(), loadEntryCounts()]);
+  }, 30000);
+
+  // ── Initial load ──────────────────────────────────────────
+  await Promise.all([loadUsers(), loadEntryCounts(), loadRecentEntries()]);
+
+})();
+</script>
+</body>
+</html>
