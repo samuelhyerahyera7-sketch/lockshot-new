@@ -20,6 +20,8 @@
   </header>
 
   <main class="sports-app" data-sports-iq-app>
+
+  <div data-sports-page="live" class="page-active">
     <section class="sports-hero" aria-labelledby="sports-iq-title">
       <div class="live-orbit" aria-hidden="true"></div>
       <div class="sports-hero-copy">
@@ -136,6 +138,9 @@
         </article>
       </div>
     </section>
+  </div><!-- /page: live -->
+
+  <div data-sports-page="predict">
 
     <section class="sports-entry-lock" aria-label="Sports prediction entry required">
       <strong>Tap a match above to enter</strong>
@@ -359,6 +364,9 @@
         </div>
       </div>
     </section>
+  </div><!-- /page: predict -->
+
+  <div data-sports-page="board">
 
     <section class="sports-live-board" id="sports-standings" aria-labelledby="board-title">
       <div class="sports-section-head">
@@ -404,6 +412,18 @@
 
       <p class="verification-note"><i data-lucide="shield-check"></i> Standings update after each verified prediction. Winners paid within 24 hrs of full-time.</p>
     </section>
+  </div><!-- /page: board -->
+
+  <div data-sports-page="results">
+    <section class="sports-results-section" id="sports-results" aria-labelledby="results-title">
+      <div class="sports-section-head">
+        <span>Past predictions</span>
+        <h2 id="results-title">Results</h2>
+      </div>
+      <p class="sports-results-empty"><i data-lucide="shield-check"></i> Results appear here after matches are verified. Check back after full time.</p>
+    </section>
+  </div><!-- /page: results -->
+
   </main>
 
   <nav class="sports-bottom-nav" aria-label="Sports Predict navigation">

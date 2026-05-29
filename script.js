@@ -3448,23 +3448,40 @@ function initSportsIqExperience() {
   let selectedTournamentSport = document.querySelector("[data-tournament-sport].is-active")?.dataset.tournamentSport || "soccer";
   let kickoffSeconds = 4934;
 
+  // Map bottom-nav hrefs → page ids
+  const SPORTS_PAGE_MAP = {
+    "#live-fixtures":    "live",
+    "#prediction-arena": "predict",
+    "#sports-standings": "board",
+    "#sports-results":   "results"
+  };
+
+  function switchSportsPage(pageId) {
+    document.querySelectorAll("[data-sports-page]").forEach((page) => {
+      page.classList.toggle("page-active", page.dataset.sportsPage === pageId);
+    });
+    document.querySelectorAll("[data-sports-nav]").forEach((link) => {
+      const href = link.getAttribute("href");
+      link.classList.toggle("active", (SPORTS_PAGE_MAP[href] || "live") === pageId);
+    });
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+
   document.querySelectorAll("[data-sports-nav]").forEach((link) => {
     link.addEventListener("click", (event) => {
-      let href = link.getAttribute("href");
-      let target = document.querySelector(href);
-      if (!target) return;
+      const href = link.getAttribute("href");
+      const pageId = SPORTS_PAGE_MAP[href];
+      if (!pageId) return; // external link (e.g. account.html) — navigate normally
+
       event.preventDefault();
 
-      // If the target is hidden (e.g. prediction-arena requires payment),
-      // fall back to the live fixtures panel so the user can pick a match and pay.
-      if (getComputedStyle(target).display === "none") {
-        href = "#live-fixtures";
-        target = document.querySelector(href);
-        if (!target) return;
+      // Predict tab requires a paid entry — bounce to Live if not paid yet
+      if (pageId === "predict") {
+        const hasPaid = getStoredPaidAttempts({ name: "Sports Predict", game: "sports" }) > 0;
+        if (!hasPaid) { switchSportsPage("live"); return; }
       }
 
-      document.querySelectorAll("[data-sports-nav]").forEach((item) => item.classList.toggle("active", item === link));
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      switchSportsPage(pageId);
       history.replaceState(null, "", href);
     });
   });
@@ -3684,8 +3701,7 @@ function initSportsIqExperience() {
         });
         updateTournamentFields();
         if (lockedState) lockedState.classList.remove("is-active");
-        const arena = document.querySelector("#prediction-arena");
-        if (arena) window.setTimeout(() => arena.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+        switchSportsPage("predict");
         return;
       }
 
@@ -3722,13 +3738,10 @@ function initSportsIqExperience() {
     }
 
     updateLockLabel();
-    // Ensure arena is visible and scroll into it if entry has been paid
+    // Ensure arena is visible; if already paid switch straight to predict tab
     renderSportsEntryState();
     const hasPaid = getStoredPaidAttempts({ name: "Sports Predict", game: "sports" }) > 0;
-    if (hasPaid) {
-      const arena = document.querySelector("#prediction-arena");
-      if (arena) window.setTimeout(() => arena.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
-    }
+    if (hasPaid) switchSportsPage("predict");
   });
 
   if (slider) slider.addEventListener("input", updateConfidence);
@@ -4069,6 +4082,11 @@ function initSportsIqExperience() {
 
   // Apply after fixtures have had time to load
   window.setTimeout(applyPendingFixtureFromUrl, 1800);
+
+  // If we land on sports-iq with a hash pointing to a non-live page
+  // (e.g. returning from payment with #prediction-arena), switch to it now.
+  const _initialPage = SPORTS_PAGE_MAP[window.location.hash] || "live";
+  if (_initialPage !== "live") switchSportsPage(_initialPage);
 }
 
 document.querySelectorAll("[data-add]").forEach((button) => {

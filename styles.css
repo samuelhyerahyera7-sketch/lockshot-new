@@ -33,6 +33,24 @@ body {
   display: none !important;
 }
 
+/* ── Sports tab pages ─────────────────────────────────── */
+[data-sports-page] { display: none; }
+[data-sports-page].page-active { display: block; }
+
+.sports-results-section {
+  padding: 40px 20px 80px;
+}
+.sports-results-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 20px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.5);
+  font-size: 0.95rem;
+}
+
 .sports-iq-page:not(.has-sports-entry) .sports-tournament-arena {
   display: none !important;
 }
