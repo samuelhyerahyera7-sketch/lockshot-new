@@ -3779,33 +3779,33 @@ function initSportsIqExperience() {
   });
 
   // Slow-scroll hint so users know more sport tabs are off-screen
-  (function initSportRowDrift() {
-    const row = document.querySelector(".sport-choice-row");
+  // Slow-scroll hint for any overflowing tab row
+  function startTabRowDrift(row) {
     if (!row) return;
     let paused = false;
     let stopped = false;
     function drift() {
       if (stopped) return;
-      // Only scroll when the row is actually rendered and overflows
       if (!paused && row.offsetParent !== null) {
         const maxScroll = row.scrollWidth - row.clientWidth;
         if (maxScroll > 0) {
           row.scrollLeft += 0.4;
-          if (row.scrollLeft >= maxScroll - 1) {
-            row.scrollLeft = 0;
-          }
+          if (row.scrollLeft >= maxScroll - 1) row.scrollLeft = 0;
         }
       }
       requestAnimationFrame(drift);
     }
-    row.addEventListener("mouseenter",  () => { paused = true;  }, { passive: true });
-    row.addEventListener("touchstart",  () => { paused = true;  }, { passive: true });
-    row.addEventListener("mouseleave",  () => { paused = false; }, { passive: true });
-    row.addEventListener("touchend",    () => { paused = false; }, { passive: true });
-    // Stop permanently once the user deliberately picks a sport
-    row.addEventListener("click", () => { stopped = true; }, { once: true });
+    row.addEventListener("mouseenter", () => { paused = true;  }, { passive: true });
+    row.addEventListener("touchstart", () => { paused = true;  }, { passive: true });
+    row.addEventListener("mouseleave", () => { paused = false; }, { passive: true });
+    row.addEventListener("touchend",   () => { paused = false; }, { passive: true });
+    row.addEventListener("click",      () => { stopped = true; }, { once: true });
     requestAnimationFrame(drift);
-  })();
+  }
+
+  // Drift both the Live-page sport filter row and the Predict-page sport picker
+  startTabRowDrift(document.querySelector(".sports-tabs"));
+  startTabRowDrift(document.querySelector(".sport-choice-row"));
 
   document.querySelectorAll("[data-sport-filter]").forEach((button) => {
     button.addEventListener("click", () => {
