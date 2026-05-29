@@ -4702,9 +4702,6 @@ body[data-page="game"] .chat-button {
   .tournament-prediction-grid {
     grid-template-columns: 1fr;
   }
-  .sport-choice-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   .upcoming-grid {
     grid-template-columns: 1fr;
   }
@@ -7651,23 +7648,32 @@ body[data-page="game"] .chat-button {
 }
 
 .sport-choice-row {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  display: flex;
   gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sport-choice-row::-webkit-scrollbar {
+  display: none;
 }
 
 .sport-choice-row button {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   gap: 8px;
   min-height: 54px;
+  padding: 0 18px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 18px;
   color: rgba(255, 255, 255, 0.74);
   background: rgba(0, 0, 0, 0.32);
   font-weight: 950;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .sport-choice-row button.is-active {
