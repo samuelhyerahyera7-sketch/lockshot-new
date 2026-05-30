@@ -79,3 +79,34 @@ DROP POLICY IF EXISTS "Admin sees all entries" ON public.entries;
 CREATE POLICY "Admin sees all entries"
   ON public.entries FOR SELECT
   USING (auth.jwt() ->> 'email' = 'YOUR_ADMIN_EMAIL');
+
+-- ============================================================
+-- game_scores table (tracks individual game round results)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.game_scores (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    uuid REFERENCES public.profiles(id) ON DELETE CASCADE,
+  game       text NOT NULL,
+  score      int  NOT NULL DEFAULT 0,
+  created_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.game_scores ENABLE ROW LEVEL SECURITY;
+
+-- Users can insert their own scores
+DROP POLICY IF EXISTS "Users insert own scores" ON public.game_scores;
+CREATE POLICY "Users insert own scores"
+  ON public.game_scores FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- Users can read their own scores
+DROP POLICY IF EXISTS "Users read own scores" ON public.game_scores;
+CREATE POLICY "Users read own scores"
+  ON public.game_scores FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- Admin sees all game scores
+DROP POLICY IF EXISTS "Admin sees all scores" ON public.game_scores;
+CREATE POLICY "Admin sees all scores"
+  ON public.game_scores FOR SELECT
+  USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');

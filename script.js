@@ -350,6 +350,22 @@ function getSupabaseClient() {
   return window.lockshotSupabaseClient;
 }
 
+async function saveGameScoreToSupabase(game, score) {
+  const client = getSupabaseClient();
+  const uid = currentUser?.id;
+  if (!client || !uid || score == null) return;
+
+  // Insert the round result
+  await client.from("game_scores").insert({ user_id: uid, game, score });
+
+  // Also bump skill_score in profiles if this is a personal best
+  await client
+    .from("profiles")
+    .update({ skill_score: score })
+    .eq("id", uid)
+    .lt("skill_score", score); // only updates if new score is higher
+}
+
 async function upsertSupabaseProfile(user) {
   const client = getSupabaseClient();
   if (!client || !user?.id) return;
@@ -2935,6 +2951,7 @@ function handleGearTap(timedOut = false) {
     storePaidAttempts(Math.max(0, paidAttempts - 1));
     gearHighScore = Math.max(gearHighScore, gearRoundScore);
     storeModeHighScore("Gear", gearHighScore);
+    saveGameScoreToSupabase("Gear Shift Lock", gearRoundScore);
     gearStarted = false;
     gearShowEndScreen = false;
     stopGearMovement();
@@ -2997,6 +3014,7 @@ function finishDriftRound() {
   storePaidAttempts(Math.max(0, paidAttempts - 1));
   driftHighScore = Math.max(driftHighScore, driftScore);
   storeModeHighScore("Drift", driftHighScore);
+  saveGameScoreToSupabase("Drift Line Lock", driftScore);
   showModePop(driftPop, driftScore ? `+${driftScore}` : "Miss +0", driftScore === 0);
   driftStarted = false;
   if (driftNote) driftNote.textContent = paidAttempts ? `Score: ${driftScore}. Press Start Game to use another round.` : `Score: ${driftScore}. No rounds left.`;
@@ -3107,6 +3125,7 @@ function startBoostRun() {
       boostCrashed = true;
       boostScore = 0;
       storePaidAttempts(Math.max(0, paidAttempts - 1));
+      saveGameScoreToSupabase("Boost Lock", 0);
       if (paidAttempts) boostStarted = false;
       showModePop(boostPop, "Overload +0", true);
       if (boostNote) boostNote.textContent = paidAttempts ? "Overload. Press Continue to launch another round." : "Overload. No rounds left.";
@@ -3132,6 +3151,7 @@ function lockBoostScore() {
   if (paidAttempts) boostStarted = false;
   boostHighScore = Math.max(boostHighScore, boostScore);
   storeModeHighScore("Boost", boostHighScore);
+  saveGameScoreToSupabase("Boost Lock", boostScore);
   showModePop(boostPop, `+${boostScore}`, false);
   if (boostNote) boostNote.textContent = paidAttempts ? `Locked at ${boostMultiplier.toFixed(2)}x. Press Continue to launch another round.` : `Locked at ${boostMultiplier.toFixed(2)}x. No rounds left.`;
   renderBoostGame();
@@ -4582,6 +4602,7 @@ if (submitSpotButton) {
     storePaidAttempts(Math.max(0, paidAttempts - 1));
     playerHighScore = Math.max(playerHighScore, currentScore);
     storePlayerHighScore(playerHighScore);
+    saveGameScoreToSupabase("Spot Lock", currentScore);
     markerPosition = null;
     if (spotBoard) spotBoard.classList.remove("has-marker");
     if (gameNote) {
@@ -4630,6 +4651,7 @@ if (penaltyBoard) {
       penaltyShowEndScreen = false;
       penaltyHighScore = Math.max(penaltyHighScore, penaltyRoundScore);
       storePenaltyHighScore(penaltyHighScore);
+      saveGameScoreToSupabase("Penalty Lock", penaltyRoundScore);
     }
 
     if (penaltyTap) {
@@ -4777,6 +4799,7 @@ if (submitDriftButton) {
     storePaidAttempts(Math.max(0, paidAttempts - 1));
     driftHighScore = Math.max(driftHighScore, driftScore);
     storeModeHighScore("Drift", driftHighScore);
+    saveGameScoreToSupabase("Drift Line Lock", driftScore);
     showModePop(driftPop, driftScore ? `+${driftScore}` : "Miss +0", driftScore === 0);
     driftStarted = false;
     if (driftNote) driftNote.textContent = paidAttempts ? `Score: ${driftScore}. Press Start Game to use another round.` : `Score: ${driftScore}. No rounds left.`;

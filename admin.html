@@ -295,6 +295,26 @@
         </table>
       </div>
 
+      <!-- Game scores table -->
+      <div class="section-head">
+        <h2>Recent game results</h2>
+      </div>
+      <div class="table-wrap">
+        <table id="scores-table">
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Game</th>
+              <th>Score</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="scores-tbody">
+            <tr><td colspan="4" class="tbl-empty">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
       <!-- Recent entries table -->
       <div class="section-head">
         <h2>Recent entry activity</h2>
@@ -426,6 +446,30 @@
     updateStats();
   }
 
+  // ── Load recent game scores ───────────────────────────────
+  async function loadRecentScores() {
+    const { data, error } = await sb
+      .from("game_scores")
+      .select("user_id, game, score, created_at, profiles(full_name, email)")
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    const tbody = document.getElementById("scores-tbody");
+    if (error || !data?.length) {
+      tbody.innerHTML = `<tr><td colspan="4" class="tbl-empty">No game results yet. Run the new SQL in Supabase first.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = data.map(s => `
+      <tr>
+        <td>${s.profiles?.full_name || "—"}<br><small style="color:var(--muted)">${s.profiles?.email || ""}</small></td>
+        <td><span class="badge badge-muted">${s.game}</span></td>
+        <td><strong style="color:var(--green)">${s.score}</strong></td>
+        <td>${fmtDate(s.created_at)}</td>
+      </tr>
+    `).join("");
+  }
+
   // ── Load recent entries ───────────────────────────────────
   async function loadRecentEntries() {
     const { data, error } = await sb
@@ -551,7 +595,7 @@
   // ── Refresh button ────────────────────────────────────────
   document.getElementById("refresh-btn").addEventListener("click", async () => {
     document.getElementById("refresh-btn").textContent = "↻ Loading…";
-    await Promise.all([loadUsers(), loadEntryCounts(), loadRecentEntries()]);
+    await Promise.all([loadUsers(), loadEntryCounts(), loadRecentEntries(), loadRecentScores()]);
     document.getElementById("refresh-btn").textContent = "↻ Refresh";
     showToast("Data refreshed.");
   });
@@ -562,7 +606,7 @@
   }, 30000);
 
   // ── Initial load ──────────────────────────────────────────
-  await Promise.all([loadUsers(), loadEntryCounts(), loadRecentEntries()]);
+  await Promise.all([loadUsers(), loadEntryCounts(), loadRecentEntries(), loadRecentScores()]);
 
 })();
 </script>
