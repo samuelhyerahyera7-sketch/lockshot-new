@@ -4583,6 +4583,10 @@ function initSportsIqExperience() {
   renderSportsLeaderboard();
   tickCountdown();
   window.setInterval(tickCountdown, 1000);
+
+  // Expose board helpers globally so they work after login and on-demand
+  window._lockshotRefreshBoard = refreshBoardFromCache;
+  window._lockshotBoardSummary = renderPredictionScoreSummary;
   window.setInterval(updateFixtureCountdowns, 1000); // tick card countdowns every second
 
   // Apply after fixtures have had time to load
