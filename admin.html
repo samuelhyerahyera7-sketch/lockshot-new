@@ -450,7 +450,12 @@
       .select("id, full_name, email, provider, last_sign_in, updated_at, blocked, skill_score")
       .order("last_sign_in", { ascending: false, nullsLast: true });
 
-    if (error) { showToast("Error loading users: " + error.message); return; }
+    if (error) {
+      const tbody = document.getElementById("users-tbody");
+      if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="tbl-empty" style="color:var(--red)">⚠ ${error.message}<br><small>Run admin-setup.sql in Supabase → SQL Editor first.</small></td></tr>`;
+      showToast("Users error: " + error.message);
+      return;
+    }
     allUsers = data || [];
     renderUsers(allUsers);
     updateStats();
@@ -478,8 +483,12 @@
       .limit(100);
 
     const tbody = document.getElementById("predictions-tbody");
-    if (error || !data?.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="tbl-empty">No predictions yet. Run the updated SQL in Supabase first.</td></tr>`;
+    if (error) {
+      tbody.innerHTML = `<tr><td colspan="7" class="tbl-empty" style="color:var(--red)">⚠ ${error.message}<br><small>Run admin-setup.sql in Supabase → SQL Editor.</small></td></tr>`;
+      return;
+    }
+    if (!data?.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="tbl-empty">No predictions yet — will appear here when users lock a ticket.</td></tr>`;
       return;
     }
 
@@ -512,8 +521,12 @@
       .limit(100);
 
     const tbody = document.getElementById("scores-tbody");
-    if (error || !data?.length) {
-      tbody.innerHTML = `<tr><td colspan="4" class="tbl-empty">No game results yet. Run the new SQL in Supabase first.</td></tr>`;
+    if (error) {
+      tbody.innerHTML = `<tr><td colspan="4" class="tbl-empty" style="color:var(--red)">⚠ ${error.message}<br><small>Run admin-setup.sql in Supabase → SQL Editor.</small></td></tr>`;
+      return;
+    }
+    if (!data?.length) {
+      tbody.innerHTML = `<tr><td colspan="4" class="tbl-empty">No game scores yet — will appear here when users play games.</td></tr>`;
       return;
     }
 
