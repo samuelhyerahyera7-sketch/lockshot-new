@@ -3780,6 +3780,74 @@ function initSportsIqExperience() {
     }).join("");
 
     if (typeof lucide !== "undefined") lucide.createIcons();
+
+    // Feed actual earned points back into the board standings
+    updateBoardFromResults(pairs);
+  }
+
+  // Push verified prediction points into the per-match leaderboard entries
+  function updateBoardFromResults(pairs) {
+    const uid  = currentUser?.id || currentUser?.email;
+    const name = currentUser?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email || "You";
+    if (!uid) return;
+
+    let totalEarned = 0;
+    let finishedCount = 0;
+
+    (pairs || []).forEach(({ ticket, actuals }) => {
+      const compared  = compareTicketRows(ticket.rows || [], actuals);
+      const earned    = compared.reduce((s, r) => s + (r.earnedPts || 0), 0);
+      const isFinished = actuals?.isFinished;
+      if (!isFinished) return;
+
+      totalEarned += earned;
+      finishedCount++;
+
+      // Update that match's per-fixture board entry
+      const [home = "", away = ""] = (ticket.match || "").split(" vs ").map(s => s.trim());
+      if (!home) return;
+      const boardKey = `lockshotSportsBoard:${home.toLowerCase().replace(/\s+/g, "-")}-vs-${away.toLowerCase().replace(/\s+/g, "-")}`;
+      let entries = (() => { try { return JSON.parse(localStorage.getItem(boardKey) || "[]"); } catch { return []; } })();
+      const idx = entries.findIndex(e => e.uid === uid);
+      const entry = { uid, name, pts: earned, pending: false };
+      if (idx >= 0) entries[idx] = entry; else entries.push(entry);
+      entries.sort((a, b) => b.pts - a.pts);
+      try { localStorage.setItem(boardKey, JSON.stringify(entries.slice(0, 30))); } catch {}
+    });
+
+    // Persist totals so the board tab can show them without re-fetching API
+    try {
+      localStorage.setItem("lockshotPredictionTotals", JSON.stringify({ uid, name, totalEarned, finishedCount, updated: Date.now() }));
+    } catch {}
+
+    renderSportsLeaderboard();
+    renderPredictionScoreSummary(totalEarned, finishedCount);
+  }
+
+  // Recompute board from locally cached actuals (no API calls needed — uses what was already fetched)
+  function refreshBoardFromCache() {
+    const uid  = currentUser?.id || currentUser?.email;
+    if (!uid) return;
+    const tickets = (() => { try { return JSON.parse(localStorage.getItem("lockshotMyTickets") || "[]"); } catch { return []; } })();
+    if (!tickets.length) return;
+    const pairs = tickets.map(t => {
+      const actuals = t.fixtureId
+        ? (() => { try { return JSON.parse(localStorage.getItem(`lockshotActuals_${t.fixtureId}`) || "null"); } catch { return null; } })()
+        : null;
+      return { ticket: t, actuals };
+    });
+    updateBoardFromResults(pairs);
+  }
+
+  function renderPredictionScoreSummary(totalEarned, finishedCount) {
+    const el = document.querySelector("[data-pred-score-summary]");
+    if (!el) return;
+    if (!currentUser || finishedCount === 0) { el.hidden = true; return; }
+    el.hidden = false;
+    const ptsEl  = el.querySelector("[data-pss-pts]");
+    const metaEl = el.querySelector("[data-pss-meta]");
+    if (ptsEl)  ptsEl.textContent  = totalEarned;
+    if (metaEl) metaEl.textContent = `pts from ${finishedCount} verified prediction${finishedCount === 1 ? "" : "s"}`;
   }
 
   const picks = document.querySelectorAll("[data-sports-pick]");
@@ -3815,6 +3883,12 @@ function initSportsIqExperience() {
     });
     window.scrollTo({ top: 0, behavior: "instant" });
     if (pageId === "results") renderResultsPage();
+    if (pageId === "board") {
+      // Restore cached totals immediately (no API hit), then refresh board rows
+      const stored = (() => { try { return JSON.parse(localStorage.getItem("lockshotPredictionTotals") || "null"); } catch { return null; } })();
+      if (stored) renderPredictionScoreSummary(stored.totalEarned, stored.finishedCount);
+      refreshBoardFromCache();
+    }
   }
 
   document.querySelectorAll("[data-sports-nav]").forEach((link) => {
@@ -4416,29 +4490,38 @@ function initSportsIqExperience() {
       if (ptsEl)  ptsEl.textContent  = e ? `${e.pts} pts` : "0 pts";
     });
 
-    // Full list rows
-    const rows = document.querySelectorAll("[data-board-row]");
-    rows.forEach((row, i) => {
-      const e = entries[i];
-      const pos    = row.querySelector("[data-board-pos]");
-      const player = row.querySelector("[data-board-player]");
-      const score  = row.querySelector("[data-board-score]");
-      if (pos)    pos.textContent    = e ? `#${i + 1}` : "-";
-      if (player) player.textContent = e ? e.name : "Waiting for entries";
-      if (score)  score.textContent  = e ? `${e.pts} pts` : "0 pts";
-    });
-
-    // Your position bar
+    // Full list — rebuild dynamically so it grows with entries
+    const listEl = document.querySelector(".sports-board-list");
     const uid = currentUser?.id || currentUser?.email;
+    if (listEl) {
+      if (!entries.length) {
+        listEl.innerHTML = `<li class="board-empty-row"><strong>-</strong><span>Waiting for entries</span><em>0 pts</em></li>`;
+      } else {
+        listEl.innerHTML = entries.map((e, i) => {
+          const isYou = uid && e.uid === uid;
+          return `<li data-board-row${isYou ? ' class="board-row--you"' : ""}>
+            <strong data-board-pos>#${i + 1}</strong>
+            <span data-board-player>${e.name}${isYou ? ' <em class="you-tag">You</em>' : ""}${e.pending ? ' <em class="pending-tag">⏳</em>' : ""}</span>
+            <em data-board-score>${e.pts} pts</em>
+          </li>`;
+        }).join("");
+      }
+    }
+
+    // Your position bar (sticky bottom)
     if (uid) {
       const userIdx = entries.findIndex(e => e.uid === uid);
       const youRow  = document.querySelector("[data-board-you-row]");
-      if (youRow && userIdx >= 0) {
-        youRow.hidden = false;
-        const youPos = youRow.querySelector("[data-board-you-pos]");
-        const youPts = youRow.querySelector("[data-board-you-pts]");
-        if (youPos) youPos.textContent = `#${userIdx + 1}`;
-        if (youPts) youPts.textContent = `${entries[userIdx].pts} pts`;
+      if (youRow) {
+        if (userIdx >= 0) {
+          youRow.hidden = false;
+          const youPos = youRow.querySelector("[data-board-you-pos]");
+          const youPts = youRow.querySelector("[data-board-you-pts]");
+          if (youPos) youPos.textContent = `#${userIdx + 1}`;
+          if (youPts) youPts.textContent = `${entries[userIdx].pts} pts`;
+        } else {
+          youRow.hidden = true;
+        }
       }
     }
   }
