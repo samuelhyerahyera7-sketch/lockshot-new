@@ -3584,6 +3584,34 @@ function initSportsIqExperience() {
 
   // ── Results page: fetch actual match data and compare to predictions ─────────
 
+  async function findFixtureIdByMatchName(matchName) {
+    const api = window.LOCKSHOT_SPORTS_API;
+    if (!api?.key || !api?.baseUrl) return null;
+    const h = { "x-apisports-key": api.key };
+    const cacheKey = `lockshotFixtureId_${matchName.replace(/\s/g, "_")}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return cached;
+    try {
+      const parts = matchName.split(" vs ");
+      const homePart = parts[0]?.trim().split(" ")[0];
+      const awayPart = parts[1]?.trim().split(" ")[0];
+      if (!homePart || !awayPart) return null;
+      for (const teamId of [85, 42, 50, 33, 40, 47, 49, 34, 36, 35]) {
+        const r = await fetch(`${api.baseUrl}/fixtures?team=${teamId}&season=2025&last=20`, { headers: h }).then(x => x.json());
+        const f = r.response?.find(fix =>
+          (fix.teams.home.name.toLowerCase().includes(homePart.toLowerCase()) || fix.teams.away.name.toLowerCase().includes(homePart.toLowerCase())) &&
+          (fix.teams.home.name.toLowerCase().includes(awayPart.toLowerCase()) || fix.teams.away.name.toLowerCase().includes(awayPart.toLowerCase()))
+        );
+        if (f) {
+          const fid = String(f.fixture.id);
+          localStorage.setItem(cacheKey, fid);
+          return fid;
+        }
+      }
+    } catch {}
+    return null;
+  }
+
   async function fetchMatchActuals(fixtureId) {
     if (!fixtureId) return null;
     const cacheKey = `lockshotActuals_${fixtureId}`;
@@ -3728,10 +3756,21 @@ function initSportsIqExperience() {
     container.innerHTML = `<p class="rpage-loading">Checking results…</p>`;
 
     const pairs = await Promise.all(tickets.map(async t => {
-      // Only fetch API data for soccer with a real fixture ID
-      const actuals = (t.fixtureId && (!t.sport || t.sport === "soccer"))
-        ? await fetchMatchActuals(t.fixtureId)
-        : null;
+      if (t.sport && t.sport !== "soccer") return { ticket: t, actuals: null };
+      // Auto-lookup fixture ID by match name if missing
+      if (!t.fixtureId && t.match) {
+        const found = await findFixtureIdByMatchName(t.match);
+        if (found) {
+          t.fixtureId = found;
+          // Save back to localStorage so future loads are instant
+          try {
+            const all = JSON.parse(localStorage.getItem("lockshotMyTickets") || "[]");
+            all.forEach(x => { if (x.id === t.id) x.fixtureId = found; });
+            localStorage.setItem("lockshotMyTickets", JSON.stringify(all));
+          } catch {}
+        }
+      }
+      const actuals = t.fixtureId ? await fetchMatchActuals(t.fixtureId) : null;
       return { ticket: t, actuals };
     }));
 
