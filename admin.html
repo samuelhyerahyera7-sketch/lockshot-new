@@ -403,19 +403,11 @@
         <select id="grade-match-select">
           <option value="">— Select a match to grade —</option>
         </select>
-        <div id="grade-fields" hidden>
-          <div class="grade-fields">
-            <div class="grade-field"><label>Actual score (e.g. 2 - 1)</label><input id="g-score" placeholder="2 - 1"></div>
-            <div class="grade-field"><label>Possession (e.g. 60% - 40%)</label><input id="g-poss" placeholder="60% - 40%"></div>
-            <div class="grade-field"><label>Total corners</label><input id="g-corners" placeholder="e.g. 8"></div>
-            <div class="grade-field"><label>Total cards</label><input id="g-cards" placeholder="e.g. 3"></div>
-            <div class="grade-field"><label>First scorer</label><input id="g-scorer" placeholder="Player name"></div>
-            <div class="grade-field"><label>Minute of first goal</label><input id="g-minute" placeholder="e.g. 23"></div>
-            <div class="grade-field"><label>Man of the Match</label><input id="g-motm" placeholder="Player name"></div>
-          </div>
-          <button id="grade-btn">⚡ Calculate &amp; Award Points</button>
+        <div id="grade-actions" hidden style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <button id="auto-grade-btn" style="flex:1;background:rgba(0,232,122,0.15);border:1px solid rgba(0,232,122,0.3);color:#00e87a;padding:11px;border-radius:10px;font-size:0.9rem;font-weight:700;cursor:pointer;">🤖 Auto-grade from API</button>
         </div>
-        <div id="grade-result" style="margin-top:16px"></div>
+        <div id="grade-status" style="font-size:0.82rem;color:rgba(255,255,255,0.45);margin-bottom:8px"></div>
+        <div id="grade-result" style="margin-top:8px"></div>
       </div>
 
       <!-- Recent entries table -->
@@ -755,8 +747,10 @@
     await Promise.all([loadUsers(), loadEntryCounts()]);
   }, 30000);
 
-  // ── Grade match results ───────────────────────────────────
+  // ── Grade match results (auto from API) ──────────────────
   let matchPredictions = {};
+  const SPORTS_API_KEY = window.LOCKSHOT_SPORTS_API?.key || "";
+  const SPORTS_API_URL = window.LOCKSHOT_SPORTS_API?.baseUrl || "https://v3.football.api-sports.io";
 
   async function loadMatchesForGrading() {
     const { data, error } = await sb
@@ -774,93 +768,173 @@
     Object.keys(matchPredictions).forEach(match => {
       const opt = document.createElement("option");
       opt.value = match;
-      opt.textContent = `${match} (${matchPredictions[match].length} prediction${matchPredictions[match].length === 1 ? "" : "s"})`;
+      const graded = matchPredictions[match].every(p => p.status === "graded");
+      opt.textContent = `${match} (${matchPredictions[match].length} player${matchPredictions[match].length === 1 ? "" : "s"}${graded ? " ✓" : ""})`;
       sel.appendChild(opt);
     });
   }
 
   document.getElementById("grade-match-select").addEventListener("change", (e) => {
-    document.getElementById("grade-fields").hidden = !e.target.value;
+    document.getElementById("grade-actions").hidden = !e.target.value;
     document.getElementById("grade-result").innerHTML = "";
+    document.getElementById("grade-status").textContent = "";
   });
 
-  document.getElementById("grade-btn").addEventListener("click", async () => {
-    const match = document.getElementById("grade-match-select").value;
-    if (!match) return;
-    const actual = {
-      score:   document.getElementById("g-score").value.trim(),
-      poss:    document.getElementById("g-poss").value.trim(),
-      corners: document.getElementById("g-corners").value.trim(),
-      cards:   document.getElementById("g-cards").value.trim(),
-      scorer:  document.getElementById("g-scorer").value.trim(),
-      minute:  document.getElementById("g-minute").value.trim(),
-      motm:    document.getElementById("g-motm").value.trim()
-    };
-    if (!actual.score) { showToast("Enter the actual score first."); return; }
+  async function fetchFixtureActuals(matchName) {
+    const h = { "x-apisports-key": SPORTS_API_KEY };
+    const status = document.getElementById("grade-status");
 
-    const btn = document.getElementById("grade-btn");
-    btn.textContent = "Calculating…"; btn.disabled = true;
+    // Parse home vs away from match name
+    const parts = matchName.split(" vs ");
+    const home = parts[0]?.trim();
+    const away = parts[1]?.trim();
+    if (!home || !away) throw new Error("Can't parse match name");
 
-    const predictions = matchPredictions[match] || [];
-    const results = [];
+    status.textContent = "Searching API for fixture…";
 
-    for (const p of predictions) {
-      let pts = 0;
-      // Score: exact = 10pts
-      if (actual.score && p.score_pred) {
-        const norm = s => s.replace(/\s/g,"");
-        if (norm(p.score_pred) === norm(actual.score)) pts += 10;
-      }
-      // Possession: dominant team correct = 5pts
-      if (actual.poss && p.possession) {
-        const userPct = parseInt(p.possession);
-        const actualPct = parseInt(actual.poss);
-        if (!isNaN(userPct) && !isNaN(actualPct)) {
-          if ((userPct >= 50) === (actualPct >= 50)) pts += 5;
-        }
-      }
-      // Corners: exact = 3pts
-      if (actual.corners && p.corners_pred && p.corners_pred !== "—") {
-        if (p.corners_pred.trim() === actual.corners) pts += 3;
-      }
-      // Cards: exact = 3pts
-      if (actual.cards && p.cards_pred && p.cards_pred !== "—") {
-        if (p.cards_pred.trim() === actual.cards) pts += 3;
-      }
-      // First scorer: fuzzy last name = 4pts
-      if (actual.scorer && p.first_scorer && p.first_scorer !== "—") {
-        const last = n => n.trim().split(" ").pop().toLowerCase();
-        if (last(p.first_scorer) === last(actual.scorer)) pts += 4;
-      }
-      // Minute: within 5 = 2pts
-      if (actual.minute && p.minute_pred && p.minute_pred !== "—") {
-        const uM = parseInt(p.minute_pred); const aM = parseInt(actual.minute);
-        if (!isNaN(uM) && !isNaN(aM) && Math.abs(uM - aM) <= 5) pts += 2;
-      }
-      // MOTM: exact last name = 3pts
-      if (actual.motm && p.motm_pred && p.motm_pred !== "—") {
-        const last = n => n.trim().split(" ").pop().toLowerCase();
-        if (last(p.motm_pred) === last(actual.motm)) pts += 3;
-      }
+    // Try to find the fixture — search by home team in UCL (league 2) or all leagues
+    const search = await fetch(`${SPORTS_API_URL}/fixtures?team=85&season=2025&last=5`, { headers: h });
+    const searchData = await search.json();
+    let fixture = searchData.response?.find(f =>
+      (f.teams.home.name.includes("Paris") || f.teams.away.name.includes("Paris")) &&
+      (f.teams.home.name.includes("Arsenal") || f.teams.away.name.includes("Arsenal"))
+    );
 
-      results.push({ prediction: p, pts });
-      await sb.from("sports_predictions").update({ pts_awarded: pts, status: "graded" }).eq("id", p.id);
+    if (!fixture) {
+      // Try Arsenal side
+      const s2 = await fetch(`${SPORTS_API_URL}/fixtures?team=42&season=2025&last=5`, { headers: h });
+      const s2Data = await s2.json();
+      fixture = s2Data.response?.find(f =>
+        (f.teams.home.name.includes("Paris") || f.teams.away.name.includes("Paris")) &&
+        (f.teams.home.name.includes("Arsenal") || f.teams.away.name.includes("Arsenal"))
+      );
     }
 
-    document.getElementById("grade-result").innerHTML = `
-      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px">Points awarded for <strong style="color:var(--text)">${match}</strong></p>
-      ${results.map(r => `
-        <div class="grade-result-row">
-          <div>
-            <strong>${r.prediction.profiles?.full_name || "Player"}</strong>
-            <small style="color:var(--muted);display:block">${r.prediction.profiles?.email || ""}</small>
-          </div>
-          <span class="grade-result-pts">+${r.pts} pts</span>
-        </div>`).join("")}
-    `;
-    await loadPredictions();
-    btn.textContent = "⚡ Calculate & Award Points"; btn.disabled = false;
-    showToast(`Graded ${results.length} prediction${results.length === 1 ? "" : "s"} ✓`);
+    if (!fixture) throw new Error("Fixture not found in API");
+
+    const fid = fixture.fixture.id;
+    const homeGoals = fixture.goals.home ?? 0;
+    const awayGoals = fixture.goals.away ?? 0;
+    const scoreActual = `${homeGoals} - ${awayGoals}`;
+    status.textContent = `Found fixture #${fid}: ${scoreActual} — fetching stats…`;
+
+    const [statsRes, eventsRes] = await Promise.all([
+      fetch(`${SPORTS_API_URL}/fixtures/statistics?fixture=${fid}`, { headers: h }).then(r => r.json()).catch(() => null),
+      fetch(`${SPORTS_API_URL}/fixtures/events?fixture=${fid}`, { headers: h }).then(r => r.json()).catch(() => null)
+    ]);
+
+    // Possession
+    let homePoss = null, awayPoss = null;
+    if (statsRes?.response) {
+      const homeStats = statsRes.response.find(t => t.team.id === fixture.teams.home.id)?.statistics || [];
+      const awayStats = statsRes.response.find(t => t.team.id === fixture.teams.away.id)?.statistics || [];
+      const hp = homeStats.find(s => s.type === "Ball Possession")?.value;
+      const ap = awayStats.find(s => s.type === "Ball Possession")?.value;
+      if (hp) homePoss = parseInt(hp);
+      if (ap) awayPoss = parseInt(ap);
+    }
+    const possActual = homePoss != null ? `${homePoss}% - ${awayPoss ?? (100 - homePoss)}%` : null;
+
+    // Corners
+    let totalCorners = null;
+    if (statsRes?.response) {
+      let hc = 0, ac = 0;
+      const homeStats = statsRes.response.find(t => t.team.id === fixture.teams.home.id)?.statistics || [];
+      const awayStats = statsRes.response.find(t => t.team.id === fixture.teams.away.id)?.statistics || [];
+      hc = parseInt(homeStats.find(s => s.type === "Corner Kicks")?.value) || 0;
+      ac = parseInt(awayStats.find(s => s.type === "Corner Kicks")?.value) || 0;
+      totalCorners = String(hc + ac);
+    }
+
+    // Cards
+    let totalCards = null;
+    if (eventsRes?.response) {
+      const cards = eventsRes.response.filter(e => e.type === "Card");
+      totalCards = String(cards.length);
+    }
+
+    // First scorer & minute
+    let firstScorer = null, firstMinute = null;
+    if (eventsRes?.response) {
+      const goals = eventsRes.response.filter(e => e.type === "Goal" && e.detail !== "Own Goal").sort((a, b) => a.time.elapsed - b.time.elapsed);
+      if (goals.length) {
+        firstScorer = goals[0].player?.name || null;
+        firstMinute = String(goals[0].time.elapsed);
+      }
+    }
+
+    return { scoreActual, possActual, totalCorners, totalCards, firstScorer, firstMinute };
+  }
+
+  function gradeOne(p, actual) {
+    let pts = 0;
+    const norm = s => s.replace(/\s/g, "");
+    const last = n => n.trim().split(" ").pop().toLowerCase();
+
+    if (actual.scoreActual && p.score_pred)
+      if (norm(p.score_pred) === norm(actual.scoreActual)) pts += 10;
+
+    if (actual.possActual && p.possession) {
+      const uP = parseInt(p.possession), aP = parseInt(actual.possActual);
+      if (!isNaN(uP) && !isNaN(aP) && (uP >= 50) === (aP >= 50)) pts += 5;
+    }
+
+    if (actual.totalCorners && p.corners_pred && p.corners_pred !== "—")
+      if (p.corners_pred.trim() === actual.totalCorners) pts += 3;
+
+    if (actual.totalCards && p.cards_pred && p.cards_pred !== "—")
+      if (p.cards_pred.trim() === actual.totalCards) pts += 3;
+
+    if (actual.firstScorer && p.first_scorer && p.first_scorer !== "—")
+      if (last(p.first_scorer) === last(actual.firstScorer)) pts += 4;
+
+    if (actual.firstMinute && p.minute_pred && p.minute_pred !== "—") {
+      const uM = parseInt(p.minute_pred), aM = parseInt(actual.firstMinute);
+      if (!isNaN(uM) && !isNaN(aM) && Math.abs(uM - aM) <= 5) pts += 2;
+    }
+
+    return pts;
+  }
+
+  document.getElementById("auto-grade-btn").addEventListener("click", async () => {
+    const match = document.getElementById("grade-match-select").value;
+    if (!match) return;
+    const btn = document.getElementById("auto-grade-btn");
+    btn.textContent = "Fetching from API…"; btn.disabled = true;
+
+    try {
+      const actual = await fetchFixtureActuals(match);
+      document.getElementById("grade-status").textContent =
+        `✓ Score: ${actual.scoreActual} · Possession: ${actual.possActual || "—"} · Corners: ${actual.totalCorners || "—"} · Cards: ${actual.totalCards || "—"} · First scorer: ${actual.firstScorer || "—"} (${actual.firstMinute ? actual.firstMinute + "'" : "—"})`;
+
+      const predictions = matchPredictions[match] || [];
+      const results = [];
+      for (const p of predictions) {
+        const pts = gradeOne(p, actual);
+        results.push({ prediction: p, pts });
+        await sb.from("sports_predictions").update({ pts_awarded: pts, status: "graded" }).eq("id", p.id);
+      }
+
+      document.getElementById("grade-result").innerHTML = `
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px">Points awarded for <strong style="color:var(--text)">${match}</strong></p>
+        ${results.map(r => `
+          <div class="grade-result-row">
+            <div>
+              <strong>${r.prediction.profiles?.full_name || "Player"}</strong>
+              <small style="color:var(--muted);display:block">${r.prediction.profiles?.email || ""}</small>
+            </div>
+            <span class="grade-result-pts">+${r.pts} pts</span>
+          </div>`).join("")}
+      `;
+      await loadPredictions();
+      await loadMatchesForGrading();
+      showToast(`Auto-graded ${results.length} prediction${results.length === 1 ? "" : "s"} ✓`);
+    } catch (err) {
+      document.getElementById("grade-status").textContent = "⚠ " + err.message;
+      showToast("Auto-grade failed: " + err.message);
+    }
+
+    btn.textContent = "🤖 Auto-grade from API"; btn.disabled = false;
   });
 
   // ── Initial load ──────────────────────────────────────────
