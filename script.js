@@ -3909,6 +3909,12 @@ function initSportsIqExperience() {
       saveTicketState();
       _sportsTickets[_activeTicketIdx].locked = true;
 
+      // Deduct one sports entry token now that this ticket is locked
+      const sportsCtx = { name: "Sports Predict", game: "sports" };
+      const remaining = getStoredPaidAttempts(sportsCtx);
+      storePaidAttempts(Math.max(0, remaining - 1), sportsCtx);
+      renderSportsEntryState();
+
       const ticketNum   = _activeTicketIdx + 1;
       const totalTickets = _sportsTickets.length;
       const useSteppers = SCORELINE_STEPPER_SPORTS.has(selectedTournamentSport);
