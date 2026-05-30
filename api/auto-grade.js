@@ -16,18 +16,18 @@ module.exports = async function handler(req, res) {
 
   // ── 1. Fetch all pending predictions ──────────────────────────
   const predsRes = await fetch(
-    `${SUPABASE_URL}/rest/v1/sports_predictions?status=eq.pending&select=id,user_id,match,fixture_id,sport,score_pred,possession,first_scorer,corners_pred,cards_pred,minute_pred,motm_pred`,
+    `${SUPABASE_URL}/rest/v1/sports_predictions?status=eq.pending&select=id,user_id,match,sport,score_pred,possession,first_scorer,corners_pred,cards_pred,minute_pred,motm_pred`,
     { headers: sb }
   );
   const preds = await predsRes.json();
-  if (!Array.isArray(preds) || !preds.length) return res.json({ message: "No pending predictions", graded: 0 });
+  if (!Array.isArray(preds)) return res.json({ message: "Supabase error", detail: preds });
+  if (!preds.length) return res.json({ message: "No pending predictions", graded: 0 });
 
   // ── 2. Group by match ─────────────────────────────────────────
   const byMatch = {};
   preds.forEach(p => {
-    if (!byMatch[p.match]) byMatch[p.match] = { fixture_id: p.fixture_id, sport: p.sport, preds: [] };
+    if (!byMatch[p.match]) byMatch[p.match] = { fixture_id: null, sport: p.sport, preds: [] };
     byMatch[p.match].preds.push(p);
-    if (p.fixture_id && !byMatch[p.match].fixture_id) byMatch[p.match].fixture_id = p.fixture_id;
   });
 
   const graded = [];
