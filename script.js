@@ -4556,11 +4556,16 @@ function initSportsIqExperience() {
       saveBoardEntries(entries);
     }
 
-    // Update fixture kicker
-    const fixture = document.querySelector("[data-live-fixture].is-selected");
+    // Update fixture kicker — show most recent predicted match, not the live tab selection
     const kicker = document.querySelector("[data-board-fixture-kicker]");
-    if (kicker && fixture) {
-      kicker.textContent = `${fixture.dataset.home || "Live"} vs ${fixture.dataset.away || "game"} · leaderboard`;
+    if (kicker) {
+      try {
+        const tickets = JSON.parse(localStorage.getItem("lockshotMyTickets") || "[]");
+        const lastMatch = tickets[0]?.match;
+        kicker.textContent = lastMatch ? `${lastMatch} · standings` : "Prediction standings";
+      } catch {
+        kicker.textContent = "Prediction standings";
+      }
     }
 
     // Podium top 3
