@@ -1,6 +1,15 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "functions": {
+    "api/auto-grade.js": {
+      "memory": 512,
+      "maxDuration": 30
+    }
+  },
+  "routes": [
+    { "src": "/api/auto-grade", "dest": "/api/auto-grade.js" }
+  ],
   "crons": [
     {
       "path": "/api/auto-grade",
