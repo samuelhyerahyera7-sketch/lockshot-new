@@ -3843,6 +3843,33 @@ function initSportsIqExperience() {
     updateBoardFromResults(pairs);
   }
 
+  async function refreshBoardFromSupabase() {
+    const client = getSupabaseClient();
+    if (!client) return;
+    try {
+      const { data, error } = await client
+        .from("sports_predictions")
+        .select("user_id, pts_awarded, profiles(full_name)")
+        .eq("status", "graded");
+      if (error || !data?.length) return;
+      const byUser = {};
+      data.forEach(p => {
+        const uid = p.user_id;
+        if (!byUser[uid]) byUser[uid] = { uid, name: p.profiles?.full_name || "Player", pts: 0 };
+        byUser[uid].pts += (p.pts_awarded || 0);
+      });
+      let entries = loadBoardEntries();
+      Object.values(byUser).forEach(su => {
+        const idx = entries.findIndex(e => e.uid === su.uid);
+        if (idx >= 0) { entries[idx].pts = Math.max(entries[idx].pts, su.pts); entries[idx].pending = false; }
+        else entries.push({ uid: su.uid, name: su.name, pts: su.pts, pending: false });
+      });
+      entries.sort((a, b) => b.pts - a.pts);
+      saveBoardEntries(entries);
+      renderSportsLeaderboard();
+    } catch {}
+  }
+
   function renderPredictionScoreSummary(totalEarned, finishedCount) {
     const el = document.querySelector("[data-pred-score-summary]");
     if (!el) return;
@@ -3892,6 +3919,7 @@ function initSportsIqExperience() {
       const stored = (() => { try { return JSON.parse(localStorage.getItem("lockshotPredictionTotals") || "null"); } catch { return null; } })();
       if (stored) renderPredictionScoreSummary(stored.totalEarned, stored.finishedCount);
       refreshBoardFromCache();
+      refreshBoardFromSupabase(); // pull graded pts from Supabase for global leaderboard
     }
   }
 
@@ -4388,6 +4416,10 @@ function initSportsIqExperience() {
           : document.querySelector("[data-scoreline-text]")?.value || "";
         const predPoss     = document.querySelector("[data-possession-value]")?.value || "";
         const predFirst    = document.querySelector("[data-player-input='firstScorer']")?.value || "";
+        const predCorners  = rows.find(r => r.label === "Corners")?.value || null;
+        const predCards    = rows.find(r => r.label === "Cards")?.value || null;
+        const predMinute   = rows.find(r => r.label === "Minute of first goal")?.value || null;
+        const predMotm     = rows.find(r => r.label === "Man of the Match")?.value || null;
         const { error: predErr } = await client.from("sports_predictions").insert({
           user_id:     currentUser.id,
           match:       matchName,
@@ -4396,6 +4428,10 @@ function initSportsIqExperience() {
           score_pred:  predScore,
           possession:  predPoss,
           first_scorer: predFirst,
+          corners_pred: predCorners,
+          cards_pred:   predCards,
+          minute_pred:  predMinute,
+          motm_pred:    predMotm,
           status:      "pending"
         });
         if (predErr) console.error("[Lockshot] Prediction save failed:", predErr.message, predErr.details, predErr.hint);

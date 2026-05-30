@@ -153,6 +153,30 @@ CREATE POLICY "Admin updates predictions"
     )
   );
 
+-- ── 6. Add missing prediction columns ────────────────────────
+ALTER TABLE public.sports_predictions
+  ADD COLUMN IF NOT EXISTS corners_pred text,
+  ADD COLUMN IF NOT EXISTS cards_pred   text,
+  ADD COLUMN IF NOT EXISTS minute_pred  text,
+  ADD COLUMN IF NOT EXISTS motm_pred    text;
+
+-- Fix admin policies to use jwt() instead of subquery
+DROP POLICY IF EXISTS "Admin sees all predictions" ON public.sports_predictions;
+CREATE POLICY "Admin sees all predictions"
+  ON public.sports_predictions FOR SELECT
+  USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');
+
+DROP POLICY IF EXISTS "Admin updates predictions" ON public.sports_predictions;
+CREATE POLICY "Admin updates predictions"
+  ON public.sports_predictions FOR UPDATE
+  USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');
+
+-- Users can also read ALL graded predictions for the global leaderboard
+DROP POLICY IF EXISTS "Users read graded predictions" ON public.sports_predictions;
+CREATE POLICY "Users read graded predictions"
+  ON public.sports_predictions FOR SELECT
+  USING (status = 'graded');
+
 -- ── Done ─────────────────────────────────────────────────────
 -- After running this, reload the admin dashboard.
 -- Users will appear once they log in (profile is upserted on login).

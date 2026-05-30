@@ -208,6 +208,63 @@
     }
     .refresh-btn:hover { background: rgba(0,232,122,0.18); }
 
+    /* ── Grade match ─────────────────────────────────────── */
+    .grade-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 32px;
+    }
+    #grade-match-select {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 9px 12px;
+      font-size: 0.85rem;
+      outline: none;
+      margin-bottom: 18px;
+      cursor: pointer;
+    }
+    #grade-match-select:focus { border-color: var(--green); }
+    .grade-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    @media (max-width: 600px) { .grade-fields { grid-template-columns: 1fr; } }
+    .grade-field label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .grade-field input {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .grade-field input:focus { border-color: var(--green); }
+    #grade-btn {
+      width: 100%;
+      background: rgba(0,232,122,0.15);
+      border: 1px solid rgba(0,232,122,0.3);
+      color: var(--green);
+      padding: 11px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background 0.15s;
+    }
+    #grade-btn:hover { background: rgba(0,232,122,0.25); }
+    #grade-btn:disabled { opacity: 0.5; cursor: default; }
+    .grade-result-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem;
+    }
+    .grade-result-row:last-child { border-bottom: none; }
+    .grade-result-pts { font-weight: 800; color: var(--green); font-size: 1rem; }
+
     /* ── Toast ───────────────────────────────────────────── */
     #toast {
       position: fixed;
@@ -336,6 +393,29 @@
             <tr><td colspan="4" class="tbl-empty">Loading…</td></tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Grade match results -->
+      <div class="section-head">
+        <h2>⚡ Grade match results</h2>
+      </div>
+      <div class="grade-card">
+        <select id="grade-match-select">
+          <option value="">— Select a match to grade —</option>
+        </select>
+        <div id="grade-fields" hidden>
+          <div class="grade-fields">
+            <div class="grade-field"><label>Actual score (e.g. 2 - 1)</label><input id="g-score" placeholder="2 - 1"></div>
+            <div class="grade-field"><label>Possession (e.g. 60% - 40%)</label><input id="g-poss" placeholder="60% - 40%"></div>
+            <div class="grade-field"><label>Total corners</label><input id="g-corners" placeholder="e.g. 8"></div>
+            <div class="grade-field"><label>Total cards</label><input id="g-cards" placeholder="e.g. 3"></div>
+            <div class="grade-field"><label>First scorer</label><input id="g-scorer" placeholder="Player name"></div>
+            <div class="grade-field"><label>Minute of first goal</label><input id="g-minute" placeholder="e.g. 23"></div>
+            <div class="grade-field"><label>Man of the Match</label><input id="g-motm" placeholder="Player name"></div>
+          </div>
+          <button id="grade-btn">⚡ Calculate &amp; Award Points</button>
+        </div>
+        <div id="grade-result" style="margin-top:16px"></div>
       </div>
 
       <!-- Recent entries table -->
@@ -675,8 +755,117 @@
     await Promise.all([loadUsers(), loadEntryCounts()]);
   }, 30000);
 
+  // ── Grade match results ───────────────────────────────────
+  let matchPredictions = {};
+
+  async function loadMatchesForGrading() {
+    const { data, error } = await sb
+      .from("sports_predictions")
+      .select("id, user_id, match, score_pred, possession, first_scorer, corners_pred, cards_pred, minute_pred, motm_pred, pts_awarded, status, profiles(full_name, email)")
+      .order("created_at", { ascending: false });
+    if (error || !data?.length) return;
+    matchPredictions = {};
+    data.forEach(p => {
+      if (!matchPredictions[p.match]) matchPredictions[p.match] = [];
+      matchPredictions[p.match].push(p);
+    });
+    const sel = document.getElementById("grade-match-select");
+    sel.innerHTML = '<option value="">— Select a match to grade —</option>';
+    Object.keys(matchPredictions).forEach(match => {
+      const opt = document.createElement("option");
+      opt.value = match;
+      opt.textContent = `${match} (${matchPredictions[match].length} prediction${matchPredictions[match].length === 1 ? "" : "s"})`;
+      sel.appendChild(opt);
+    });
+  }
+
+  document.getElementById("grade-match-select").addEventListener("change", (e) => {
+    document.getElementById("grade-fields").hidden = !e.target.value;
+    document.getElementById("grade-result").innerHTML = "";
+  });
+
+  document.getElementById("grade-btn").addEventListener("click", async () => {
+    const match = document.getElementById("grade-match-select").value;
+    if (!match) return;
+    const actual = {
+      score:   document.getElementById("g-score").value.trim(),
+      poss:    document.getElementById("g-poss").value.trim(),
+      corners: document.getElementById("g-corners").value.trim(),
+      cards:   document.getElementById("g-cards").value.trim(),
+      scorer:  document.getElementById("g-scorer").value.trim(),
+      minute:  document.getElementById("g-minute").value.trim(),
+      motm:    document.getElementById("g-motm").value.trim()
+    };
+    if (!actual.score) { showToast("Enter the actual score first."); return; }
+
+    const btn = document.getElementById("grade-btn");
+    btn.textContent = "Calculating…"; btn.disabled = true;
+
+    const predictions = matchPredictions[match] || [];
+    const results = [];
+
+    for (const p of predictions) {
+      let pts = 0;
+      // Score: exact = 10pts
+      if (actual.score && p.score_pred) {
+        const norm = s => s.replace(/\s/g,"");
+        if (norm(p.score_pred) === norm(actual.score)) pts += 10;
+      }
+      // Possession: dominant team correct = 5pts
+      if (actual.poss && p.possession) {
+        const userPct = parseInt(p.possession);
+        const actualPct = parseInt(actual.poss);
+        if (!isNaN(userPct) && !isNaN(actualPct)) {
+          if ((userPct >= 50) === (actualPct >= 50)) pts += 5;
+        }
+      }
+      // Corners: exact = 3pts
+      if (actual.corners && p.corners_pred && p.corners_pred !== "—") {
+        if (p.corners_pred.trim() === actual.corners) pts += 3;
+      }
+      // Cards: exact = 3pts
+      if (actual.cards && p.cards_pred && p.cards_pred !== "—") {
+        if (p.cards_pred.trim() === actual.cards) pts += 3;
+      }
+      // First scorer: fuzzy last name = 4pts
+      if (actual.scorer && p.first_scorer && p.first_scorer !== "—") {
+        const last = n => n.trim().split(" ").pop().toLowerCase();
+        if (last(p.first_scorer) === last(actual.scorer)) pts += 4;
+      }
+      // Minute: within 5 = 2pts
+      if (actual.minute && p.minute_pred && p.minute_pred !== "—") {
+        const uM = parseInt(p.minute_pred); const aM = parseInt(actual.minute);
+        if (!isNaN(uM) && !isNaN(aM) && Math.abs(uM - aM) <= 5) pts += 2;
+      }
+      // MOTM: exact last name = 3pts
+      if (actual.motm && p.motm_pred && p.motm_pred !== "—") {
+        const last = n => n.trim().split(" ").pop().toLowerCase();
+        if (last(p.motm_pred) === last(actual.motm)) pts += 3;
+      }
+
+      results.push({ prediction: p, pts });
+      await sb.from("sports_predictions").update({ pts_awarded: pts, status: "graded" }).eq("id", p.id);
+    }
+
+    document.getElementById("grade-result").innerHTML = `
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px">Points awarded for <strong style="color:var(--text)">${match}</strong></p>
+      ${results.map(r => `
+        <div class="grade-result-row">
+          <div>
+            <strong>${r.prediction.profiles?.full_name || "Player"}</strong>
+            <small style="color:var(--muted);display:block">${r.prediction.profiles?.email || ""}</small>
+          </div>
+          <span class="grade-result-pts">+${r.pts} pts</span>
+        </div>`).join("")}
+    `;
+    await loadPredictions();
+    btn.textContent = "⚡ Calculate & Award Points"; btn.disabled = false;
+    showToast(`Graded ${results.length} prediction${results.length === 1 ? "" : "s"} ✓`);
+  });
+
   // ── Initial load ──────────────────────────────────────────
   await Promise.all([loadUsers(), loadEntryCounts(), loadPredictions(), loadRecentEntries(), loadRecentScores()]);
+  loadMatchesForGrading();
 
 })();
 </script>
