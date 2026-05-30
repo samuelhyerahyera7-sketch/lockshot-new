@@ -37,9 +37,10 @@ body {
 [data-sports-page] { display: none; }
 [data-sports-page].page-active { display: block; }
 
-/* Board and Results pages start below the fixed topbar */
+/* All inner sports pages start below the fixed topbar */
 [data-sports-page="board"].page-active,
-[data-sports-page="results"].page-active {
+[data-sports-page="results"].page-active,
+[data-sports-page="predict"].page-active {
   padding-top: 70px;
 }
 
