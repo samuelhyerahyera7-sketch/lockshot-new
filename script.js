@@ -4630,6 +4630,12 @@ function initSportsIqExperience() {
   // Expose board helpers globally so they work after login and on-demand
   window._lockshotRefreshBoard = refreshBoardFromCache;
   window._lockshotBoardSummary = renderPredictionScoreSummary;
+
+  // Refresh Results button — clears actuals cache and re-fetches
+  document.querySelector("[data-refresh-results]")?.addEventListener("click", () => {
+    Object.keys(localStorage).filter(k => k.startsWith("lockshotActuals_")).forEach(k => localStorage.removeItem(k));
+    renderResultsPage();
+  });
   window.setInterval(updateFixtureCountdowns, 1000); // tick card countdowns every second
 
   // Apply after fixtures have had time to load
