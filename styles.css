@@ -8073,7 +8073,7 @@ body[data-page="game"] .chat-button {
 /* ── Floating sports ticket pill ─────────────────────────── */
 .sports-ticket-pill {
   position: fixed;
-  bottom: 90px;
+  top: 14px;
   right: 16px;
   z-index: 200;
   display: flex;
