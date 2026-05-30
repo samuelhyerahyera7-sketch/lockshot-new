@@ -2694,6 +2694,22 @@ function renderCompetitionTokenActions() {
   });
 }
 
+function getLockedPredictionCount() {
+  try { return Number(localStorage.getItem("lockshotLockedPredictions") || 0); } catch { return 0; }
+}
+function incrementLockedPredictions() {
+  try { localStorage.setItem("lockshotLockedPredictions", String(getLockedPredictionCount() + 1)); } catch {}
+  renderMyTicketsPill();
+}
+function renderMyTicketsPill() {
+  const pill = document.querySelector("[data-sports-ticket-pill]");
+  const pillCount = document.querySelector("[data-pill-ticket-count]");
+  if (!pill) return;
+  const count = getLockedPredictionCount();
+  pill.hidden = count === 0;
+  if (pillCount) pillCount.textContent = count;
+}
+
 function renderSportsEntryState() {
   const tokens = getStoredPaidAttempts({ name: "Sports Predict", game: "sports" });
   const hasSportsEntry = tokens > 0;
@@ -2706,6 +2722,7 @@ function renderSportsEntryState() {
   // Sync multi-ticket tabs to entry count
   initSportsTickets(tokens || 1);
   renderTicketTabs();
+
 }
 
 function renderBoostGame() {
@@ -3509,6 +3526,18 @@ function initSportsIqExperience() {
   if (!app || app.dataset.ready === "true") return;
   app.dataset.ready = "true";
 
+  // Render the My Tickets pill on load
+  renderMyTicketsPill();
+
+  // Floating My Tickets pill → jump to Board to see standings
+  const ticketPill = document.querySelector("[data-sports-ticket-pill]");
+  if (ticketPill) {
+    ticketPill.addEventListener("click", () => {
+      switchSportsPage("board");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+
   const picks = document.querySelectorAll("[data-sports-pick]");
   const lockButton = document.querySelector("[data-lock-pick]");
   const lockLabel = document.querySelector("[data-lock-label]");
@@ -3934,6 +3963,9 @@ function initSportsIqExperience() {
       const remaining = getStoredPaidAttempts(sportsCtx);
       storePaidAttempts(Math.max(0, remaining - 1), sportsCtx);
       renderSportsEntryState();
+
+      // Add this locked ticket to the My Tickets pill
+      incrementLockedPredictions();
 
       const ticketNum   = _activeTicketIdx + 1;
       const totalTickets = _sportsTickets.length;

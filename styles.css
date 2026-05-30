@@ -8070,6 +8070,45 @@ body[data-page="game"] .chat-button {
   line-height: 1.45;
 }
 
+/* ── Floating sports ticket pill ─────────────────────────── */
+.sports-ticket-pill {
+  position: fixed;
+  bottom: 90px;
+  right: 16px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px 10px 14px;
+  background: var(--green, #00e87a);
+  color: #061106;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgba(0, 232, 122, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  animation: pill-pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.sports-ticket-pill[hidden] { display: none; }
+.sports-ticket-pill:active { transform: scale(0.94); }
+.sports-ticket-pill svg { width: 18px; height: 18px; }
+.sports-ticket-pill strong {
+  background: #061106;
+  color: var(--green, #00e87a);
+  border-radius: 50px;
+  padding: 1px 8px;
+  font-size: 0.8rem;
+  font-weight: 900;
+  min-width: 22px;
+  text-align: center;
+}
+@keyframes pill-pop-in {
+  from { transform: scale(0.6) translateY(20px); opacity: 0; }
+  to   { transform: scale(1) translateY(0);       opacity: 1; }
+}
+
 .sports-bottom-nav {
   position: fixed;
   left: 50%;
