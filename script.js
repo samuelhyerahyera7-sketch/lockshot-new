@@ -3999,6 +3999,32 @@ function initSportsIqExperience() {
         renderSportsLeaderboard({ uid, name, pts: 0, pending: true });
       }
 
+      // Save prediction to Supabase so admin can see it
+      (() => {
+        const client = getSupabaseClient();
+        if (!client || !currentUser?.id) return;
+        const selFixture = document.querySelector("[data-live-fixture].is-selected");
+        const matchName  = selFixture
+          ? `${selFixture.dataset.home || ""} vs ${selFixture.dataset.away || ""}`
+          : "Unknown match";
+        const useSteppers3 = typeof SCORELINE_STEPPER_SPORTS !== "undefined" && SCORELINE_STEPPER_SPORTS.has(selectedTournamentSport);
+        const predScore    = useSteppers3
+          ? document.querySelector("[data-scoreline-prediction]")?.value || ""
+          : document.querySelector("[data-scoreline-text]")?.value || "";
+        const predPoss     = document.querySelector("[data-possession-value]")?.value || "";
+        const predFirst    = document.querySelector("[data-player-input='firstScorer']")?.value || "";
+        client.from("sports_predictions").insert({
+          user_id:     currentUser.id,
+          match:       matchName,
+          sport:       selectedTournamentSport || "soccer",
+          ticket_num:  ticketNum,
+          score_pred:  predScore,
+          possession:  predPoss,
+          first_scorer: predFirst,
+          status:      "pending"
+        });
+      })();
+
       // Auto-advance to next unlocked ticket, or show all-done message
       renderTicketTabs();
       const nextIdx = _sportsTickets.findIndex((t, i) => i > _activeTicketIdx && !t.locked);

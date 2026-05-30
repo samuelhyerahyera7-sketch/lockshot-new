@@ -37,6 +37,12 @@ body {
 [data-sports-page] { display: none; }
 [data-sports-page].page-active { display: block; }
 
+/* Board and Results pages start below the fixed topbar */
+[data-sports-page="board"].page-active,
+[data-sports-page="results"].page-active {
+  padding-top: 70px;
+}
+
 .sports-results-section {
   padding: 40px 20px 80px;
 }
@@ -7370,7 +7376,7 @@ body[data-page="game"] .chat-button {
 .sports-live-board {
   display: grid;
   gap: 18px;
-  padding: 28px 18px 28px;
+  padding: 24px 18px 140px; /* bottom clears sports bottom nav */
   background:
     radial-gradient(ellipse at 30% 0%, rgba(4, 245, 41, 0.06) 0%, transparent 50%),
     linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));

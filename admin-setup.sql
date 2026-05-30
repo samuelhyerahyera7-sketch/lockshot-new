@@ -110,3 +110,43 @@ DROP POLICY IF EXISTS "Admin sees all scores" ON public.game_scores;
 CREATE POLICY "Admin sees all scores"
   ON public.game_scores FOR SELECT
   USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');
+
+-- ============================================================
+-- sports_predictions table (tracks sports predict submissions)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.sports_predictions (
+  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id      uuid REFERENCES public.profiles(id) ON DELETE CASCADE,
+  match        text NOT NULL,
+  sport        text DEFAULT 'soccer',
+  ticket_num   int  DEFAULT 1,
+  score_pred   text,
+  possession   text,
+  first_scorer text,
+  status       text DEFAULT 'pending',
+  pts_awarded  int  DEFAULT 0,
+  created_at   timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.sports_predictions ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users insert own predictions" ON public.sports_predictions;
+CREATE POLICY "Users insert own predictions"
+  ON public.sports_predictions FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users read own predictions" ON public.sports_predictions;
+CREATE POLICY "Users read own predictions"
+  ON public.sports_predictions FOR SELECT
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Admin sees all predictions" ON public.sports_predictions;
+CREATE POLICY "Admin sees all predictions"
+  ON public.sports_predictions FOR SELECT
+  USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');
+
+-- Admin can update predictions (to award points)
+DROP POLICY IF EXISTS "Admin updates predictions" ON public.sports_predictions;
+CREATE POLICY "Admin updates predictions"
+  ON public.sports_predictions FOR UPDATE
+  USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');

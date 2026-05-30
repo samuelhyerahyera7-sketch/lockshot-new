@@ -295,6 +295,29 @@
         </table>
       </div>
 
+      <!-- Sports predictions table -->
+      <div class="section-head">
+        <h2>Sports predictions</h2>
+      </div>
+      <div class="table-wrap">
+        <table id="predictions-table">
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Match</th>
+              <th>Sport</th>
+              <th>Score pred.</th>
+              <th>First scorer</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="predictions-tbody">
+            <tr><td colspan="7" class="tbl-empty">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
       <!-- Game scores table -->
       <div class="section-head">
         <h2>Recent game results</h2>
@@ -446,6 +469,40 @@
     updateStats();
   }
 
+  // ── Load sports predictions ───────────────────────────────
+  async function loadPredictions() {
+    const { data, error } = await sb
+      .from("sports_predictions")
+      .select("user_id, match, sport, score_pred, first_scorer, status, pts_awarded, created_at, profiles(full_name, email)")
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    const tbody = document.getElementById("predictions-tbody");
+    if (error || !data?.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="tbl-empty">No predictions yet. Run the updated SQL in Supabase first.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = data.map(p => {
+      const statusBadge = p.status === "verified"
+        ? `<span class="badge badge-green">Verified</span>`
+        : p.status === "rejected"
+          ? `<span class="badge badge-red">Rejected</span>`
+          : `<span class="badge badge-amber">Pending</span>`;
+      return `
+        <tr>
+          <td>${p.profiles?.full_name || "—"}<br><small style="color:var(--muted)">${p.profiles?.email || ""}</small></td>
+          <td style="max-width:140px;white-space:normal">${p.match || "—"}</td>
+          <td><span class="badge badge-muted">${p.sport || "soccer"}</span></td>
+          <td>${p.score_pred || "—"}</td>
+          <td>${p.first_scorer || "—"}</td>
+          <td>${statusBadge}${p.pts_awarded ? ` <strong style="color:var(--green)">${p.pts_awarded}pts</strong>` : ""}</td>
+          <td>${fmtDate(p.created_at)}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
   // ── Load recent game scores ───────────────────────────────
   async function loadRecentScores() {
     const { data, error } = await sb
@@ -595,7 +652,7 @@
   // ── Refresh button ────────────────────────────────────────
   document.getElementById("refresh-btn").addEventListener("click", async () => {
     document.getElementById("refresh-btn").textContent = "↻ Loading…";
-    await Promise.all([loadUsers(), loadEntryCounts(), loadRecentEntries(), loadRecentScores()]);
+    await Promise.all([loadUsers(), loadEntryCounts(), loadPredictions(), loadRecentEntries(), loadRecentScores()]);
     document.getElementById("refresh-btn").textContent = "↻ Refresh";
     showToast("Data refreshed.");
   });
@@ -606,7 +663,7 @@
   }, 30000);
 
   // ── Initial load ──────────────────────────────────────────
-  await Promise.all([loadUsers(), loadEntryCounts(), loadRecentEntries(), loadRecentScores()]);
+  await Promise.all([loadUsers(), loadEntryCounts(), loadPredictions(), loadRecentEntries(), loadRecentScores()]);
 
 })();
 </script>
