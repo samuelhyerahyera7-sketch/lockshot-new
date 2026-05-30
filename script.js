@@ -748,7 +748,8 @@ function sportsApiFixtureToCard(fixture, priorityTerms = []) {
     isLive,
     isFinished,
     statusLong,
-    sortTime: fixtureDate ? fixtureDate.getTime() : Number.MAX_SAFE_INTEGER
+    sortTime: fixtureDate ? fixtureDate.getTime() : Number.MAX_SAFE_INTEGER,
+    fixtureId: fixture.fixture?.id ? String(fixture.fixture.id) : null
   };
 }
 
@@ -781,7 +782,7 @@ function renderSportsFixtures(fixtures, emptyMessage = "No real scores available
     const hasPaid = getStoredPaidAttempts({ name: "Sports Predict", game: "sports" }) > 0;
     const btnLabel = hasPaid ? "Predict this match" : "Predict this match — R5";
     const kickoffMs = fixture.sortTime || parseDemoKickoffMs(fixture.status, fixture.score) || 0;
-    return `<article class="fixture-match-card${index === 0 ? " is-selected" : ""}${isLive ? " is-live" : ""}" data-live-fixture data-home="${escapeHtml(fixture.home)}" data-away="${escapeHtml(fixture.away)}" data-score="${escapeHtml(score)}" data-status="${escapeHtml(fixture.status || "Upcoming")}" data-league="${escapeHtml(fixture.league || "Football")}" data-kickoff-ms="${kickoffMs}" data-home-team-id="${escapeHtml(fixture.homeTeamId || "")}" data-away-team-id="${escapeHtml(fixture.awayTeamId || "")}" data-league-slug="${escapeHtml(fixture.leagueSlug || "")}" data-fixture-sport="${escapeHtml(activeSportsFilter || "soccer")}">
+    return `<article class="fixture-match-card${index === 0 ? " is-selected" : ""}${isLive ? " is-live" : ""}" data-live-fixture data-home="${escapeHtml(fixture.home)}" data-away="${escapeHtml(fixture.away)}" data-score="${escapeHtml(score)}" data-status="${escapeHtml(fixture.status || "Upcoming")}" data-league="${escapeHtml(fixture.league || "Football")}" data-kickoff-ms="${kickoffMs}" data-home-team-id="${escapeHtml(fixture.homeTeamId || "")}" data-away-team-id="${escapeHtml(fixture.awayTeamId || "")}" data-league-slug="${escapeHtml(fixture.leagueSlug || "")}" data-fixture-sport="${escapeHtml(activeSportsFilter || "soccer")}" data-fixture-id="${escapeHtml(fixture.fixtureId || "")}">
   <div class="fmc-header">
     <span class="fmc-status${isLive ? " fmc-status--live" : ""}">${isLive ? '<span class="live-dot"></span>' : ""}${statusLabel}</span>
     <span class="fmc-kickoff-cd" data-kickoff-countdown></span>
@@ -3577,6 +3578,210 @@ function initSportsIqExperience() {
   if (ticketsDrawerClose) ticketsDrawerClose.addEventListener("click", closeMyTicketsDrawer);
   if (ticketsDrawer) ticketsDrawer.addEventListener("click", (e) => { if (e.target === ticketsDrawer) closeMyTicketsDrawer(); });
 
+  // ── Results page: fetch actual match data and compare to predictions ─────────
+
+  async function fetchMatchActuals(fixtureId) {
+    if (!fixtureId) return null;
+    const cacheKey = `lockshotActuals_${fixtureId}`;
+    try {
+      const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
+      if (cached && cached.fetched) {
+        const maxAge = cached.isFinished ? 86400000 : 7200000; // 24h if FT, 2h if still live
+        if (Date.now() - cached.fetched < maxAge) return cached;
+      }
+    } catch {}
+
+    const api = window.LOCKSHOT_SPORTS_API;
+    if (!api?.key || !api?.baseUrl) return null;
+    const h = { "x-apisports-key": api.key };
+
+    try {
+      const [fixRes, statsRes, eventsRes] = await Promise.all([
+        fetch(`${api.baseUrl}/fixtures?id=${fixtureId}`, { headers: h }).then(r => r.json()),
+        fetch(`${api.baseUrl}/fixtures/statistics?fixture=${fixtureId}`, { headers: h }).then(r => r.json()).catch(() => null),
+        fetch(`${api.baseUrl}/fixtures/events?fixture=${fixtureId}`, { headers: h }).then(r => r.json()).catch(() => null)
+      ]);
+
+      const fix = fixRes?.response?.[0];
+      if (!fix) return null;
+
+      const statusShort = fix.fixture?.status?.short || "";
+      const isFinished  = ["FT", "AET", "PEN"].includes(statusShort);
+      const homeGoals   = fix.goals?.home ?? null;
+      const awayGoals   = fix.goals?.away ?? null;
+
+      // Parse statistics
+      let homePoss = null, awayPoss = null, totalCorners = null, totalCards = null;
+      const statsArr = statsRes?.response || [];
+      if (statsArr.length >= 2) {
+        const getStat = (arr, type) => (arr.find(s => s.type === type) || {}).value;
+        const hStats = statsArr[0]?.statistics || [];
+        const aStats = statsArr[1]?.statistics || [];
+        homePoss = parseInt(getStat(hStats, "Ball Possession")) || null;
+        awayPoss = parseInt(getStat(aStats, "Ball Possession")) || null;
+        const hCorn = parseInt(getStat(hStats, "Corner Kicks") || "0");
+        const aCorn = parseInt(getStat(aStats, "Corner Kicks") || "0");
+        totalCorners = (isNaN(hCorn) ? 0 : hCorn) + (isNaN(aCorn) ? 0 : aCorn);
+        const hYel = parseInt(getStat(hStats, "Yellow Cards") || "0");
+        const aYel = parseInt(getStat(aStats, "Yellow Cards") || "0");
+        const hRed = parseInt(getStat(hStats, "Red Cards") || "0");
+        const aRed = parseInt(getStat(aStats, "Red Cards") || "0");
+        totalCards = (isNaN(hYel)?0:hYel) + (isNaN(aYel)?0:aYel) + (isNaN(hRed)?0:hRed) + (isNaN(aRed)?0:aRed);
+      }
+
+      // Parse events — first real goal (not missed penalty)
+      let firstScorerName = null, firstGoalMinute = null;
+      const events = eventsRes?.response || [];
+      const firstGoalEvent = events.find(e => e.type === "Goal" && e.detail !== "Missed Penalty");
+      if (firstGoalEvent) {
+        firstScorerName  = firstGoalEvent.player?.name || null;
+        firstGoalMinute  = firstGoalEvent.time?.elapsed || null;
+      }
+
+      const actuals = { homeGoals, awayGoals, homePoss, awayPoss, totalCorners, totalCards,
+        firstScorerName, firstGoalMinute, status: statusShort, isFinished, fetched: Date.now() };
+      try { localStorage.setItem(cacheKey, JSON.stringify(actuals)); } catch {}
+      return actuals;
+    } catch { return null; }
+  }
+
+  function compareTicketRows(rows, actuals) {
+    if (!rows?.length) return [];
+    return rows.map(r => {
+      const label  = (r.label || "").toLowerCase();
+      const val    = (r.value || "—").trim();
+      const maxPts = parseInt(r.pts) || 0;
+
+      // Not finished yet or no actuals
+      if (!actuals || actuals.homeGoals === null) return { ...r, status: "pending", actualVal: "—" };
+
+      // Scoreline
+      if (label.includes("score") && !label.includes("first")) {
+        if (actuals.homeGoals === null) return { ...r, status: "pending", actualVal: "—" };
+        const actualStr = `${actuals.homeGoals} - ${actuals.awayGoals}`;
+        const userNorm  = val.replace(/\s*[-:]\s*/g, " - ");
+        const correct   = userNorm === actualStr;
+        return { ...r, status: correct ? "correct" : "wrong", actualVal: actualStr, earnedPts: correct ? maxPts : 0 };
+      }
+
+      // Possession / Territory
+      if (label.includes("possess") || label.includes("territory")) {
+        if (actuals.homePoss === null) return { ...r, status: "pending", actualVal: "—" };
+        const actualStr  = `${actuals.homePoss}% - ${actuals.awayPoss}%`;
+        const userHomePct = parseInt(val.split(/[-–]/)[0]) || 0;
+        const correct     = (userHomePct >= 50) === (actuals.homePoss >= 50);
+        return { ...r, status: correct ? "correct" : "wrong", actualVal: actualStr, earnedPts: correct ? maxPts : 0 };
+      }
+
+      // Corners / Lineouts
+      if (label.includes("corner") || label.includes("lineout")) {
+        if (actuals.totalCorners === null) return { ...r, status: "pending", actualVal: "—" };
+        const correct = parseInt(val) === actuals.totalCorners;
+        return { ...r, status: correct ? "correct" : "wrong", actualVal: String(actuals.totalCorners), earnedPts: correct ? maxPts : 0 };
+      }
+
+      // Cards
+      if (label.includes("card")) {
+        if (actuals.totalCards === null) return { ...r, status: "pending", actualVal: "—" };
+        const correct = parseInt(val) === actuals.totalCards;
+        return { ...r, status: correct ? "correct" : "wrong", actualVal: String(actuals.totalCards), earnedPts: correct ? maxPts : 0 };
+      }
+
+      // First scorer
+      if (label.includes("scorer") || label.includes("try scorer")) {
+        if (!actuals.firstScorerName) return { ...r, status: "pending", actualVal: "—" };
+        const norm = s => s.toLowerCase().replace(/[^a-z]/g, "");
+        const uN = norm(val), aN = norm(actuals.firstScorerName);
+        const correct = uN.length > 1 && aN.length > 1 && (aN.includes(uN) || uN.includes(aN));
+        return { ...r, status: correct ? "correct" : "wrong", actualVal: actuals.firstScorerName, earnedPts: correct ? maxPts : 0 };
+      }
+
+      // Minute of first goal
+      if (label.includes("minute") || label.includes("first goal")) {
+        if (actuals.firstGoalMinute === null) return { ...r, status: "pending", actualVal: "—" };
+        const diff = Math.abs((parseInt(val) || 0) - actuals.firstGoalMinute);
+        const correct = diff <= 5;
+        return { ...r, status: correct ? "correct" : "wrong", actualVal: `${actuals.firstGoalMinute}'`, earnedPts: correct ? maxPts : 0 };
+      }
+
+      // MOTM / Player — manual verification only
+      return { ...r, status: "pending", actualVal: "Admin" };
+    });
+  }
+
+  async function renderResultsPage() {
+    const container = document.querySelector("[data-results-list]");
+    if (!container) return;
+
+    const tickets = (() => { try { return JSON.parse(localStorage.getItem("lockshotMyTickets") || "[]"); } catch { return []; } })();
+
+    if (!tickets.length) {
+      container.innerHTML = `<p class="sports-results-empty"><i data-lucide="shield-check"></i> No predictions yet — lock a ticket on the Predict tab to see your results here.</p>`;
+      if (typeof lucide !== "undefined") lucide.createIcons();
+      return;
+    }
+
+    container.innerHTML = `<p class="rpage-loading">Checking results…</p>`;
+
+    const pairs = await Promise.all(tickets.map(async t => {
+      // Only fetch API data for soccer with a real fixture ID
+      const actuals = (t.fixtureId && (!t.sport || t.sport === "soccer"))
+        ? await fetchMatchActuals(t.fixtureId)
+        : null;
+      return { ticket: t, actuals };
+    }));
+
+    container.innerHTML = pairs.map(({ ticket, actuals }) => {
+      const compared   = compareTicketRows(ticket.rows || [], actuals);
+      const earned     = compared.reduce((s, r) => s + (r.earnedPts || 0), 0);
+      const possible   = compared.reduce((s, r) => s + (parseInt(r.pts) || 0), 0);
+      const hasPending = compared.some(r => r.status === "pending");
+      const isFinished = actuals?.isFinished;
+
+      const badgeCls = isFinished && !hasPending ? "rcard-badge--done"
+                     : isFinished ? "rcard-badge--partial"
+                     : "rcard-badge--pending";
+      const badgeText = isFinished && !hasPending ? `${earned} / ${possible} pts`
+                      : isFinished ? `${earned} pts · some pending`
+                      : actuals ? "In progress"
+                      : "Awaiting result";
+
+      const lockedDate = new Date(ticket.lockedAt).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" });
+
+      const rowsHtml = compared.map(r => {
+        const icon = r.status === "correct" ? "✓" : r.status === "wrong" ? "✗" : "⏳";
+        const cls  = r.status === "correct" ? "rrow--correct" : r.status === "wrong" ? "rrow--wrong" : "rrow--pending";
+        const ptsText = r.status === "correct" ? `+${parseInt(r.pts)}` : r.status === "wrong" ? "0 pts" : r.pts;
+        return `<div class="rcard-row ${cls}">
+          <span class="rrow-icon">${icon}</span>
+          <div class="rrow-body">
+            <span class="rrow-label">${r.label}</span>
+            <div class="rrow-comparison">
+              <span class="rrow-your">You: <strong>${r.value}</strong></span>
+              ${r.actualVal !== undefined ? `<span class="rrow-actual">Actual: <strong>${r.actualVal}</strong></span>` : ""}
+            </div>
+          </div>
+          <span class="rrow-pts ${r.status === "correct" ? "rrow-pts--won" : ""}">${ptsText}</span>
+        </div>`;
+      }).join("");
+
+      return `<div class="rcard">
+        <div class="rcard-head">
+          <div class="rcard-title-block">
+            <strong class="rcard-match">${ticket.match || "Match"}</strong>
+            ${ticket.league ? `<span class="rcard-league">${ticket.league}</span>` : ""}
+          </div>
+          <span class="rcard-badge ${badgeCls}">${badgeText}</span>
+        </div>
+        <span class="rcard-date">${lockedDate}</span>
+        <div class="rcard-rows">${rowsHtml}</div>
+        ${isFinished && !hasPending ? `<div class="rcard-foot">Total: <strong>${earned} / ${possible} pts</strong></div>` : ""}
+      </div>`;
+    }).join("");
+
+    if (typeof lucide !== "undefined") lucide.createIcons();
+  }
+
   const picks = document.querySelectorAll("[data-sports-pick]");
   const lockButton = document.querySelector("[data-lock-pick]");
   const lockLabel = document.querySelector("[data-lock-label]");
@@ -3609,6 +3814,7 @@ function initSportsIqExperience() {
       link.classList.toggle("active", (SPORTS_PAGE_MAP[href] || "live") === pageId);
     });
     window.scrollTo({ top: 0, behavior: "instant" });
+    if (pageId === "results") renderResultsPage();
   }
 
   document.querySelectorAll("[data-sports-nav]").forEach((link) => {
@@ -4070,6 +4276,8 @@ function initSportsIqExperience() {
             match: selFixture2 ? `${selFixture2.dataset.home || ""} vs ${selFixture2.dataset.away || ""}` : "Match",
             league: selFixture2?.dataset.league || "",
             lockedAt: new Date().toISOString(),
+            fixtureId: selFixture2?.dataset.fixtureId || null,
+            sport: selectedTournamentSport || "soccer",
             rows
           };
           try {
