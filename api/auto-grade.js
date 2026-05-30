@@ -6,10 +6,7 @@ module.exports = async function handler(req, res) {
   const SERVICE_KEY     = process.env.SUPABASE_SERVICE_KEY;
   const SPORTS_API_KEY  = process.env.SPORTS_API_KEY  || "d092f7d41e2ce9b43bbc6b0daa8926f8";
 
-  if (!SERVICE_KEY) return res.status(500).json({
-    error: "SUPABASE_SERVICE_KEY not configured",
-    envKeys: Object.keys(process.env).filter(k => !k.includes("npm") && !k.includes("PATH") && !k.includes("NODE"))
-  });
+  if (!SERVICE_KEY) return res.status(500).json({ error: "SUPABASE_SERVICE_KEY not configured" });
 
   const sb  = { "apikey": SERVICE_KEY, "Authorization": `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" };
   const api = { "x-apisports-key": SPORTS_API_KEY };
