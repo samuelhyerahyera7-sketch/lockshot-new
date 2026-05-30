@@ -353,17 +353,21 @@ function getSupabaseClient() {
 async function saveGameScoreToSupabase(game, score) {
   const client = getSupabaseClient();
   const uid = currentUser?.id;
-  if (!client || !uid || score == null) return;
+  if (!client) { console.warn("[Lockshot] No Supabase client — score not saved"); return; }
+  if (!uid) { console.warn("[Lockshot] No logged-in user — score not saved"); return; }
+  if (score == null) return;
 
   // Insert the round result
-  await client.from("game_scores").insert({ user_id: uid, game, score });
+  const { error: scoreErr } = await client.from("game_scores").insert({ user_id: uid, game, score });
+  if (scoreErr) console.error("[Lockshot] Score save failed:", scoreErr.message, scoreErr.hint);
+  else console.log(`[Lockshot] Score saved ✓ — ${game}: ${score}`);
 
   // Also bump skill_score in profiles if this is a personal best
   await client
     .from("profiles")
     .update({ skill_score: score })
     .eq("id", uid)
-    .lt("skill_score", score); // only updates if new score is higher
+    .lt("skill_score", score);
 }
 
 async function upsertSupabaseProfile(user) {
@@ -4370,9 +4374,10 @@ function initSportsIqExperience() {
       }
 
       // Save prediction to Supabase so admin can see it
-      (() => {
+      (async () => {
         const client = getSupabaseClient();
-        if (!client || !currentUser?.id) return;
+        if (!client) { console.warn("[Lockshot] No Supabase client — prediction not saved"); return; }
+        if (!currentUser?.id) { console.warn("[Lockshot] No logged-in user — prediction not saved"); return; }
         const selFixture = document.querySelector("[data-live-fixture].is-selected");
         const matchName  = selFixture
           ? `${selFixture.dataset.home || ""} vs ${selFixture.dataset.away || ""}`
@@ -4383,7 +4388,7 @@ function initSportsIqExperience() {
           : document.querySelector("[data-scoreline-text]")?.value || "";
         const predPoss     = document.querySelector("[data-possession-value]")?.value || "";
         const predFirst    = document.querySelector("[data-player-input='firstScorer']")?.value || "";
-        client.from("sports_predictions").insert({
+        const { error: predErr } = await client.from("sports_predictions").insert({
           user_id:     currentUser.id,
           match:       matchName,
           sport:       selectedTournamentSport || "soccer",
@@ -4393,6 +4398,8 @@ function initSportsIqExperience() {
           first_scorer: predFirst,
           status:      "pending"
         });
+        if (predErr) console.error("[Lockshot] Prediction save failed:", predErr.message, predErr.details, predErr.hint);
+        else console.log("[Lockshot] Prediction saved to Supabase ✓");
       })();
 
       // Auto-advance to next unlocked ticket, or show all-done message
