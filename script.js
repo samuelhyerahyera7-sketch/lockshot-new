@@ -3529,14 +3529,53 @@ function initSportsIqExperience() {
   // Render the My Tickets pill on load
   renderMyTicketsPill();
 
-  // Floating My Tickets pill → jump to Board to see standings
+  // Floating My Tickets pill → open tickets drawer
   const ticketPill = document.querySelector("[data-sports-ticket-pill]");
-  if (ticketPill) {
-    ticketPill.addEventListener("click", () => {
-      switchSportsPage("board");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
+  const ticketsDrawer = document.getElementById("my-tickets-drawer");
+  const ticketsDrawerClose = document.getElementById("my-tickets-drawer-close");
+  const ticketsDrawerList = document.getElementById("my-tickets-drawer-list");
+
+  function openMyTicketsDrawer() {
+    if (!ticketsDrawer) return;
+    const saved = (() => { try { return JSON.parse(localStorage.getItem("lockshotMyTickets") || "[]"); } catch { return []; } })();
+    if (!saved.length) {
+      if (ticketsDrawerList) ticketsDrawerList.innerHTML = `<p style="color:rgba(255,255,255,0.45);text-align:center;padding:32px 0">No tickets yet — lock a prediction to see it here.</p>`;
+    } else {
+      if (ticketsDrawerList) ticketsDrawerList.innerHTML = saved.map(t => `
+        <div class="myt-card">
+          <div class="myt-card-head">
+            <div>
+              <strong class="myt-match">${t.match}</strong>
+              <span class="myt-league">${t.league || ""}</span>
+            </div>
+            <span class="myt-status">🔒 Locked</span>
+          </div>
+          <div class="myt-rows">
+            ${(t.rows || []).map(r => `
+              <div class="myt-row">
+                <span class="myt-label">${r.label}</span>
+                <span class="myt-value">${r.value}</span>
+                <span class="myt-pts">${r.pts}</span>
+              </div>
+            `).join("")}
+          </div>
+          <div class="myt-foot">Max 30 pts · Verified after full time</div>
+        </div>
+      `).join("");
+    }
+    ticketsDrawer.classList.add("is-open");
+    document.body.style.overflow = "hidden";
   }
+
+  function closeMyTicketsDrawer() {
+    if (!ticketsDrawer) return;
+    ticketsDrawer.classList.remove("is-open");
+    document.body.style.overflow = "";
+  }
+
+  if (ticketPill) ticketPill.addEventListener("click", openMyTicketsDrawer);
+  if (ticketsDrawerClose) ticketsDrawerClose.addEventListener("click", closeMyTicketsDrawer);
+  if (ticketsDrawer) ticketsDrawer.addEventListener("click", (e) => { if (e.target === ticketsDrawer) closeMyTicketsDrawer(); });
 
   const picks = document.querySelectorAll("[data-sports-pick]");
   const lockButton = document.querySelector("[data-lock-pick]");
@@ -4022,6 +4061,23 @@ function initSportsIqExperience() {
         ticket.hidden = false;
         if (typeof lucide !== "undefined") lucide.createIcons();
         window.setTimeout(() => ticket.scrollIntoView({ behavior: "smooth", block: "center" }), 160);
+
+        // Save full ticket to My Tickets history
+        (() => {
+          const selFixture2 = document.querySelector("[data-live-fixture].is-selected");
+          const savedTicket = {
+            id: Date.now(),
+            match: selFixture2 ? `${selFixture2.dataset.home || ""} vs ${selFixture2.dataset.away || ""}` : "Match",
+            league: selFixture2?.dataset.league || "",
+            lockedAt: new Date().toISOString(),
+            rows
+          };
+          try {
+            const existing = JSON.parse(localStorage.getItem("lockshotMyTickets") || "[]");
+            existing.unshift(savedTicket); // newest first
+            localStorage.setItem("lockshotMyTickets", JSON.stringify(existing.slice(0, 50)));
+          } catch {}
+        })();
       }
 
       // Record entry in leaderboard (0 pts pending verification)
