@@ -8459,8 +8459,37 @@ body[data-page="game"] .chat-button {
   border-top: 1px dashed rgba(4,245,41,0.2);
 }
 
-/* ── Floating sports ticket pill ─────────────────────────── */
+/* ── Inline My Tickets pill (inside section head) ─────────── */
 .sports-ticket-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 8px 12px;
+  background: var(--green, #00e87a);
+  color: #061106;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  animation: pill-pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.sports-ticket-pill[hidden] { display: none; }
+.sports-ticket-pill:active { transform: scale(0.94); }
+.sports-ticket-pill strong {
+  background: #061106;
+  color: var(--green, #00e87a);
+  border-radius: 50px;
+  padding: 1px 8px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* ── Fixed wallet balance pill (top-right, replaces ticket pill) */
+.sports-wallet-pill {
   position: fixed;
   top: 14px;
   right: 16px;
@@ -8469,30 +8498,21 @@ body[data-page="game"] .chat-button {
   align-items: center;
   gap: 8px;
   padding: 10px 16px 10px 14px;
-  background: var(--green, #00e87a);
-  color: #061106;
-  border: none;
+  background: rgba(0,232,122,0.15);
+  border: 1px solid rgba(0,232,122,0.4);
+  color: #00e87a;
   border-radius: 50px;
   font-size: 0.9rem;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 6px 24px rgba(0, 232, 122, 0.4);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  animation: pill-pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  text-decoration: none;
+  box-shadow: 0 4px 18px rgba(0, 232, 122, 0.25);
+  transition: background 0.15s;
 }
-.sports-ticket-pill[hidden] { display: none; }
-.sports-ticket-pill:active { transform: scale(0.94); }
-.sports-ticket-pill svg { width: 18px; height: 18px; }
-.sports-ticket-pill strong {
-  background: #061106;
-  color: var(--green, #00e87a);
-  border-radius: 50px;
-  padding: 1px 8px;
-  font-size: 0.8rem;
-  font-weight: 900;
-  min-width: 22px;
-  text-align: center;
-}
+.sports-wallet-pill[hidden] { display: none; }
+.sports-wallet-pill:hover { background: rgba(0,232,122,0.22); }
+.sports-wallet-pill svg,
+.sports-wallet-pill i { width: 16px; height: 16px; }
 @keyframes pill-pop-in {
   from { transform: scale(0.6) translateY(20px); opacity: 0; }
   to   { transform: scale(1) translateY(0);       opacity: 1; }
@@ -9571,11 +9591,7 @@ body.game-menu-page {
 .wallet-topbar-chip svg,
 .wallet-topbar-chip i { width: 20px; height: 20px; }
 
-/* On sports-iq the chip sits directly in the header flex row */
-.sports-topbar .wallet-topbar-chip {
-  margin-left: auto;
-  margin-right: 12px;
-}
+/* sports-topbar wallet chip removed — wallet now uses .sports-wallet-pill fixed pill */
 
 /* On game pages the chip sits directly in the header flex row */
 .topbar.is-scrolled > .wallet-topbar-chip {

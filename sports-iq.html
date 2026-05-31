@@ -11,12 +11,14 @@
   <script src="script.js" defer></script>
 </head>
 <body class="sports-iq-page">
+  <!-- Wallet balance pill — fixed top-right, shown when logged in -->
+  <a class="sports-wallet-pill" href="wallet.html" data-wallet-chip aria-label="Wallet balance" hidden>
+    <i data-lucide="wallet"></i>
+    <span data-wallet-balance-display>R0.00</span>
+  </a>
+
   <header class="topbar sports-topbar is-scrolled" aria-label="Site header">
     <a class="brand" href="index.html" aria-label="Lockshot home"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a>
-    <button class="wallet-topbar-chip" data-wallet-chip aria-label="Wallet balance" hidden>
-      <i data-lucide="wallet"></i>
-      <span data-wallet-balance-display>R0.00</span>
-    </button>
     <nav class="desktop-nav" aria-label="Desktop navigation">
       <a href="competitions.html">Competitions</a>
       <a href="sports-iq.html">Sports Predict</a>
@@ -30,9 +32,13 @@
 
 
     <div class="sports-section-head sports-section-head--with-tokens" style="padding:0 10px;margin:14px 10px 0;">
-      <div>
+      <div style="display:flex;flex-direction:column;align-items:flex-start;gap:8px;">
         <span>Pick a match to predict</span>
-        <h2 id="fixtures-title" style="text-align:left">Choose your game</h2>
+        <h2 id="fixtures-title" style="text-align:left;margin:0">Choose your game</h2>
+        <button class="sports-ticket-pill sports-ticket-pill--inline" id="sports-ticket-pill" type="button" data-sports-ticket-pill hidden aria-label="View my prediction tickets">
+          <span>My Tickets</span>
+          <strong data-pill-ticket-count>0</strong>
+        </button>
       </div>
       <div class="sports-token-badge" data-sports-token-badge aria-live="polite">
         <span class="stb-label">Your entries</span>
@@ -427,12 +433,6 @@
   </div><!-- /page: wallet -->
 
   </main>
-
-  <!-- Floating My Tickets pill — shows locked prediction count -->
-  <button class="sports-ticket-pill" id="sports-ticket-pill" type="button" data-sports-ticket-pill hidden aria-label="View my prediction tickets">
-    <span>My Tickets</span>
-    <strong data-pill-ticket-count>0</strong>
-  </button>
 
   <!-- My Tickets drawer -->
   <div class="my-tickets-drawer" id="my-tickets-drawer" aria-label="My prediction tickets" role="dialog">
