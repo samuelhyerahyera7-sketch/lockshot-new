@@ -8459,33 +8459,28 @@ body[data-page="game"] .chat-button {
   border-top: 1px dashed rgba(4,245,41,0.2);
 }
 
-/* ── Inline My Tickets pill (inside section head) ─────────── */
-.sports-ticket-pill {
+/* ── My Tickets inline label (inside section head) ────────── */
+.my-tickets-label {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 14px 8px 12px;
-  background: var(--green, #00e87a);
-  color: #061106;
+  gap: 4px;
+  background: none;
   border: none;
-  border-radius: 50px;
-  font-size: 0.82rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: transform 0.15s ease;
-  animation: pill-pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-.sports-ticket-pill[hidden] { display: none; }
-.sports-ticket-pill:active { transform: scale(0.94); }
-.sports-ticket-pill strong {
-  background: #061106;
+  padding: 0;
   color: var(--green, #00e87a);
-  border-radius: 50px;
-  padding: 1px 8px;
-  font-size: 0.78rem;
-  font-weight: 900;
-  min-width: 20px;
-  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.15s;
+}
+.my-tickets-label:hover { opacity: 1; }
+.my-tickets-label[hidden] { display: none; }
+.my-tickets-label strong {
+  font-weight: 950;
+  color: var(--green, #00e87a);
 }
 
 /* ── Fixed wallet balance pill (top-right, replaces ticket pill) */
