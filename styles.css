@@ -3761,10 +3761,10 @@ h2 {
   bottom: 22px;
   z-index: 95;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  width: min(520px, calc(100% - 34px));
+  grid-template-columns: repeat(5, 1fr);
+  width: min(580px, calc(100% - 24px));
   min-height: 84px;
-  padding: 10px 14px;
+  padding: 10px 8px;
   border-radius: 999px;
   background: white;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.17);
@@ -3776,7 +3776,7 @@ h2 {
   place-items: center;
   gap: 5px;
   color: #0f1114;
-  font-size: 0.86rem;
+  font-size: 0.78rem;
 }
 
 .bottom-nav svg {
@@ -9569,7 +9569,7 @@ body.game-menu-page {
   text-decoration: none;
 }
 .wallet-topbar-chip svg,
-.wallet-topbar-chip i { width: 14px; height: 14px; }
+.wallet-topbar-chip i { width: 20px; height: 20px; }
 
 /* On sports-iq the chip sits directly in the header flex row */
 .sports-topbar .wallet-topbar-chip {
