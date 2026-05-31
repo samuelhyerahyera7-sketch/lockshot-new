@@ -8479,6 +8479,12 @@ body[data-page="game"] .chat-button {
 }
 .sports-ticket-pill-inline[hidden] { display: none; }
 .sports-ticket-pill-inline:active { transform: scale(0.94); }
+.sports-ticket-pill-inline span {
+  color: #061106 !important;
+  font-size: 0.82rem;
+  letter-spacing: normal;
+  text-transform: none;
+}
 .sports-ticket-pill-inline strong {
   background: #061106;
   color: var(--green, #00e87a);
