@@ -1849,6 +1849,7 @@ async function syncSupabaseUser() {
   });
   await upsertSupabaseProfile(user);
   enforceProtectedRoutes();
+  if (typeof loadWalletBalance === "function") loadWalletBalance();
 }
 
 function protectedRouteNames() {
@@ -3940,7 +3941,8 @@ function initSportsIqExperience() {
     "#live-fixtures":    "live",
     "#prediction-arena": "predict",
     "#sports-standings": "board",
-    "#sports-results":   "results"
+    "#sports-results":   "results",
+    "#sports-wallet":    "wallet"
   };
 
   function switchSportsPage(pageId) {
@@ -3960,7 +3962,67 @@ function initSportsIqExperience() {
       refreshBoardFromCache();
       refreshBoardFromSupabase(); // pull graded pts from Supabase for global leaderboard
     }
+    if (pageId === "wallet") renderWalletPage();
   }
+
+  // ── Wallet ───────────────────────────────────────────────────
+  let _walletBalance = null;
+
+  async function loadWalletBalance() {
+    const client = getSupabaseClient();
+    if (!client || !currentUser?.id) return null;
+    try {
+      const { data } = await client.from("wallets").select("balance").eq("user_id", currentUser.id).maybeSingle();
+      _walletBalance = parseFloat(data?.balance ?? 0);
+    } catch { _walletBalance = 0; }
+    updateWalletUI();
+    return _walletBalance;
+  }
+
+  function updateWalletUI() {
+    const bal = _walletBalance ?? 0;
+    const fmt = `R${bal.toFixed(2)}`;
+    document.querySelectorAll("[data-wallet-balance-display]").forEach(el => el.textContent = fmt);
+    document.querySelectorAll("[data-wallet-main-balance]").forEach(el => el.textContent = bal.toFixed(2));
+    // Show chip only when logged in
+    const chip = document.querySelector("[data-wallet-chip]");
+    if (chip) chip.hidden = !currentUser;
+  }
+
+  async function renderWalletPage() {
+    await loadWalletBalance();
+    const client = getSupabaseClient();
+    const listEl = document.querySelector("[data-wallet-tx-list]");
+    if (!listEl || !client || !currentUser?.id) return;
+    listEl.innerHTML = `<p class="wallet-tx-empty">Loading…</p>`;
+    try {
+      const { data } = await client.from("wallet_transactions")
+        .select("type, amount, description, created_at")
+        .eq("user_id", currentUser.id)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (!data?.length) {
+        listEl.innerHTML = `<p class="wallet-tx-empty">No transactions yet.</p>`;
+        return;
+      }
+      listEl.innerHTML = data.map(tx => {
+        const isCredit = ["topup","win","refund"].includes(tx.type);
+        const sign = isCredit ? "+" : "-";
+        const date = new Date(tx.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" });
+        return `<div class="wallet-tx-row">
+          <div class="wallet-tx-info">
+            <span class="wallet-tx-desc">${tx.description || tx.type}</span>
+            <span class="wallet-tx-date">${date}</span>
+          </div>
+          <span class="wallet-tx-amount ${isCredit ? "credit" : "debit"}">${sign}R${parseFloat(tx.amount).toFixed(2)}</span>
+        </div>`;
+      }).join("");
+    } catch { listEl.innerHTML = `<p class="wallet-tx-empty">Could not load transactions.</p>`; }
+    if (typeof lucide !== "undefined") lucide.createIcons();
+  }
+
+  // Wallet chip → go to wallet page
+  document.querySelector("[data-wallet-chip]")?.addEventListener("click", () => switchSportsPage("wallet"));
 
   document.querySelectorAll("[data-sports-nav]").forEach((link) => {
     link.addEventListener("click", (event) => {

@@ -137,4 +137,56 @@ CREATE POLICY "Users read graded predictions"
   ON public.sports_predictions FOR SELECT
   USING (status = 'graded');
 
+-- ── 7. wallets table ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.wallets (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    uuid REFERENCES public.profiles(id) ON DELETE CASCADE UNIQUE,
+  balance    numeric(10,2) NOT NULL DEFAULT 0,
+  updated_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.wallets ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users read own wallet" ON public.wallets;
+CREATE POLICY "Users read own wallet"
+  ON public.wallets FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users update own wallet" ON public.wallets;
+CREATE POLICY "Users update own wallet"
+  ON public.wallets FOR UPDATE USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users insert own wallet" ON public.wallets;
+CREATE POLICY "Users insert own wallet"
+  ON public.wallets FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Admin manages all wallets" ON public.wallets;
+CREATE POLICY "Admin manages all wallets"
+  ON public.wallets FOR ALL
+  USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');
+
+-- ── 8. wallet_transactions table ─────────────────────────────
+CREATE TABLE IF NOT EXISTS public.wallet_transactions (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     uuid REFERENCES public.profiles(id) ON DELETE CASCADE,
+  type        text NOT NULL, -- 'topup' | 'spend' | 'win' | 'refund'
+  amount      numeric(10,2) NOT NULL,
+  description text,
+  created_at  timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.wallet_transactions ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users read own transactions" ON public.wallet_transactions;
+CREATE POLICY "Users read own transactions"
+  ON public.wallet_transactions FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users insert own transactions" ON public.wallet_transactions;
+CREATE POLICY "Users insert own transactions"
+  ON public.wallet_transactions FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Admin manages all transactions" ON public.wallet_transactions;
+CREATE POLICY "Admin manages all transactions"
+  ON public.wallet_transactions FOR ALL
+  USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');
+
 -- ── Done ─────────────────────────────────────────────────────
