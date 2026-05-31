@@ -5823,16 +5823,20 @@ body[data-page="game"] .chat-button {
   -webkit-tap-highlight-color: transparent;
 }
 
-.fixture-match-card:hover,
-.fixture-match-card.is-selected {
-  border-color: rgba(4, 245, 41, 0.55);
-  background: rgba(4, 245, 41, 0.08);
+.fixture-match-card:hover {
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
   transform: translateY(-2px);
 }
 
+.fixture-match-card.is-selected {
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.04);
+}
+
 .fixture-match-card.is-live {
-  border-color: rgba(4, 245, 41, 0.4);
-  background: rgba(4, 245, 41, 0.06);
+  border-color: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
 }
 
 .fmc-header {
