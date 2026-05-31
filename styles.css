@@ -9657,3 +9657,30 @@ body.game-menu-page {
 .wallet-entry-label { color: rgba(255,255,255,0.6); }
 .wallet-entry-bal   { font-weight: 800; color: #00e87a; }
 .wallet-entry-low   { color: #ff4466; }
+
+/* ── Wallet top-up grid ──────────────────────────────────── */
+.wbc-topup-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.wbc-amount-btn {
+  padding: 10px 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,232,122,0.3);
+  background: rgba(0,232,122,0.1);
+  color: #00e87a;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.wbc-amount-btn:hover { background: rgba(0,232,122,0.22); }
+.wbc-amount-btn:active { transform: scale(0.96); }
+.wbc-topup-note {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+  margin: 0;
+}

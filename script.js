@@ -4143,6 +4143,33 @@ function initSportsIqExperience() {
   // Wallet chip → go to wallet page
   document.querySelector("[data-wallet-chip]")?.addEventListener("click", () => switchSportsPage("wallet"));
 
+  // Top-up buttons — simulated until EFT is live
+  document.querySelectorAll("[data-topup-amount]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const amount = parseFloat(btn.dataset.topupAmount);
+      if (!amount || !currentUser?.id) return;
+      const client = getSupabaseClient();
+      if (!client) return;
+
+      btn.disabled = true;
+      btn.textContent = "Adding…";
+
+      const { data: walletData } = await client.from("wallets").select("balance").eq("user_id", currentUser.id).maybeSingle();
+      const current = parseFloat(walletData?.balance ?? 0);
+      const newBalance = parseFloat((current + amount).toFixed(2));
+
+      await client.from("wallets").upsert({ user_id: currentUser.id, balance: newBalance, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+      await client.from("wallet_transactions").insert({ user_id: currentUser.id, type: "topup", amount, description: `Top up R${amount}` });
+
+      _walletBalance = newBalance;
+      updateWalletUI();
+      await renderWalletPage();
+
+      btn.disabled = false;
+      btn.textContent = `+ R${amount}`;
+    });
+  });
+
   document.querySelectorAll("[data-sports-nav]").forEach((link) => {
     link.addEventListener("click", (event) => {
       const href = link.getAttribute("href");
