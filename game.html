@@ -11,7 +11,7 @@
   <script src="script.js" defer></script>
 </head>
 <body class="game-menu-page">
-  <header class="topbar is-scrolled"><a class="brand" href="index.html"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a><div class="wallet-topbar-chip" id="game-wallet-chip" style="display:none"><span>💳</span><span id="game-wallet-bal">R0.00</span></div><nav class="desktop-nav"><a href="competitions.html">Competitions</a><a href="account.html">Account</a></nav></header>
+  <header class="topbar is-scrolled"><a class="brand" href="index.html"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a><div class="wallet-topbar-chip" data-wallet-chip hidden><i data-lucide="wallet"></i><span data-wallet-balance-display>R0.00</span></div><nav class="desktop-nav"><a href="competitions.html">Competitions</a><a href="account.html">Account</a></nav></header>
   <main>
     <section class="game-section game-menu" id="game" aria-labelledby="game-title">
       <div class="game-head"><div><span>Choose game</span><h2 id="game-title">Pick your challenge.</h2></div><strong data-game-status>No entries unlocked yet</strong></div>
@@ -54,20 +54,5 @@
     <a href="sports-iq.html"><i data-lucide="trophy"></i><span>Sports</span></a>
     <a href="account.html"><i data-lucide="user"></i><span>Account</span></a>
   </nav>
-<script>
-(async () => {
-  const cfg = window.LOCKSHOT_SUPABASE;
-  if (!cfg?.url || !cfg?.anonKey || !window.supabase) return;
-  const sb = window.supabase.createClient(cfg.url, cfg.anonKey);
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return;
-  const { data } = await sb.from("wallets").select("balance").eq("user_id", user.id).maybeSingle();
-  if (data) {
-    const chip = document.getElementById("game-wallet-chip");
-    const bal = document.getElementById("game-wallet-bal");
-    if (chip && bal) { bal.textContent = `R${parseFloat(data.balance).toFixed(2)}`; chip.style.display = "flex"; }
-  }
-})();
-</script>
 </body>
 </html>
