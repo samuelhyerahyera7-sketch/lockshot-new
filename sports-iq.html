@@ -31,6 +31,10 @@
 
     <div class="sports-section-head sports-section-head--with-tokens" style="padding:0 10px;margin:0 10px 0;">
       <div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;flex:1;min-width:0;">
+        <button class="sports-ticket-pill-inline" id="sports-ticket-pill" type="button" data-sports-ticket-pill hidden aria-label="View my prediction tickets">
+          <span>My Tickets</span>
+          <strong data-pill-ticket-count>0</strong>
+        </button>
         <span>Pick a match to predict</span>
         <h2 id="fixtures-title" style="text-align:left;margin:0;color:white;font-size:clamp(1.1rem,5vw,1.6rem);line-height:1.2;">Choose your game</h2>
       </div>
@@ -427,12 +431,6 @@
   </div><!-- /page: wallet -->
 
   </main>
-
-  <!-- Floating My Tickets pill -->
-  <button class="sports-ticket-pill" id="sports-ticket-pill" type="button" data-sports-ticket-pill hidden aria-label="View my prediction tickets">
-    <span>My Tickets</span>
-    <strong data-pill-ticket-count>0</strong>
-  </button>
 
   <!-- My Tickets drawer -->
   <div class="my-tickets-drawer" id="my-tickets-drawer" aria-label="My prediction tickets" role="dialog">
