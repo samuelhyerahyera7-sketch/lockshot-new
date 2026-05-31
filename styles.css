@@ -5948,6 +5948,13 @@ body[data-page="game"] .chat-button {
   color: rgba(255,255,255,0.7);
 }
 
+.fmc-badge--img {
+  object-fit: contain;
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.12);
+  padding: 6px;
+}
+
 .fmc-team strong {
   font-size: 0.82rem;
   font-weight: 900;

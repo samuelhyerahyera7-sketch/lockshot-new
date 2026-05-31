@@ -753,7 +753,9 @@ function sportsApiFixtureToCard(fixture, priorityTerms = []) {
     isFinished,
     statusLong,
     sortTime: fixtureDate ? fixtureDate.getTime() : Number.MAX_SAFE_INTEGER,
-    fixtureId: fixture.fixture?.id ? String(fixture.fixture.id) : null
+    fixtureId: fixture.fixture?.id ? String(fixture.fixture.id) : null,
+    homeLogo: fixture.teams?.home?.logo || null,
+    awayLogo: fixture.teams?.away?.logo || null
   };
 }
 
@@ -786,7 +788,14 @@ function renderSportsFixtures(fixtures, emptyMessage = "No real scores available
     const hasPaid = getStoredPaidAttempts({ name: "Sports Predict", game: "sports" }) > 0;
     const btnLabel = hasPaid ? "Predict this match" : "Predict this match — R5";
     const kickoffMs = fixture.sortTime || parseDemoKickoffMs(fixture.status, fixture.score) || 0;
-    return `<article class="fixture-match-card${index === 0 ? " is-selected" : ""}${isLive ? " is-live" : ""}" data-live-fixture data-home="${escapeHtml(fixture.home)}" data-away="${escapeHtml(fixture.away)}" data-score="${escapeHtml(score)}" data-status="${escapeHtml(fixture.status || "Upcoming")}" data-league="${escapeHtml(fixture.league || "Football")}" data-kickoff-ms="${kickoffMs}" data-home-team-id="${escapeHtml(fixture.homeTeamId || "")}" data-away-team-id="${escapeHtml(fixture.awayTeamId || "")}" data-league-slug="${escapeHtml(fixture.leagueSlug || "")}" data-fixture-sport="${escapeHtml(activeSportsFilter || "soccer")}" data-fixture-id="${escapeHtml(fixture.fixtureId || "")}">
+    const homeBadge = fixture.homeLogo
+      ? `<img class="fmc-badge fmc-badge--img" src="${escapeHtml(fixture.homeLogo)}" alt="${escapeHtml(fixture.home)}" loading="lazy" onerror="this.outerHTML='<span class=\\"fmc-badge\\">${escapeHtml(initials(fixture.home))}</span>'">`
+      : `<span class="fmc-badge">${escapeHtml(initials(fixture.home))}</span>`;
+    const awayBadge = fixture.awayLogo
+      ? `<img class="fmc-badge fmc-badge--img fmc-badge--away" src="${escapeHtml(fixture.awayLogo)}" alt="${escapeHtml(fixture.away)}" loading="lazy" onerror="this.outerHTML='<span class=\\"fmc-badge fmc-badge--away\\">${escapeHtml(initials(fixture.away))}</span>'">`
+      : `<span class="fmc-badge fmc-badge--away">${escapeHtml(initials(fixture.away))}</span>`;
+
+    return `<article class="fixture-match-card${index === 0 ? " is-selected" : ""}${isLive ? " is-live" : ""}" data-live-fixture data-home="${escapeHtml(fixture.home)}" data-away="${escapeHtml(fixture.away)}" data-score="${escapeHtml(score)}" data-status="${escapeHtml(fixture.status || "Upcoming")}" data-league="${escapeHtml(fixture.league || "Football")}" data-kickoff-ms="${kickoffMs}" data-home-team-id="${escapeHtml(fixture.homeTeamId || "")}" data-away-team-id="${escapeHtml(fixture.awayTeamId || "")}" data-league-slug="${escapeHtml(fixture.leagueSlug || "")}" data-fixture-sport="${escapeHtml(activeSportsFilter || "soccer")}" data-fixture-id="${escapeHtml(fixture.fixtureId || "")}" data-home-logo="${escapeHtml(fixture.homeLogo || "")}" data-away-logo="${escapeHtml(fixture.awayLogo || "")}">
   <div class="fmc-header">
     <span class="fmc-status${isLive ? " fmc-status--live" : ""}">${isLive ? '<span class="live-dot"></span>' : ""}${statusLabel}</span>
     <span class="fmc-kickoff-cd" data-kickoff-countdown></span>
@@ -796,12 +805,12 @@ function renderSportsFixtures(fixtures, emptyMessage = "No real scores available
   </div>
   <div class="fmc-teams">
     <div class="fmc-team">
-      <span class="fmc-badge">${escapeHtml(initials(fixture.home))}</span>
+      ${homeBadge}
       <strong>${escapeHtml(fixture.home)}</strong>
     </div>
     <span class="fmc-score">${escapeHtml(score)}</span>
     <div class="fmc-team fmc-team--away">
-      <span class="fmc-badge fmc-badge--away">${escapeHtml(initials(fixture.away))}</span>
+      ${awayBadge}
       <strong>${escapeHtml(fixture.away)}</strong>
     </div>
   </div>
