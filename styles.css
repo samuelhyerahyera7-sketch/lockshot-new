@@ -8063,8 +8063,8 @@ body[data-page="game"] .chat-button {
 .sports-section-head--with-tokens {
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
+  justify-content: flex-start;
+  gap: 20px;
 }
 
 .sports-token-badge {
