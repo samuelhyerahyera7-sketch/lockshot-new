@@ -5026,7 +5026,7 @@ body[data-page="game"] .chat-button {
     grid-template-columns: 1fr;
     gap: 18px;
     min-height: auto;
-    padding: 96px 14px 28px;
+    padding: 12px 14px 28px;
   }
 
   .checkout-copy {
