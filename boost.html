@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-ZA">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Lockshot | Boost Lock</title><link rel="stylesheet" href="styles.css"><script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script><script src="script.js" defer></script></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Lockshot | Boost Lock</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="auth-config.js"></script><script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script><script src="script.js" defer></script></head>
 <body data-default-game="boost">
-  <header class="topbar is-scrolled"><a class="brand" href="index.html"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a><nav class="desktop-nav"><a href="game.html">Games</a><a href="competitions.html">Competitions</a></nav></header>
+  <header class="topbar is-scrolled"><a class="brand" href="index.html"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a><div class="wallet-topbar-chip" id="g-wallet-chip" style="display:none"><span>💳</span><span id="g-wallet-bal">R0.00</span></div><nav class="desktop-nav"><a href="game.html">Games</a><a href="competitions.html">Competitions</a></nav></header>
   <main><section class="game-section single-game-page" id="game" aria-labelledby="game-title">
     <div class="game-head"><div><span>Boost Lock</span><h2 id="game-title">Watch the odometer.</h2></div><strong data-game-status>No entries unlocked yet</strong></div>
     <div class="play-area boost-game is-active" data-game-area="boost">
@@ -16,4 +16,20 @@
       <div class="spot-panel"><div><span>Rounds left</span><strong data-boost-rounds-left>0</strong></div><div><span>This multiplier</span><strong data-boost-panel-multiplier>1.00x</strong></div><div><span>This score</span><strong data-boost-score>-</strong></div><div><span>Your high score</span><strong data-boost-high-score>0</strong></div><button class="submit-game" type="button" data-boost-lock-score disabled>Lock Score</button><a class="panel-link" href="game.html" data-play-different>Play a different game</a></div>
     </div>
   </section></main>
+<script>
+(async () => {
+  const cfg = window.LOCKSHOT_SUPABASE;
+  if (!cfg?.url || !window.supabase) return;
+  const sb = window.supabase.createClient(cfg.url, cfg.anonKey);
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return;
+  const { data } = await sb.from('wallets').select('balance').eq('user_id', user.id).maybeSingle();
+  if (data) {
+    const c = document.getElementById('g-wallet-chip');
+    const b = document.getElementById('g-wallet-bal');
+    if (c && b) { b.textContent = 'R' + parseFloat(data.balance).toFixed(2); c.style.display = 'flex'; }
+  }
+})();
+</script>
 </body></html>
+

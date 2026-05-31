@@ -5130,22 +5130,19 @@ if (confirmAdd) {
   confirmAdd.addEventListener("click", async () => {
     if (!requireAccount("Create an account or log in before adding an entry.")) return;
     const unitPrice = selectedUnitPrice();
-    const isSports = selectedPrize?.game === "sports";
+    const client = getSupabaseClient();
+    const uid = currentUser?.id;
 
-    // ── Pay from wallet ───────────────────────────────────────
-    if (isSports) {
-      const client = getSupabaseClient();
-      const uid = currentUser?.id;
-      if (!client || !uid) { alert("Please log in to use your wallet."); return; }
-
-      // Check balance
+    // ── Always pay from wallet ────────────────────────────────
+    if (client && uid) {
       const { data: walletData } = await client.from("wallets").select("balance").eq("user_id", uid).maybeSingle();
       const balance = parseFloat(walletData?.balance ?? 0);
 
       if (balance < unitPrice) {
         closeSlip();
-        switchSportsPage("wallet");
-        alert(`Insufficient balance (R${balance.toFixed(2)}). Please top up your wallet.`);
+        if (typeof switchSportsPage === "function") switchSportsPage("wallet");
+        else window.location.href = "sports-iq.html#sports-wallet";
+        alert(`Insufficient wallet balance (R${balance.toFixed(2)}). Please top up your wallet.`);
         return;
       }
 
@@ -5154,47 +5151,35 @@ if (confirmAdd) {
       await client.from("wallets").upsert({ user_id: uid, balance: newBalance, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
       await client.from("wallet_transactions").insert({ user_id: uid, type: "spend", amount: unitPrice, description: `Entry: ${selectedPrize.name}` });
 
-      // Update local balance display
-      _walletBalance = newBalance;
-      updateWalletUI();
+      if (typeof _walletBalance !== "undefined") { _walletBalance = newBalance; updateWalletUI(); }
 
-      // Grant access — same as successful checkout
-      storePaidAttempts((getStoredPaidAttempts({ name: selectedPrize.name, game: "sports" }) || 0) + (selectedPrize.qty || 1), { name: selectedPrize.name, game: "sports" });
+      // Grant access
+      const prizeCtx = { name: selectedPrize.name, game: selectedPrize.game };
+      storePaidAttempts((getStoredPaidAttempts(prizeCtx) || 0) + (selectedPrize.qty || 1), prizeCtx);
 
       closeSlip();
+      renderCount();
 
-      // Go straight to predict tab
-      renderSportsEntryState();
-      const pendingFix = getPendingFixture();
-      if (pendingFix) {
-        const match = document.querySelector(`[data-live-fixture][data-home="${pendingFix.home}"][data-away="${pendingFix.away}"]`);
-        if (match) setSportsPredictionMatch(match);
+      // For sports — go to predict tab
+      if (selectedPrize?.game === "sports") {
+        renderSportsEntryState();
+        const pendingFix = getPendingFixture();
+        if (pendingFix) {
+          const match = document.querySelector(`[data-live-fixture][data-home="${pendingFix.home}"][data-away="${pendingFix.away}"]`);
+          if (match) setSportsPredictionMatch(match);
+        }
+        switchSportsPage("predict");
+        return;
       }
-      switchSportsPage("predict");
+
+      // For games — go directly to the game
+      goToGame(getStoredPaidAttempts(prizeCtx));
       return;
     }
 
-    // ── Original flow for non-sports entries ─────────────────
-    const current = cart.get(selectedPrize.name) || {
-      name: selectedPrize.name,
-      price: unitPrice,
-      qty: 0,
-      game: selectedPrize.game
-    };
-    current.qty += selectedPrize.qty;
-    current.price = unitPrice;
-    current.game = selectedPrize.game;
-    cart.set(current.name, current);
-    storeCart();
-    renderCount();
-    renderCheckout();
+    // ── Fallback: no wallet (not logged in properly) ──────────
     closeSlip();
-    goToCheckout({
-      name: selectedPrize.name,
-      price: unitPrice,
-      qty: selectedPrize.qty,
-      game: selectedPrize.game
-    });
+    alert("Please log in to use your wallet.");
   });
 }
 
