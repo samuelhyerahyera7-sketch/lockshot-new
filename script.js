@@ -780,6 +780,40 @@ function renderSportsFixtures(fixtures, emptyMessage = "No real scores available
   document.querySelectorAll("[data-live-game-count]").forEach((item) => { item.textContent = fixtures.length; });
 
   const initials = (name) => name.split(" ").map(w => w[0]).join("").slice(0, 3).toUpperCase();
+
+  // Country flag emoji map for international teams
+  const FLAG_MAP = {
+    "argentina":"🇦🇷","australia":"🇦🇺","belgium":"🇧🇪","brazil":"🇧🇷","cameroon":"🇨🇲",
+    "canada":"🇨🇦","chile":"🇨🇱","colombia":"🇨🇴","costa rica":"🇨🇷","croatia":"🇭🇷",
+    "czechia":"🇨🇿","czech republic":"🇨🇿","denmark":"🇩🇰","ecuador":"🇪🇨","egypt":"🇪🇬",
+    "england":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","france":"🇫🇷","germany":"🇩🇪","ghana":"🇬🇭","greece":"🇬🇷",
+    "hungary":"🇭🇺","iran":"🇮🇷","ireland":"🇮🇪","italy":"🇮🇹","ivory coast":"🇨🇮",
+    "japan":"🇯🇵","kenya":"🇰🇪","south korea":"🇰🇷","korea":"🇰🇷","mexico":"🇲🇽",
+    "morocco":"🇲🇦","netherlands":"🇳🇱","new zealand":"🇳🇿","nigeria":"🇳🇬","norway":"🇳🇴",
+    "peru":"🇵🇪","poland":"🇵🇱","portugal":"🇵🇹","qatar":"🇶🇦","romania":"🇷🇴",
+    "russia":"🇷🇺","saudi arabia":"🇸🇦","scotland":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","senegal":"🇸🇳",
+    "serbia":"🇷🇸","slovakia":"🇸🇰","south africa":"🇿🇦","spain":"🇪🇸","sweden":"🇸🇪",
+    "switzerland":"🇨🇭","tanzania":"🇹🇿","tunisia":"🇹🇳","turkey":"🇹🇷","ukraine":"🇺🇦",
+    "uruguay":"🇺🇾","usa":"🇺🇸","united states":"🇺🇸","wales":"🏴󠁧󠁢󠁷󠁬󠁳󠁿","zambia":"🇿🇲",
+    "zimbabwe":"🇿🇼","honduras":"🇭🇳","panama":"🇵🇦","paraguay":"🇵🇾","venezuela":"🇻🇪",
+    "bolivia":"🇧🇴","algeria":"🇩🇿","mali":"🇲🇱","angola":"🇦🇴","ethiopia":"🇪🇹",
+    "guinea":"🇬🇳","congo":"🇨🇩","gabon":"🇬🇦","burkina faso":"🇧🇫","cape verde":"🇨🇻",
+    "tanzania":"🇹🇿","vietnam":"🇻🇳","thailand":"🇹🇭","indonesia":"🇮🇩","india":"🇮🇳",
+    "china":"🇨🇳","iraq":"🇮🇶","jordan":"🇯🇴","oman":"🇴🇲","uae":"🇦🇪",
+    "bosnia":"🇧🇦","bosnia-herzegovina":"🇧🇦","albania":"🇦🇱","austria":"🇦🇹",
+    "finland":"🇫🇮","iceland":"🇮🇸","latvia":"🇱🇻","lithuania":"🇱🇹","north macedonia":"🇲🇰",
+    "israel":"🇮🇱","belarus":"🇧🇾","georgia":"🇬🇪","azerbaijan":"🇦🇿","armenia":"🇦🇲",
+    "kazakhstan":"🇰🇿","moldova":"🇲🇩","luxembourg":"🇱🇺","malta":"🇲🇹","cyprus":"🇨🇾",
+    "new caledonia":"🇳🇨","fiji":"🇫🇯","solomon islands":"🇸🇧","tahiti":"🇵🇫",
+    "psg":"🇫🇷","paris saint-germain":"🇫🇷","paris saint germain":"🇫🇷","arsenal":"🏴󠁧󠁢󠁥󠁮󠁧󠁿"
+  };
+  const flagOrInitials = (name, cls) => {
+    const flag = FLAG_MAP[name.toLowerCase()];
+    return flag
+      ? `<span class="fmc-badge ${cls}" style="font-size:1.6rem;background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12)">${flag}</span>`
+      : `<span class="fmc-badge ${cls}">${initials(name)}</span>`;
+  };
+
   feed.innerHTML = fixtures.map((fixture, index) => {
     const score = fixture.score || "TBC";
     const name = `Sports Predict: ${fixture.home} vs ${fixture.away}`;
@@ -788,12 +822,19 @@ function renderSportsFixtures(fixtures, emptyMessage = "No real scores available
     const hasPaid = getStoredPaidAttempts({ name: "Sports Predict", game: "sports" }) > 0;
     const btnLabel = hasPaid ? "Predict this match" : "Predict this match — R5";
     const kickoffMs = fixture.sortTime || parseDemoKickoffMs(fixture.status, fixture.score) || 0;
-    const homeBadge = fixture.homeLogo
-      ? `<img class="fmc-badge fmc-badge--img" src="${escapeHtml(fixture.homeLogo)}" alt="${escapeHtml(fixture.home)}" loading="lazy" onerror="this.outerHTML='<span class=\\"fmc-badge\\">${escapeHtml(initials(fixture.home))}</span>'">`
-      : `<span class="fmc-badge">${escapeHtml(initials(fixture.home))}</span>`;
-    const awayBadge = fixture.awayLogo
-      ? `<img class="fmc-badge fmc-badge--img fmc-badge--away" src="${escapeHtml(fixture.awayLogo)}" alt="${escapeHtml(fixture.away)}" loading="lazy" onerror="this.outerHTML='<span class=\\"fmc-badge fmc-badge--away\\">${escapeHtml(initials(fixture.away))}</span>'">`
-      : `<span class="fmc-badge fmc-badge--away">${escapeHtml(initials(fixture.away))}</span>`;
+    // Flags take priority for international teams; logos for clubs; initials as fallback
+    const homeFlag = FLAG_MAP[fixture.home.toLowerCase()];
+    const awayFlag = FLAG_MAP[fixture.away.toLowerCase()];
+    const homeBadge = homeFlag
+      ? `<span class="fmc-badge fmc-badge--flag">${homeFlag}</span>`
+      : fixture.homeLogo
+        ? `<img class="fmc-badge fmc-badge--img" src="${escapeHtml(fixture.homeLogo)}" alt="${escapeHtml(fixture.home)}" loading="lazy" onerror="this.outerHTML='<span class=\\"fmc-badge\\">${escapeHtml(initials(fixture.home))}</span>'">`
+        : `<span class="fmc-badge">${escapeHtml(initials(fixture.home))}</span>`;
+    const awayBadge = awayFlag
+      ? `<span class="fmc-badge fmc-badge--away fmc-badge--flag">${awayFlag}</span>`
+      : fixture.awayLogo
+        ? `<img class="fmc-badge fmc-badge--img fmc-badge--away" src="${escapeHtml(fixture.awayLogo)}" alt="${escapeHtml(fixture.away)}" loading="lazy" onerror="this.outerHTML='<span class=\\"fmc-badge fmc-badge--away\\">${escapeHtml(initials(fixture.away))}</span>'">`
+        : `<span class="fmc-badge fmc-badge--away">${escapeHtml(initials(fixture.away))}</span>`;
 
     return `<article class="fixture-match-card${index === 0 ? " is-selected" : ""}${isLive ? " is-live" : ""}" data-live-fixture data-home="${escapeHtml(fixture.home)}" data-away="${escapeHtml(fixture.away)}" data-score="${escapeHtml(score)}" data-status="${escapeHtml(fixture.status || "Upcoming")}" data-league="${escapeHtml(fixture.league || "Football")}" data-kickoff-ms="${kickoffMs}" data-home-team-id="${escapeHtml(fixture.homeTeamId || "")}" data-away-team-id="${escapeHtml(fixture.awayTeamId || "")}" data-league-slug="${escapeHtml(fixture.leagueSlug || "")}" data-fixture-sport="${escapeHtml(activeSportsFilter || "soccer")}" data-fixture-id="${escapeHtml(fixture.fixtureId || "")}" data-home-logo="${escapeHtml(fixture.homeLogo || "")}" data-away-logo="${escapeHtml(fixture.awayLogo || "")}">
   <div class="fmc-header">
