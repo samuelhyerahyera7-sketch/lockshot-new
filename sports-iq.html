@@ -11,14 +11,12 @@
   <script src="script.js" defer></script>
 </head>
 <body class="sports-iq-page">
-  <!-- Wallet balance pill — fixed top-right, shown when logged in -->
-  <a class="sports-wallet-pill" href="wallet.html" data-wallet-chip aria-label="Wallet balance" hidden>
-    <i data-lucide="wallet"></i>
-    <span data-wallet-balance-display>R0.00</span>
-  </a>
-
   <header class="topbar sports-topbar is-scrolled" aria-label="Site header">
     <a class="brand" href="index.html" aria-label="Lockshot home"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a>
+    <a class="wallet-topbar-chip" href="wallet.html" data-wallet-chip aria-label="Wallet balance" hidden>
+      <i data-lucide="wallet"></i>
+      <span data-wallet-balance-display>R0.00</span>
+    </a>
     <nav class="desktop-nav" aria-label="Desktop navigation">
       <a href="competitions.html">Competitions</a>
       <a href="sports-iq.html">Sports Predict</a>
@@ -33,10 +31,6 @@
 
     <div class="sports-section-head sports-section-head--with-tokens" style="padding:0 10px;margin:0 10px 0;">
       <div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;flex:1;min-width:0;">
-        <button class="sports-ticket-pill" id="sports-ticket-pill" type="button" data-sports-ticket-pill hidden aria-label="View my prediction tickets">
-          <span>My Tickets</span>
-          <strong data-pill-ticket-count>0</strong>
-        </button>
         <span>Pick a match to predict</span>
         <h2 id="fixtures-title" style="text-align:left;margin:0;color:white;font-size:clamp(1.1rem,5vw,1.6rem);line-height:1.2;">Choose your game</h2>
       </div>
@@ -433,6 +427,12 @@
   </div><!-- /page: wallet -->
 
   </main>
+
+  <!-- Floating My Tickets pill -->
+  <button class="sports-ticket-pill" id="sports-ticket-pill" type="button" data-sports-ticket-pill hidden aria-label="View my prediction tickets">
+    <span>My Tickets</span>
+    <strong data-pill-ticket-count>0</strong>
+  </button>
 
   <!-- My Tickets drawer -->
   <div class="my-tickets-drawer" id="my-tickets-drawer" aria-label="My prediction tickets" role="dialog">
