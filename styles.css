@@ -5644,14 +5644,14 @@ body[data-page="game"] .chat-button {
   overflow-x: hidden;
 }
 
-/* Live tab — add top spacing since hero is removed */
-[data-sports-page="live"] .sports-fixtures-panel:first-of-type {
-  margin-top: 70px;
+/* Live tab — push content below fixed 78px header */
+[data-sports-page="live"] {
+  padding-top: 86px;
 }
 
 .sports-iq-page .sports-topbar {
-  background: linear-gradient(180deg, rgba(2, 4, 3, 0.88), rgba(2, 4, 3, 0.18));
-  backdrop-filter: blur(16px);
+  background: rgba(4, 8, 5, 0.96);
+  backdrop-filter: blur(20px);
 }
 
 .sports-app {
