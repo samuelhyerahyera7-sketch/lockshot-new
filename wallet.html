@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lockshot | Wallet</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="auth-config.js" defer></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body class="sports-iq-page wallet-page">
+  <header class="topbar sports-topbar is-scrolled" aria-label="Site header">
+    <a class="brand" href="index.html" aria-label="Lockshot home"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a>
+    <button class="wallet-topbar-chip" data-wallet-chip aria-label="Wallet balance" hidden>
+      <i data-lucide="wallet"></i>
+      <span data-wallet-balance-display>R0.00</span>
+    </button>
+    <nav class="desktop-nav" aria-label="Desktop navigation">
+      <a href="competitions.html">Competitions</a>
+      <a href="sports-iq.html">Sports Predict</a>
+      <a href="account.html">Account</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="sports-wallet-section">
+      <div class="sports-section-head">
+        <span>Your funds</span>
+        <h2>Wallet</h2>
+      </div>
+
+      <div class="wallet-balance-card">
+        <span class="wbc-label">Available balance</span>
+        <div class="wbc-amount">
+          <span class="wbc-currency">R</span>
+          <strong class="wbc-value" data-wallet-main-balance>0.00</strong>
+        </div>
+        <div class="wbc-topup-grid">
+          <button class="wbc-amount-btn" data-topup-amount="20">+ R20</button>
+          <button class="wbc-amount-btn" data-topup-amount="50">+ R50</button>
+          <button class="wbc-amount-btn" data-topup-amount="100">+ R100</button>
+          <button class="wbc-amount-btn" data-topup-amount="200">+ R200</button>
+        </div>
+        <p class="wbc-topup-note">Tap an amount to add funds to your wallet</p>
+      </div>
+
+      <div class="wallet-tx-section">
+        <h3 class="wallet-tx-title">Transaction history</h3>
+        <div class="wallet-tx-list" data-wallet-tx-list>
+          <p class="wallet-tx-empty">No transactions yet.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Mobile navigation">
+    <a href="index.html"><i data-lucide="home"></i><span>Home</span></a>
+    <a href="competitions.html"><i data-lucide="gamepad-2"></i><span>Games</span></a>
+    <a href="sports-iq.html"><i data-lucide="trophy"></i><span>Sports</span></a>
+    <a class="active" href="wallet.html"><i data-lucide="wallet"></i><span>Wallet</span></a>
+    <a href="account.html"><i data-lucide="user"></i><span>Account</span></a>
+  </nav>
+</body>
+</html>
