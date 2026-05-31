@@ -4915,7 +4915,7 @@ body[data-page="game"] .chat-button {
   }
   .sports-section-head--with-tokens {
     flex-direction: row;
-    align-items: flex-end;
+    align-items: center;
     gap: 12px;
   }
   /* Fix: "Prediction status" row cramping on narrow screens */
@@ -8062,9 +8062,9 @@ body[data-page="game"] .chat-button {
 
 .sports-section-head--with-tokens {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
 }
 
