@@ -1969,6 +1969,8 @@ async function syncSupabaseUser() {
   await upsertSupabaseProfile(user);
   enforceProtectedRoutes();
   if (typeof loadWalletBalance === "function") loadWalletBalance();
+  if (typeof renderWalletPage === "function") renderWalletPage();
+  if (typeof initTopupButtons === "function") initTopupButtons();
 }
 
 function protectedRouteNames() {
@@ -3668,6 +3670,68 @@ function updateWalletUI() {
   document.querySelectorAll("[data-wallet-chip]").forEach(chip => { chip.hidden = !currentUser; });
 }
 
+async function renderWalletPage() {
+  await loadWalletBalance();
+  const client = getSupabaseClient();
+  const listEl = document.querySelector("[data-wallet-tx-list]");
+  if (!listEl || !client || !currentUser?.id) return;
+  listEl.innerHTML = `<p class="wallet-tx-empty">Loading…</p>`;
+  try {
+    const { data } = await client.from("wallet_transactions")
+      .select("type, amount, description, created_at")
+      .eq("user_id", currentUser.id)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (!data?.length) {
+      listEl.innerHTML = `<p class="wallet-tx-empty">No transactions yet.</p>`;
+      return;
+    }
+    listEl.innerHTML = data.map(tx => {
+      const isCredit = ["topup","win","refund"].includes(tx.type);
+      const sign = isCredit ? "+" : "-";
+      const date = new Date(tx.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" });
+      return `<div class="wallet-tx-row">
+        <div class="wallet-tx-info">
+          <span class="wallet-tx-desc">${tx.description || tx.type}</span>
+          <span class="wallet-tx-date">${date}</span>
+        </div>
+        <span class="wallet-tx-amount ${isCredit ? "credit" : "debit"}">${sign}R${parseFloat(tx.amount).toFixed(2)}</span>
+      </div>`;
+    }).join("");
+  } catch { listEl.innerHTML = `<p class="wallet-tx-empty">Could not load transactions.</p>`; }
+  if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+function initTopupButtons() {
+  document.querySelectorAll("[data-topup-amount]").forEach(btn => {
+    if (btn._topupBound) return;
+    btn._topupBound = true;
+    btn.addEventListener("click", async () => {
+      const amount = parseFloat(btn.dataset.topupAmount);
+      if (!amount || !currentUser?.id) { alert("Please log in to top up your wallet."); return; }
+      const client = getSupabaseClient();
+      if (!client) return;
+
+      btn.disabled = true;
+      btn.textContent = "Adding…";
+
+      const { data: walletData } = await client.from("wallets").select("balance").eq("user_id", currentUser.id).maybeSingle();
+      const current = parseFloat(walletData?.balance ?? 0);
+      const newBalance = parseFloat((current + amount).toFixed(2));
+
+      await client.from("wallets").upsert({ user_id: currentUser.id, balance: newBalance, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+      await client.from("wallet_transactions").insert({ user_id: currentUser.id, type: "topup", amount, description: `Top up R${amount}` });
+
+      _walletBalance = newBalance;
+      updateWalletUI();
+      await renderWalletPage();
+
+      btn.disabled = false;
+      btn.textContent = `+ R${amount}`;
+    });
+  });
+}
+
 function initSportsIqExperience() {
   const app = document.querySelector("[data-sports-iq-app]");
   if (!app || app.dataset.ready === "true") return;
@@ -4106,67 +4170,8 @@ function initSportsIqExperience() {
     if (pageId === "wallet") renderWalletPage();
   }
 
-  async function renderWalletPage() {
-    await loadWalletBalance();
-    const client = getSupabaseClient();
-    const listEl = document.querySelector("[data-wallet-tx-list]");
-    if (!listEl || !client || !currentUser?.id) return;
-    listEl.innerHTML = `<p class="wallet-tx-empty">Loading…</p>`;
-    try {
-      const { data } = await client.from("wallet_transactions")
-        .select("type, amount, description, created_at")
-        .eq("user_id", currentUser.id)
-        .order("created_at", { ascending: false })
-        .limit(50);
-      if (!data?.length) {
-        listEl.innerHTML = `<p class="wallet-tx-empty">No transactions yet.</p>`;
-        return;
-      }
-      listEl.innerHTML = data.map(tx => {
-        const isCredit = ["topup","win","refund"].includes(tx.type);
-        const sign = isCredit ? "+" : "-";
-        const date = new Date(tx.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" });
-        return `<div class="wallet-tx-row">
-          <div class="wallet-tx-info">
-            <span class="wallet-tx-desc">${tx.description || tx.type}</span>
-            <span class="wallet-tx-date">${date}</span>
-          </div>
-          <span class="wallet-tx-amount ${isCredit ? "credit" : "debit"}">${sign}R${parseFloat(tx.amount).toFixed(2)}</span>
-        </div>`;
-      }).join("");
-    } catch { listEl.innerHTML = `<p class="wallet-tx-empty">Could not load transactions.</p>`; }
-    if (typeof lucide !== "undefined") lucide.createIcons();
-  }
-
-  // Wallet chip → go to wallet page
+  // Wallet chip → go to wallet page (sports-iq only)
   document.querySelector("[data-wallet-chip]")?.addEventListener("click", () => switchSportsPage("wallet"));
-
-  // Top-up buttons — simulated until EFT is live
-  document.querySelectorAll("[data-topup-amount]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const amount = parseFloat(btn.dataset.topupAmount);
-      if (!amount || !currentUser?.id) return;
-      const client = getSupabaseClient();
-      if (!client) return;
-
-      btn.disabled = true;
-      btn.textContent = "Adding…";
-
-      const { data: walletData } = await client.from("wallets").select("balance").eq("user_id", currentUser.id).maybeSingle();
-      const current = parseFloat(walletData?.balance ?? 0);
-      const newBalance = parseFloat((current + amount).toFixed(2));
-
-      await client.from("wallets").upsert({ user_id: currentUser.id, balance: newBalance, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
-      await client.from("wallet_transactions").insert({ user_id: currentUser.id, type: "topup", amount, description: `Top up R${amount}` });
-
-      _walletBalance = newBalance;
-      updateWalletUI();
-      await renderWalletPage();
-
-      btn.disabled = false;
-      btn.textContent = `+ R${amount}`;
-    });
-  });
 
   document.querySelectorAll("[data-sports-nav]").forEach((link) => {
     link.addEventListener("click", (event) => {
@@ -5658,6 +5663,9 @@ window.addEventListener("load", () => {
   if (window.lucide) {
     window.lucide.createIcons();
   }
+
+  initTopupButtons();
+  if (currentUser) { renderWalletPage(); }
 });
 
 renderCount();

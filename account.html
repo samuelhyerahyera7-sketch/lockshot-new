@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-ZA">
 <head>
   <meta charset="UTF-8">
@@ -46,6 +46,20 @@
             </div>
           </div>
         </div>
+        <div class="account-wallet-topup-card" id="wallet">
+          <div class="wbc-header">
+            <span class="wbc-label">Wallet Balance</span>
+            <strong class="wbc-balance" data-wallet-main-balance>0.00</strong>
+          </div>
+          <div class="wbc-topup-grid">
+            <button class="wbc-amount-btn" data-topup-amount="20">+ R20</button>
+            <button class="wbc-amount-btn" data-topup-amount="50">+ R50</button>
+            <button class="wbc-amount-btn" data-topup-amount="100">+ R100</button>
+            <button class="wbc-amount-btn" data-topup-amount="200">+ R200</button>
+          </div>
+          <p class="wbc-topup-note">Tap an amount to add funds to your wallet</p>
+          <div class="wallet-tx-list" data-wallet-tx-list></div>
+        </div>
         <div class="auth-card">
           <p class="auth-intro">Sign up with</p>
           <div class="social-login" aria-label="Social sign in"><button type="button" data-social-login="Facebook"><strong>f</strong><span>Facebook</span></button><button type="button" data-social-login="Google"><strong>G</strong><span>Google</span></button></div>
@@ -58,6 +72,7 @@
       </div>
     </section>
   </main>
-  <nav class="bottom-nav" aria-label="Mobile navigation"><a href="index.html"><i data-lucide="home"></i><span>Home</span></a><a href="competitions.html"><i data-lucide="gamepad-2"></i><span>Games</span></a><a href="sports-iq.html"><i data-lucide="trophy"></i><span>Sports</span></a><a href="sports-iq.html#sports-wallet"><i data-lucide="wallet"></i><span>Wallet</span></a><a class="active" href="account.html"><i data-lucide="user"></i><span>Account</span></a></nav>
+  <nav class="bottom-nav" aria-label="Mobile navigation"><a href="index.html"><i data-lucide="home"></i><span>Home</span></a><a href="competitions.html"><i data-lucide="gamepad-2"></i><span>Games</span></a><a href="sports-iq.html"><i data-lucide="trophy"></i><span>Sports</span></a><a href="account.html#wallet"><i data-lucide="wallet"></i><span>Wallet</span></a><a class="active" href="account.html"><i data-lucide="user"></i><span>Account</span></a></nav>
 </body>
 </html>
+
