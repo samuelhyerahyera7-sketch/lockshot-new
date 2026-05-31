@@ -9545,10 +9545,22 @@ body.game-menu-page {
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
+  text-decoration: none;
+}
+.wallet-topbar-chip svg,
+.wallet-topbar-chip i { width: 14px; height: 14px; }
+
+/* On sports-iq the chip sits directly in the header flex row */
+.sports-topbar .wallet-topbar-chip {
   margin-left: auto;
   margin-right: 12px;
 }
-.wallet-topbar-chip svg { width: 14px; height: 14px; }
+
+/* On game pages the chip sits directly in the header flex row */
+.topbar.is-scrolled > .wallet-topbar-chip {
+  margin-left: auto;
+  margin-right: 12px;
+}
 
 .sports-wallet-section {
   padding: 80px 14px 24px;

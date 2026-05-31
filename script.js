@@ -3646,6 +3646,28 @@ function initMatchIqChallenge() {
   });
 }
 
+// ── Wallet (global — runs on all pages) ──────────────────────
+let _walletBalance = null;
+
+async function loadWalletBalance() {
+  const client = getSupabaseClient();
+  if (!client || !currentUser?.id) return null;
+  try {
+    const { data } = await client.from("wallets").select("balance").eq("user_id", currentUser.id).maybeSingle();
+    _walletBalance = parseFloat(data?.balance ?? 0);
+  } catch { _walletBalance = 0; }
+  updateWalletUI();
+  return _walletBalance;
+}
+
+function updateWalletUI() {
+  const bal = _walletBalance ?? 0;
+  const fmt = `R${bal.toFixed(2)}`;
+  document.querySelectorAll("[data-wallet-balance-display]").forEach(el => el.textContent = fmt);
+  document.querySelectorAll("[data-wallet-main-balance]").forEach(el => el.textContent = bal.toFixed(2));
+  document.querySelectorAll("[data-wallet-chip]").forEach(chip => { chip.hidden = !currentUser; });
+}
+
 function initSportsIqExperience() {
   const app = document.querySelector("[data-sports-iq-app]");
   if (!app || app.dataset.ready === "true") return;
@@ -4082,30 +4104,6 @@ function initSportsIqExperience() {
       refreshBoardFromSupabase(); // pull graded pts from Supabase for global leaderboard
     }
     if (pageId === "wallet") renderWalletPage();
-  }
-
-  // ── Wallet ───────────────────────────────────────────────────
-  let _walletBalance = null;
-
-  async function loadWalletBalance() {
-    const client = getSupabaseClient();
-    if (!client || !currentUser?.id) return null;
-    try {
-      const { data } = await client.from("wallets").select("balance").eq("user_id", currentUser.id).maybeSingle();
-      _walletBalance = parseFloat(data?.balance ?? 0);
-    } catch { _walletBalance = 0; }
-    updateWalletUI();
-    return _walletBalance;
-  }
-
-  function updateWalletUI() {
-    const bal = _walletBalance ?? 0;
-    const fmt = `R${bal.toFixed(2)}`;
-    document.querySelectorAll("[data-wallet-balance-display]").forEach(el => el.textContent = fmt);
-    document.querySelectorAll("[data-wallet-main-balance]").forEach(el => el.textContent = bal.toFixed(2));
-    // Show chip only when logged in
-    const chip = document.querySelector("[data-wallet-chip]");
-    if (chip) chip.hidden = !currentUser;
   }
 
   async function renderWalletPage() {
