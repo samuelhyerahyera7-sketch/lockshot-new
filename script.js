@@ -753,7 +753,9 @@ function sportsApiFixtureToCard(fixture, priorityTerms = []) {
     isFinished,
     statusLong,
     sortTime: fixtureDate ? fixtureDate.getTime() : Number.MAX_SAFE_INTEGER,
-    fixtureId: fixture.fixture?.id ? String(fixture.fixture.id) : null
+    fixtureId: fixture.fixture?.id ? String(fixture.fixture.id) : null,
+    homeLogo: fixture.teams?.home?.logo || null,
+    awayLogo: fixture.teams?.away?.logo || null
   };
 }
 
@@ -778,6 +780,109 @@ function renderSportsFixtures(fixtures, emptyMessage = "No real scores available
   document.querySelectorAll("[data-live-game-count]").forEach((item) => { item.textContent = fixtures.length; });
 
   const initials = (name) => name.split(" ").map(w => w[0]).join("").slice(0, 3).toUpperCase();
+
+  // Universal badge map — flags for nations, icons for F1/clubs across all sports
+  const FLAG_MAP = {
+    // ── Soccer & Rugby & Cricket & Netball nations ────────────
+    "afghanistan":"🇦🇫","albania":"🇦🇱","algeria":"🇩🇿","angola":"🇦🇴","argentina":"🇦🇷",
+    "armenia":"🇦🇲","australia":"🇦🇺","austria":"🇦🇹","azerbaijan":"🇦🇿","bahrain":"🇧🇭",
+    "bangladesh":"🇧🇩","belarus":"🇧🇾","belgium":"🇧🇪","bolivia":"🇧🇴","bosnia":"🇧🇦",
+    "bosnia-herzegovina":"🇧🇦","botswana":"🇧🇼","brazil":"🇧🇷","bulgaria":"🇧🇬",
+    "burkina faso":"🇧🇫","cambodia":"🇰🇭","cameroon":"🇨🇲","canada":"🇨🇦","cape verde":"🇨🇻",
+    "chile":"🇨🇱","china":"🇨🇳","colombia":"🇨🇴","congo":"🇨🇩","costa rica":"🇨🇷",
+    "croatia":"🇭🇷","cuba":"🇨🇺","cyprus":"🇨🇾","czechia":"🇨🇿","czech republic":"🇨🇿",
+    "denmark":"🇩🇰","ecuador":"🇪🇨","egypt":"🇪🇬","el salvador":"🇸🇻","england":"🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+    "ethiopia":"🇪🇹","fiji":"🇫🇯","finland":"🇫🇮","france":"🇫🇷","gabon":"🇬🇦",
+    "gambia":"🇬🇲","georgia":"🇬🇪","germany":"🇩🇪","ghana":"🇬🇭","greece":"🇬🇷",
+    "guatemala":"🇬🇹","guinea":"🇬🇳","honduras":"🇭🇳","hungary":"🇭🇺","iceland":"🇮🇸",
+    "india":"🇮🇳","indonesia":"🇮🇩","iran":"🇮🇷","iraq":"🇮🇶","ireland":"🇮🇪",
+    "israel":"🇮🇱","italy":"🇮🇹","ivory coast":"🇨🇮","côte d'ivoire":"🇨🇮",
+    "jamaica":"🇯🇲","japan":"🇯🇵","jordan":"🇯🇴","kazakhstan":"🇰🇿","kenya":"🇰🇪",
+    "south korea":"🇰🇷","korea republic":"🇰🇷","korea":"🇰🇷","kuwait":"🇰🇼",
+    "latvia":"🇱🇻","lebanon":"🇱🇧","lesotho":"🇱🇸","liberia":"🇱🇷","lithuania":"🇱🇹",
+    "luxembourg":"🇱🇺","mali":"🇲🇱","malta":"🇲🇹","mauritius":"🇲🇺","mexico":"🇲🇽",
+    "moldova":"🇲🇩","mongolia":"🇲🇳","morocco":"🇲🇦","mozambique":"🇲🇿","myanmar":"🇲🇲",
+    "namibia":"🇳🇦","nepal":"🇳🇵","netherlands":"🇳🇱","new caledonia":"🇳🇨",
+    "new zealand":"🇳🇿","nicaragua":"🇳🇮","nigeria":"🇳🇬","north korea":"🇰🇵",
+    "north macedonia":"🇲🇰","norway":"🇳🇴","oman":"🇴🇲","pakistan":"🇵🇰","palestine":"🇵🇸",
+    "panama":"🇵🇦","papua new guinea":"🇵🇬","paraguay":"🇵🇾","peru":"🇵🇪",
+    "philippines":"🇵🇭","poland":"🇵🇱","portugal":"🇵🇹","puerto rico":"🇵🇷","qatar":"🇶🇦",
+    "romania":"🇷🇴","russia":"🇷🇺","rwanda":"🇷🇼","samoa":"🇼🇸","saudi arabia":"🇸🇦",
+    "scotland":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","senegal":"🇸🇳","serbia":"🇷🇸","sierra leone":"🇸🇱",
+    "singapore":"🇸🇬","slovakia":"🇸🇰","solomon islands":"🇸🇧","south africa":"🇿🇦",
+    "spain":"🇪🇸","sri lanka":"🇱🇰","sweden":"🇸🇪","switzerland":"🇨🇭","syria":"🇸🇾",
+    "tahiti":"🇵🇫","tanzania":"🇹🇿","thailand":"🇹🇭","togo":"🇹🇬","tonga":"🇹🇴",
+    "trinidad and tobago":"🇹🇹","tunisia":"🇹🇳","turkey":"🇹🇷","turkmenistan":"🇹🇲",
+    "uae":"🇦🇪","united arab emirates":"🇦🇪","ukraine":"🇺🇦","uganda":"🇺🇬",
+    "united states":"🇺🇸","usa":"🇺🇸","uruguay":"🇺🇾","uzbekistan":"🇺🇿",
+    "venezuela":"🇻🇪","vietnam":"🇻🇳","wales":"🏴󠁧󠁢󠁷󠁬󠁳󠁿","zambia":"🇿🇲","zimbabwe":"🇿🇼",
+    // ── F1 Constructors ───────────────────────────────────────
+    "red bull":"🐂","red bull racing":"🐂","ferrari":"🐎","mclaren":"🧡",
+    "mercedes":"⭐","aston martin":"💚","alpine":"🔵","williams":"🔷",
+    "haas":"🔴","rb":"🟣","kick sauber":"🟢","sauber":"🟢",
+    "racing bulls":"🟣","visa cash app rb":"🟣",
+    // ── Rugby clubs & other ───────────────────────────────────
+    "british & irish lions":"🦁","british and irish lions":"🦁",
+    "barbarians":"⚫","pacific islanders":"🌊",
+    // ── Common club teams (fallback with country) ─────────────
+    "psg":"🇫🇷","paris saint-germain":"🇫🇷","paris saint germain":"🇫🇷",
+    "arsenal":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","chelsea":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","manchester city":"🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+    "manchester united":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","liverpool":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","tottenham":"🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+    "real madrid":"🇪🇸","barcelona":"🇪🇸","atletico madrid":"🇪🇸",
+    "juventus":"🇮🇹","ac milan":"🇮🇹","inter":"🇮🇹","inter milan":"🇮🇹","napoli":"🇮🇹",
+    "bayern munich":"🇩🇪","borussia dortmund":"🇩🇪","rb leipzig":"🇩🇪",
+    "ajax":"🇳🇱","porto":"🇵🇹","benfica":"🇵🇹","sporting cp":"🇵🇹",
+    "celtic":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","rangers":"🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+    "boca juniors":"🇦🇷","river plate":"🇦🇷","flamengo":"🇧🇷",
+    "al hilal":"🇸🇦","al nassr":"🇸🇦"
+  };
+  // Hardcoded logo URLs for well-known clubs & F1 teams (used when API has no logo)
+  const LOGO_MAP = {
+    // F1 constructors
+    "red bull racing":"https://upload.wikimedia.org/wikipedia/en/thumb/5/5c/Red_Bull_Racing_logo.svg/200px-Red_Bull_Racing_logo.svg.png",
+    "red bull":"https://upload.wikimedia.org/wikipedia/en/thumb/5/5c/Red_Bull_Racing_logo.svg/200px-Red_Bull_Racing_logo.svg.png",
+    "ferrari":"https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Scuderia_Ferrari_Logo.svg/200px-Scuderia_Ferrari_Logo.svg.png",
+    "mclaren":"https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/McLaren_Racing_logo.svg/200px-McLaren_Racing_logo.svg.png",
+    "mercedes":"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Mercedes_AMG_Petronas_F1_Logo.svg/200px-Mercedes_AMG_Petronas_F1_Logo.svg.png",
+    "aston martin":"https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Aston_Martin_Aramco_F1_logo.svg/200px-Aston_Martin_Aramco_F1_logo.svg.png",
+    "alpine":"https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Alpine_F1_Team_Logo.svg/200px-Alpine_F1_Team_Logo.svg.png",
+    "williams":"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Williams_Racing_logo.svg/200px-Williams_Racing_logo.svg.png",
+    "haas":"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Haas_F1_Team_logo.svg/200px-Haas_F1_Team_logo.svg.png",
+    // Premier League
+    "arsenal":"https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/200px-Arsenal_FC.svg.png",
+    "chelsea":"https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/200px-Chelsea_FC.svg.png",
+    "manchester city":"https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/200px-Manchester_City_FC_badge.svg.png",
+    "manchester united":"https://upload.wikimedia.org/wikipedia/en/thumb/7/7a/Manchester_United_FC_crest.svg/200px-Manchester_United_FC_crest.svg.png",
+    "liverpool":"https://upload.wikimedia.org/wikipedia/en/thumb/0/0c/Liverpool_FC.svg/200px-Liverpool_FC.svg.png",
+    "tottenham":"https://upload.wikimedia.org/wikipedia/en/thumb/b/b4/Tottenham_Hotspur.svg/200px-Tottenham_Hotspur.svg.png",
+    "tottenham hotspur":"https://upload.wikimedia.org/wikipedia/en/thumb/b/b4/Tottenham_Hotspur.svg/200px-Tottenham_Hotspur.svg.png",
+    // La Liga
+    "real madrid":"https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/200px-Real_Madrid_CF.svg.png",
+    "barcelona":"https://upload.wikimedia.org/wikipedia/en/thumb/4/47/FC_Barcelona_%28crest%29.svg/200px-FC_Barcelona_%28crest%29.svg.png",
+    "atletico madrid":"https://upload.wikimedia.org/wikipedia/en/thumb/f/f4/Atletico_Madrid_2017_logo.svg/200px-Atletico_Madrid_2017_logo.svg.png",
+    // Serie A
+    "juventus":"https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Juventus_FC_2017_logo.svg/200px-Juventus_FC_2017_logo.svg.png",
+    "ac milan":"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Logo_of_AC_Milan.svg/200px-Logo_of_AC_Milan.svg.png",
+    "inter milan":"https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/FC_Internazionale_Milano_2021.svg/200px-FC_Internazionale_Milano_2021.svg.png",
+    "inter":"https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/FC_Internazionale_Milano_2021.svg/200px-FC_Internazionale_Milano_2021.svg.png",
+    // Bundesliga
+    "bayern munich":"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282002%E2%80%932017%29.svg/200px-FC_Bayern_M%C3%BCnchen_logo_%282002%E2%80%932017%29.svg.png",
+    "borussia dortmund":"https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Borussia_Dortmund_logo.svg/200px-Borussia_Dortmund_logo.svg.png",
+    // France
+    "paris saint-germain":"https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Paris_Saint-Germain_F.C..svg/200px-Paris_Saint-Germain_F.C..svg.png",
+    "paris saint germain":"https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Paris_Saint-Germain_F.C..svg/200px-Paris_Saint-Germain_F.C..svg.png",
+    "psg":"https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Paris_Saint-Germain_F.C..svg/200px-Paris_Saint-Germain_F.C..svg.png",
+  };
+
+  const flagOrInitials = (name, cls) => {
+    const key = name.toLowerCase();
+    const flag = FLAG_MAP[key];
+    const logo = LOGO_MAP[key];
+    if (flag) return `<span class="fmc-badge ${cls} fmc-badge--flag">${flag}</span>`;
+    if (logo) return `<img class="fmc-badge ${cls} fmc-badge--img" src="${logo}" alt="${name}" loading="lazy" onerror="this.outerHTML='<span class=\\"fmc-badge ${cls}\\">${initials(name)}</span>'">`;
+    return `<span class="fmc-badge ${cls}">${initials(name)}</span>`;
+  };
+
   feed.innerHTML = fixtures.map((fixture, index) => {
     const score = fixture.score || "TBC";
     const name = `Sports Predict: ${fixture.home} vs ${fixture.away}`;
@@ -786,7 +891,21 @@ function renderSportsFixtures(fixtures, emptyMessage = "No real scores available
     const hasPaid = getStoredPaidAttempts({ name: "Sports Predict", game: "sports" }) > 0;
     const btnLabel = hasPaid ? "Predict this match" : "Predict this match — R5";
     const kickoffMs = fixture.sortTime || parseDemoKickoffMs(fixture.status, fixture.score) || 0;
-    return `<article class="fixture-match-card${index === 0 ? " is-selected" : ""}${isLive ? " is-live" : ""}" data-live-fixture data-home="${escapeHtml(fixture.home)}" data-away="${escapeHtml(fixture.away)}" data-score="${escapeHtml(score)}" data-status="${escapeHtml(fixture.status || "Upcoming")}" data-league="${escapeHtml(fixture.league || "Football")}" data-kickoff-ms="${kickoffMs}" data-home-team-id="${escapeHtml(fixture.homeTeamId || "")}" data-away-team-id="${escapeHtml(fixture.awayTeamId || "")}" data-league-slug="${escapeHtml(fixture.leagueSlug || "")}" data-fixture-sport="${escapeHtml(activeSportsFilter || "soccer")}" data-fixture-id="${escapeHtml(fixture.fixtureId || "")}">
+    // Flags take priority for international teams; logos for clubs; initials as fallback
+    const homeFlag = FLAG_MAP[fixture.home.toLowerCase()];
+    const awayFlag = FLAG_MAP[fixture.away.toLowerCase()];
+    const homeBadge = homeFlag
+      ? `<span class="fmc-badge fmc-badge--flag">${homeFlag}</span>`
+      : fixture.homeLogo
+        ? `<img class="fmc-badge fmc-badge--img" src="${escapeHtml(fixture.homeLogo)}" alt="${escapeHtml(fixture.home)}" loading="lazy" onerror="this.outerHTML='<span class=\\"fmc-badge\\">${escapeHtml(initials(fixture.home))}</span>'">`
+        : `<span class="fmc-badge">${escapeHtml(initials(fixture.home))}</span>`;
+    const awayBadge = awayFlag
+      ? `<span class="fmc-badge fmc-badge--away fmc-badge--flag">${awayFlag}</span>`
+      : fixture.awayLogo
+        ? `<img class="fmc-badge fmc-badge--img fmc-badge--away" src="${escapeHtml(fixture.awayLogo)}" alt="${escapeHtml(fixture.away)}" loading="lazy" onerror="this.outerHTML='<span class=\\"fmc-badge fmc-badge--away\\">${escapeHtml(initials(fixture.away))}</span>'">`
+        : `<span class="fmc-badge fmc-badge--away">${escapeHtml(initials(fixture.away))}</span>`;
+
+    return `<article class="fixture-match-card${index === 0 ? " is-selected" : ""}${isLive ? " is-live" : ""}" data-live-fixture data-home="${escapeHtml(fixture.home)}" data-away="${escapeHtml(fixture.away)}" data-score="${escapeHtml(score)}" data-status="${escapeHtml(fixture.status || "Upcoming")}" data-league="${escapeHtml(fixture.league || "Football")}" data-kickoff-ms="${kickoffMs}" data-home-team-id="${escapeHtml(fixture.homeTeamId || "")}" data-away-team-id="${escapeHtml(fixture.awayTeamId || "")}" data-league-slug="${escapeHtml(fixture.leagueSlug || "")}" data-fixture-sport="${escapeHtml(activeSportsFilter || "soccer")}" data-fixture-id="${escapeHtml(fixture.fixtureId || "")}" data-home-logo="${escapeHtml(fixture.homeLogo || "")}" data-away-logo="${escapeHtml(fixture.awayLogo || "")}">
   <div class="fmc-header">
     <span class="fmc-status${isLive ? " fmc-status--live" : ""}">${isLive ? '<span class="live-dot"></span>' : ""}${statusLabel}</span>
     <span class="fmc-kickoff-cd" data-kickoff-countdown></span>
@@ -796,12 +915,12 @@ function renderSportsFixtures(fixtures, emptyMessage = "No real scores available
   </div>
   <div class="fmc-teams">
     <div class="fmc-team">
-      <span class="fmc-badge">${escapeHtml(initials(fixture.home))}</span>
+      ${homeBadge}
       <strong>${escapeHtml(fixture.home)}</strong>
     </div>
     <span class="fmc-score">${escapeHtml(score)}</span>
     <div class="fmc-team fmc-team--away">
-      <span class="fmc-badge fmc-badge--away">${escapeHtml(initials(fixture.away))}</span>
+      ${awayBadge}
       <strong>${escapeHtml(fixture.away)}</strong>
     </div>
   </div>
@@ -1849,6 +1968,9 @@ async function syncSupabaseUser() {
   });
   await upsertSupabaseProfile(user);
   enforceProtectedRoutes();
+  if (typeof loadWalletBalance === "function") loadWalletBalance();
+  if (typeof renderWalletPage === "function") renderWalletPage();
+  if (typeof initTopupButtons === "function") initTopupButtons();
 }
 
 function protectedRouteNames() {
@@ -3526,6 +3648,90 @@ function initMatchIqChallenge() {
   });
 }
 
+// ── Wallet (global — runs on all pages) ──────────────────────
+let _walletBalance = null;
+
+async function loadWalletBalance() {
+  const client = getSupabaseClient();
+  if (!client || !currentUser?.id) return null;
+  try {
+    const { data } = await client.from("wallets").select("balance").eq("user_id", currentUser.id).maybeSingle();
+    _walletBalance = parseFloat(data?.balance ?? 0);
+  } catch { _walletBalance = 0; }
+  updateWalletUI();
+  return _walletBalance;
+}
+
+function updateWalletUI() {
+  const bal = _walletBalance ?? 0;
+  const fmt = `R${bal.toFixed(2)}`;
+  document.querySelectorAll("[data-wallet-balance-display]").forEach(el => el.textContent = fmt);
+  document.querySelectorAll("[data-wallet-main-balance]").forEach(el => el.textContent = bal.toFixed(2));
+  document.querySelectorAll("[data-wallet-chip]").forEach(chip => { chip.hidden = !currentUser; });
+}
+
+async function renderWalletPage() {
+  await loadWalletBalance();
+  const client = getSupabaseClient();
+  const listEl = document.querySelector("[data-wallet-tx-list]");
+  if (!listEl || !client || !currentUser?.id) return;
+  listEl.innerHTML = `<p class="wallet-tx-empty">Loading…</p>`;
+  try {
+    const { data } = await client.from("wallet_transactions")
+      .select("type, amount, description, created_at")
+      .eq("user_id", currentUser.id)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (!data?.length) {
+      listEl.innerHTML = `<p class="wallet-tx-empty">No transactions yet.</p>`;
+      return;
+    }
+    listEl.innerHTML = data.map(tx => {
+      const isCredit = ["topup","win","refund"].includes(tx.type);
+      const sign = isCredit ? "+" : "-";
+      const date = new Date(tx.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" });
+      return `<div class="wallet-tx-row">
+        <div class="wallet-tx-info">
+          <span class="wallet-tx-desc">${tx.description || tx.type}</span>
+          <span class="wallet-tx-date">${date}</span>
+        </div>
+        <span class="wallet-tx-amount ${isCredit ? "credit" : "debit"}">${sign}R${parseFloat(tx.amount).toFixed(2)}</span>
+      </div>`;
+    }).join("");
+  } catch { listEl.innerHTML = `<p class="wallet-tx-empty">Could not load transactions.</p>`; }
+  if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+function initTopupButtons() {
+  document.querySelectorAll("[data-topup-amount]").forEach(btn => {
+    if (btn._topupBound) return;
+    btn._topupBound = true;
+    btn.addEventListener("click", async () => {
+      const amount = parseFloat(btn.dataset.topupAmount);
+      if (!amount || !currentUser?.id) { alert("Please log in to top up your wallet."); return; }
+      const client = getSupabaseClient();
+      if (!client) return;
+
+      btn.disabled = true;
+      btn.textContent = "Adding…";
+
+      const { data: walletData } = await client.from("wallets").select("balance").eq("user_id", currentUser.id).maybeSingle();
+      const current = parseFloat(walletData?.balance ?? 0);
+      const newBalance = parseFloat((current + amount).toFixed(2));
+
+      await client.from("wallets").upsert({ user_id: currentUser.id, balance: newBalance, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+      await client.from("wallet_transactions").insert({ user_id: currentUser.id, type: "topup", amount, description: `Top up R${amount}` });
+
+      _walletBalance = newBalance;
+      updateWalletUI();
+      await renderWalletPage();
+
+      btn.disabled = false;
+      btn.textContent = `+ R${amount}`;
+    });
+  });
+}
+
 function initSportsIqExperience() {
   const app = document.querySelector("[data-sports-iq-app]");
   if (!app || app.dataset.ready === "true") return;
@@ -3583,6 +3789,34 @@ function initSportsIqExperience() {
   if (ticketsDrawer) ticketsDrawer.addEventListener("click", (e) => { if (e.target === ticketsDrawer) closeMyTicketsDrawer(); });
 
   // ── Results page: fetch actual match data and compare to predictions ─────────
+
+  async function findFixtureIdByMatchName(matchName) {
+    const api = window.LOCKSHOT_SPORTS_API;
+    if (!api?.key || !api?.baseUrl) return null;
+    const h = { "x-apisports-key": api.key };
+    const cacheKey = `lockshotFixtureId_${matchName.replace(/\s/g, "_")}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return cached;
+    try {
+      const parts = matchName.split(" vs ");
+      const homePart = parts[0]?.trim().split(" ")[0];
+      const awayPart = parts[1]?.trim().split(" ")[0];
+      if (!homePart || !awayPart) return null;
+      for (const teamId of [85, 42, 50, 33, 40, 47, 49, 34, 36, 35]) {
+        const r = await fetch(`${api.baseUrl}/fixtures?team=${teamId}&season=2025&last=20`, { headers: h }).then(x => x.json());
+        const f = r.response?.find(fix =>
+          (fix.teams.home.name.toLowerCase().includes(homePart.toLowerCase()) || fix.teams.away.name.toLowerCase().includes(homePart.toLowerCase())) &&
+          (fix.teams.home.name.toLowerCase().includes(awayPart.toLowerCase()) || fix.teams.away.name.toLowerCase().includes(awayPart.toLowerCase()))
+        );
+        if (f) {
+          const fid = String(f.fixture.id);
+          localStorage.setItem(cacheKey, fid);
+          return fid;
+        }
+      }
+    } catch {}
+    return null;
+  }
 
   async function fetchMatchActuals(fixtureId) {
     if (!fixtureId) return null;
@@ -3728,10 +3962,21 @@ function initSportsIqExperience() {
     container.innerHTML = `<p class="rpage-loading">Checking results…</p>`;
 
     const pairs = await Promise.all(tickets.map(async t => {
-      // Only fetch API data for soccer with a real fixture ID
-      const actuals = (t.fixtureId && (!t.sport || t.sport === "soccer"))
-        ? await fetchMatchActuals(t.fixtureId)
-        : null;
+      if (t.sport && t.sport !== "soccer") return { ticket: t, actuals: null };
+      // Auto-lookup fixture ID by match name if missing
+      if (!t.fixtureId && t.match) {
+        const found = await findFixtureIdByMatchName(t.match);
+        if (found) {
+          t.fixtureId = found;
+          // Save back to localStorage so future loads are instant
+          try {
+            const all = JSON.parse(localStorage.getItem("lockshotMyTickets") || "[]");
+            all.forEach(x => { if (x.id === t.id) x.fixtureId = found; });
+            localStorage.setItem("lockshotMyTickets", JSON.stringify(all));
+          } catch {}
+        }
+      }
+      const actuals = t.fixtureId ? await fetchMatchActuals(t.fixtureId) : null;
       return { ticket: t, actuals };
     }));
 
@@ -3843,6 +4088,33 @@ function initSportsIqExperience() {
     updateBoardFromResults(pairs);
   }
 
+  async function refreshBoardFromSupabase() {
+    const client = getSupabaseClient();
+    if (!client) return;
+    try {
+      const { data, error } = await client
+        .from("sports_predictions")
+        .select("user_id, pts_awarded, profiles(full_name)")
+        .eq("status", "graded");
+      if (error || !data?.length) return;
+      const byUser = {};
+      data.forEach(p => {
+        const uid = p.user_id;
+        if (!byUser[uid]) byUser[uid] = { uid, name: p.profiles?.full_name || "Player", pts: 0 };
+        byUser[uid].pts += (p.pts_awarded || 0);
+      });
+      let entries = loadBoardEntries();
+      Object.values(byUser).forEach(su => {
+        const idx = entries.findIndex(e => e.uid === su.uid);
+        if (idx >= 0) { entries[idx].pts = Math.max(entries[idx].pts, su.pts); entries[idx].pending = false; }
+        else entries.push({ uid: su.uid, name: su.name, pts: su.pts, pending: false });
+      });
+      entries.sort((a, b) => b.pts - a.pts);
+      saveBoardEntries(entries);
+      renderSportsLeaderboard();
+    } catch {}
+  }
+
   function renderPredictionScoreSummary(totalEarned, finishedCount) {
     const el = document.querySelector("[data-pred-score-summary]");
     if (!el) return;
@@ -3874,7 +4146,8 @@ function initSportsIqExperience() {
     "#live-fixtures":    "live",
     "#prediction-arena": "predict",
     "#sports-standings": "board",
-    "#sports-results":   "results"
+    "#sports-results":   "results",
+    "#sports-wallet":    "wallet"
   };
 
   function switchSportsPage(pageId) {
@@ -3892,8 +4165,13 @@ function initSportsIqExperience() {
       const stored = (() => { try { return JSON.parse(localStorage.getItem("lockshotPredictionTotals") || "null"); } catch { return null; } })();
       if (stored) renderPredictionScoreSummary(stored.totalEarned, stored.finishedCount);
       refreshBoardFromCache();
+      refreshBoardFromSupabase(); // pull graded pts from Supabase for global leaderboard
     }
+    if (pageId === "wallet") renderWalletPage();
   }
+
+  // Wallet chip → go to wallet page (sports-iq only)
+  document.querySelector("[data-wallet-chip]")?.addEventListener("click", () => switchSportsPage("wallet"));
 
   document.querySelectorAll("[data-sports-nav]").forEach((link) => {
     link.addEventListener("click", (event) => {
@@ -4388,6 +4666,10 @@ function initSportsIqExperience() {
           : document.querySelector("[data-scoreline-text]")?.value || "";
         const predPoss     = document.querySelector("[data-possession-value]")?.value || "";
         const predFirst    = document.querySelector("[data-player-input='firstScorer']")?.value || "";
+        const predCorners  = rows.find(r => r.label === "Corners")?.value || null;
+        const predCards    = rows.find(r => r.label === "Cards")?.value || null;
+        const predMinute   = rows.find(r => r.label === "Minute of first goal")?.value || null;
+        const predMotm     = rows.find(r => r.label === "Man of the Match")?.value || null;
         const { error: predErr } = await client.from("sports_predictions").insert({
           user_id:     currentUser.id,
           match:       matchName,
@@ -4396,6 +4678,10 @@ function initSportsIqExperience() {
           score_pred:  predScore,
           possession:  predPoss,
           first_scorer: predFirst,
+          corners_pred: predCorners,
+          cards_pred:   predCards,
+          minute_pred:  predMinute,
+          motm_pred:    predMotm,
           status:      "pending"
         });
         if (predErr) console.error("[Lockshot] Prediction save failed:", predErr.message, predErr.details, predErr.hint);
@@ -4481,11 +4767,16 @@ function initSportsIqExperience() {
       saveBoardEntries(entries);
     }
 
-    // Update fixture kicker
-    const fixture = document.querySelector("[data-live-fixture].is-selected");
+    // Update fixture kicker — show most recent predicted match, not the live tab selection
     const kicker = document.querySelector("[data-board-fixture-kicker]");
-    if (kicker && fixture) {
-      kicker.textContent = `${fixture.dataset.home || "Live"} vs ${fixture.dataset.away || "game"} · leaderboard`;
+    if (kicker) {
+      try {
+        const tickets = JSON.parse(localStorage.getItem("lockshotMyTickets") || "[]");
+        const lastMatch = tickets[0]?.match;
+        kicker.textContent = lastMatch ? `${lastMatch} · standings` : "Prediction standings";
+      } catch {
+        kicker.textContent = "Prediction standings";
+      }
     }
 
     // Podium top 3
@@ -4594,6 +4885,12 @@ function initSportsIqExperience() {
   // Expose board helpers globally so they work after login and on-demand
   window._lockshotRefreshBoard = refreshBoardFromCache;
   window._lockshotBoardSummary = renderPredictionScoreSummary;
+
+  // Refresh Results button — clears actuals cache and re-fetches
+  document.querySelector("[data-refresh-results]")?.addEventListener("click", () => {
+    Object.keys(localStorage).filter(k => k.startsWith("lockshotActuals_")).forEach(k => localStorage.removeItem(k));
+    renderResultsPage();
+  });
   window.setInterval(updateFixtureCountdowns, 1000); // tick card countdowns every second
 
   // Apply after fixtures have had time to load
@@ -4833,30 +5130,59 @@ if (signOutButton) {
 }
 
 if (confirmAdd) {
-  confirmAdd.addEventListener("click", () => {
+  confirmAdd.addEventListener("click", async () => {
     if (!requireAccount("Create an account or log in before adding an entry.")) return;
     const unitPrice = selectedUnitPrice();
-    const current = cart.get(selectedPrize.name) || {
-      name: selectedPrize.name,
-      price: unitPrice,
-      qty: 0,
-      game: selectedPrize.game
-    };
+    const client = getSupabaseClient();
+    const uid = currentUser?.id;
 
-    current.qty += selectedPrize.qty;
-    current.price = unitPrice;
-    current.game = selectedPrize.game;
-    cart.set(current.name, current);
-    storeCart();
-    renderCount();
-    renderCheckout();
+    // ── Always pay from wallet ────────────────────────────────
+    if (client && uid) {
+      const { data: walletData } = await client.from("wallets").select("balance").eq("user_id", uid).maybeSingle();
+      const balance = parseFloat(walletData?.balance ?? 0);
+
+      if (balance < unitPrice) {
+        closeSlip();
+        if (typeof switchSportsPage === "function") switchSportsPage("wallet");
+        else window.location.href = "sports-iq.html#sports-wallet";
+        alert(`Insufficient wallet balance (R${balance.toFixed(2)}). Please top up your wallet.`);
+        return;
+      }
+
+      // Deduct from wallet
+      const newBalance = parseFloat((balance - unitPrice).toFixed(2));
+      await client.from("wallets").upsert({ user_id: uid, balance: newBalance, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+      await client.from("wallet_transactions").insert({ user_id: uid, type: "spend", amount: unitPrice, description: `Entry: ${selectedPrize.name}` });
+
+      if (typeof _walletBalance !== "undefined") { _walletBalance = newBalance; updateWalletUI(); }
+
+      // Grant access
+      const prizeCtx = { name: selectedPrize.name, game: selectedPrize.game };
+      storePaidAttempts((getStoredPaidAttempts(prizeCtx) || 0) + (selectedPrize.qty || 1), prizeCtx);
+
+      closeSlip();
+      renderCount();
+
+      // For sports — go to predict tab
+      if (selectedPrize?.game === "sports") {
+        renderSportsEntryState();
+        const pendingFix = getPendingFixture();
+        if (pendingFix) {
+          const match = document.querySelector(`[data-live-fixture][data-home="${pendingFix.home}"][data-away="${pendingFix.away}"]`);
+          if (match) setSportsPredictionMatch(match);
+        }
+        switchSportsPage("predict");
+        return;
+      }
+
+      // For games — go directly to the game
+      goToGame(getStoredPaidAttempts(prizeCtx));
+      return;
+    }
+
+    // ── Fallback: no wallet (not logged in properly) ──────────
     closeSlip();
-    goToCheckout({
-      name: selectedPrize.name,
-      price: unitPrice,
-      qty: selectedPrize.qty,
-      game: selectedPrize.game
-    });
+    alert("Please log in to use your wallet.");
   });
 }
 
@@ -5337,6 +5663,9 @@ window.addEventListener("load", () => {
   if (window.lucide) {
     window.lucide.createIcons();
   }
+
+  initTopupButtons();
+  if (currentUser) { renderWalletPage(); }
 });
 
 renderCount();

@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-ZA">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Lockshot | Penalty Lock</title><link rel="stylesheet" href="styles.css"><script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script><script src="script.js" defer></script></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Lockshot | Penalty Lock</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="auth-config.js"></script><script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script><script src="script.js" defer></script></head>
 <body data-default-game="penalty">
-  <header class="topbar is-scrolled"><a class="brand" href="index.html"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a><nav class="desktop-nav"><a href="game.html">Games</a><a href="competitions.html">Competitions</a></nav></header>
+  <header class="topbar is-scrolled"><a class="brand" href="index.html"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a><div class="wallet-topbar-chip" data-wallet-chip hidden><i data-lucide="wallet"></i><span data-wallet-balance-display>R0.00</span></div><nav class="desktop-nav"><a href="game.html">Games</a><a href="competitions.html">Competitions</a></nav></header>
   <main><section class="game-section single-game-page" id="game" aria-labelledby="game-title">
     <div class="game-head"><div><span>Penalty Lock</span><h2 id="game-title">Tap the ball.</h2></div><strong data-game-status>No entries unlocked yet</strong></div>
     <div class="play-area penalty-game is-active" data-game-area="penalty">
@@ -19,3 +19,4 @@
     </div>
   </section></main>
 </body></html>
+

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lockshot | Sports Predict</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="auth-config.js" defer></script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
   <script src="script.js" defer></script>
@@ -12,6 +13,10 @@
 <body class="sports-iq-page">
   <header class="topbar sports-topbar is-scrolled" aria-label="Site header">
     <a class="brand" href="index.html" aria-label="Lockshot home"><span class="brand-lock">Lock</span><span class="brand-shot">shot</span><span class="brand-score" aria-hidden="true">+30</span></a>
+    <a class="wallet-topbar-chip" href="wallet.html" data-wallet-chip aria-label="Wallet balance" hidden>
+      <i data-lucide="wallet"></i>
+      <span data-wallet-balance-display>R0.00</span>
+    </a>
     <nav class="desktop-nav" aria-label="Desktop navigation">
       <a href="competitions.html">Competitions</a>
       <a href="sports-iq.html">Sports Predict</a>
@@ -22,64 +27,29 @@
   <main class="sports-app" data-sports-iq-app>
 
   <div data-sports-page="live" class="page-active">
-    <section class="sports-hero" aria-labelledby="sports-iq-title">
-      <div class="live-orbit" aria-hidden="true"></div>
-      <div class="sports-hero-copy">
-        <span class="live-chip"><i data-lucide="radio"></i> Live competition lobby</span>
-        <p>Only real live fixtures appear here</p>
-        <h1 id="sports-iq-title">Sports Predict</h1>
+
+
+    <div class="sports-section-head sports-section-head--with-tokens" style="padding:0 10px;margin:0 10px 0;">
+      <div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;flex:1;min-width:0;">
+        <button class="sports-ticket-pill-inline" id="sports-ticket-pill" type="button" data-sports-ticket-pill hidden aria-label="View my prediction tickets">
+          <span>My Tickets</span>
+          <strong data-pill-ticket-count>0</strong>
+        </button>
+        <span style="font-size:0.75rem;font-weight:900;color:#04f529;text-transform:uppercase;letter-spacing:0.06em;">Pick a match to predict</span>
+        <h2 id="fixtures-title" style="text-align:left;margin:0;color:#fff;font-size:clamp(1.3rem,5.5vw,1.8rem);line-height:1.2;font-weight:900;">Choose your game</h2>
       </div>
-
-      <article class="featured-match-card">
-        <div class="match-card-topline">
-          <span><i data-lucide="zap"></i> Prediction status: <strong data-featured-trending>Waiting for live fixture</strong></span>
-          <strong><span class="live-dot"></span> <span data-featured-live-meta>Checking API Sports</span></strong>
-        </div>
-
-        <div class="teams-stage">
-          <div class="team-lockup">
-            <div class="team-badge home-badge" data-featured-home-badge>--</div>
-            <strong data-featured-home>No live</strong>
-          </div>
-          <div class="versus-stack">
-            <span data-featured-status-label>Status</span>
-            <strong data-sports-countdown data-featured-score>--</strong>
-            <em>vs</em>
-          </div>
-          <div class="team-lockup">
-            <div class="team-badge away-badge" data-featured-away-badge>--</div>
-            <strong data-featured-away>fixture</strong>
-          </div>
-        </div>
-
-        <div class="hero-metrics">
-          <div><span>Open Live Games</span><strong data-live-game-count>0</strong></div>
-          <div><span>Entries</span><strong data-live-entry-count>0</strong></div>
-          <div><span>Leaderboard</span><strong>Pending</strong></div>
-        </div>
-
-        <a class="lock-pick-button" href="#live-fixtures" data-sports-nav>Pick a Match — R5</a>
-      </article>
-    </section>
-
-
+      <div class="sports-token-badge" data-sports-token-badge aria-live="polite">
+        <span class="stb-label">Your entries</span>
+        <strong class="stb-count" data-sports-token-count>0</strong>
+      </div>
+    </div>
     <section class="sports-fixtures-panel" id="live-fixtures" aria-labelledby="fixtures-title">
-      <div class="sports-section-head sports-section-head--with-tokens">
-        <div>
-          <span>Pick a match to predict</span>
-          <h2 id="fixtures-title">Choose your game</h2>
-        </div>
-        <div class="sports-token-badge" data-sports-token-badge aria-live="polite">
-          <span class="stb-label">Your entries</span>
-          <strong class="stb-count" data-sports-token-count>0</strong>
-        </div>
-      </div>
       <div class="sports-tabs" aria-label="Choose sport">
-        <button class="is-active" type="button" data-sport-filter="soccer">Soccer</button>
-        <button type="button" data-sport-filter="rugby">Rugby</button>
-        <button type="button" data-sport-filter="formula-one">Formula One</button>
-        <button type="button" data-sport-filter="cricket">Cricket</button>
-        <button type="button" data-sport-filter="netball">Netball</button>
+        <button class="is-active" type="button" data-sport-filter="soccer">⚽ Soccer</button>
+        <button type="button" data-sport-filter="rugby">🏉 Rugby</button>
+        <button type="button" data-sport-filter="formula-one">🏎️ Formula One</button>
+        <button type="button" data-sport-filter="cricket">🏏 Cricket</button>
+        <button type="button" data-sport-filter="netball">🏐 Netball</button>
       </div>
       <p data-sports-api-status>Checking for real live soccer games from API Sports.</p>
       <div class="fixture-feed" data-sports-fixtures>
@@ -118,14 +88,14 @@
           </div>
 
           <div class="sports-points-grid">
-            <div class="points-item"><strong>10 pts</strong><span>Exact scoreline</span></div>
-            <div class="points-item"><strong>5 pts</strong><span>Possession split</span></div>
-            <div class="points-item"><strong>4 pts</strong><span>First goal scorer</span></div>
-            <div class="points-item"><strong>3 pts</strong><span>Total corners</span></div>
-            <div class="points-item"><strong>3 pts</strong><span>Total cards</span></div>
-            <div class="points-item"><strong>3 pts</strong><span>Man of the Match</span></div>
-            <div class="points-item"><strong>2 pts</strong><span>First goal minute</span></div>
-            <div class="points-item points-item--total"><strong>30 pts</strong><span>Max per match</span></div>
+            <div class="points-item"><strong>10 pts</strong><span>Score</span></div>
+            <div class="points-item"><strong>5 pts</strong><span>Poss.</span></div>
+            <div class="points-item"><strong>4 pts</strong><span>Scorer</span></div>
+            <div class="points-item"><strong>3 pts</strong><span>Corners</span></div>
+            <div class="points-item"><strong>3 pts</strong><span>Cards</span></div>
+            <div class="points-item"><strong>3 pts</strong><span>MOTM</span></div>
+            <div class="points-item"><strong>2 pts</strong><span>Minute</span></div>
+            <div class="points-item points-item--total"><strong>30 pts</strong><span>Total</span></div>
           </div>
         </article>
       </div>
@@ -422,6 +392,7 @@
       <div class="sports-section-head">
         <span>Past predictions</span>
         <h2 id="results-title">Results</h2>
+        <button data-refresh-results style="background:rgba(0,232,122,0.12);border:1px solid rgba(0,232,122,0.3);color:#00e87a;padding:6px 14px;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;">↻ Refresh</button>
       </div>
       <div data-results-list>
         <p class="sports-results-empty"><i data-lucide="shield-check"></i> Results appear here after matches are verified. Check back after full time.</p>
@@ -429,13 +400,37 @@
     </section>
   </div><!-- /page: results -->
 
-  </main>
+  <!-- ── Wallet page ─────────────────────────────────────────── -->
+  <div data-sports-page="wallet">
+    <section class="sports-wallet-section">
+      <div class="sports-section-head">
+        <span>Your funds</span>
+        <h2>Wallet</h2>
+      </div>
 
-  <!-- Floating My Tickets pill — shows locked prediction count -->
-  <button class="sports-ticket-pill" id="sports-ticket-pill" type="button" data-sports-ticket-pill hidden aria-label="View my prediction tickets">
-    <span>My Tickets</span>
-    <strong data-pill-ticket-count>0</strong>
-  </button>
+      <!-- Balance card -->
+      <div class="wallet-balance-card">
+        <span class="wbc-label">Available balance</span>
+        <div class="wbc-amount">
+          <span class="wbc-currency">R</span>
+          <strong class="wbc-value" data-wallet-main-balance>0.00</strong>
+        </div>
+        <button class="wbc-topup-btn" disabled>
+          <i data-lucide="plus-circle"></i> Top up — EFT coming soon
+        </button>
+      </div>
+
+      <!-- Transaction history -->
+      <div class="wallet-tx-section">
+        <h3 class="wallet-tx-title">Transaction history</h3>
+        <div class="wallet-tx-list" data-wallet-tx-list>
+          <p class="wallet-tx-empty">No transactions yet.</p>
+        </div>
+      </div>
+    </section>
+  </div><!-- /page: wallet -->
+
+  </main>
 
   <!-- My Tickets drawer -->
   <div class="my-tickets-drawer" id="my-tickets-drawer" aria-label="My prediction tickets" role="dialog">
@@ -453,6 +448,7 @@
     <a href="#prediction-arena" data-sports-nav><i data-lucide="activity"></i><span>Predict</span></a>
     <a href="#sports-standings" data-sports-nav><i data-lucide="trophy"></i><span>Board</span></a>
     <a href="#sports-results" data-sports-nav><i data-lucide="shield-check"></i><span>Results</span></a>
+    <a href="#sports-wallet" data-sports-nav><i data-lucide="wallet"></i><span>Wallet</span></a>
     <a href="account.html"><i data-lucide="user"></i><span>Profile</span></a>
   </nav>
 
@@ -501,6 +497,11 @@
     <div class="ses-total-row">
       <span>Total to pay</span>
       <strong data-slip-price>R5.00</strong>
+    </div>
+
+    <div class="ses-wallet-row">
+      <span><i data-lucide="wallet" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Wallet balance</span>
+      <strong data-wallet-balance-display>R0.00</strong>
     </div>
 
     <button class="ses-confirm-btn" type="button" data-confirm-add>

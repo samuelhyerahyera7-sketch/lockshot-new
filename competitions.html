@@ -1,10 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-ZA">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lockshot | Competitions</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="auth-config.js" defer></script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
   <script src="script.js" defer></script>
 </head>
@@ -17,8 +19,11 @@
       <a href="terms.html">Terms</a>
     </nav>
     <nav class="top-actions" aria-label="Account actions">
-      <a class="account-action" href="account.html" aria-label="Account"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="4"></circle><path d="M4 21c1.4-4.4 4.1-6.6 8-6.6s6.6 2.2 8 6.6"></path></svg></a>
-      <button type="button" class="cart-icon" data-open-cart aria-label="Open entry slip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 11.2h10.9L21 7H7"></path><circle cx="9" cy="20" r="1.7"></circle><circle cx="18" cy="20" r="1.7"></circle></svg><span data-cart-count>0</span></button>
+      <a class="account-action" href="account.html" aria-label="Account"><i data-lucide="user"></i></a>
+      <a class="wallet-topbar-chip" href="wallet.html" data-wallet-chip aria-label="Wallet" hidden>
+        <i data-lucide="wallet"></i>
+        <span data-wallet-balance-display>R0.00</span>
+      </a>
       <a class="login-button" href="account.html">Log in</a>
     </nav>
   </header>
@@ -53,6 +58,7 @@
     <a href="index.html"><i data-lucide="home"></i><span>Home</span></a>
     <a class="active" href="competitions.html"><i data-lucide="gamepad-2"></i><span>Games</span></a>
     <a href="sports-iq.html"><i data-lucide="trophy"></i><span>Sports</span></a>
+    <a href="wallet.html"><i data-lucide="wallet"></i><span>Wallet</span></a>
     <a href="account.html"><i data-lucide="user"></i><span>Account</span></a>
   </nav>
 
@@ -73,8 +79,15 @@
         <button type="button" data-bulk-qty="10"><span>10</span><em>-15%</em></button>
       </div>
     </div>
+    <div class="ses-wallet-row">
+      <span><i data-lucide="wallet" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Wallet balance</span>
+      <strong data-wallet-balance-display>R0.00</strong>
+    </div>
     <button class="basket-button" type="button" data-confirm-add><span>Add to basket</span><i data-lucide="chevrons-right"></i></button>
   </aside>
   <div class="scrim" data-scrim></div>
 </body>
 </html>
+
+
+

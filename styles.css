@@ -3761,10 +3761,10 @@ h2 {
   bottom: 22px;
   z-index: 95;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  width: min(520px, calc(100% - 34px));
+  grid-template-columns: repeat(5, 1fr);
+  width: min(580px, calc(100% - 24px));
   min-height: 84px;
-  padding: 10px 14px;
+  padding: 10px 8px;
   border-radius: 999px;
   background: white;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.17);
@@ -3776,7 +3776,7 @@ h2 {
   place-items: center;
   gap: 5px;
   color: #0f1114;
-  font-size: 0.86rem;
+  font-size: 0.78rem;
 }
 
 .bottom-nav svg {
@@ -4678,6 +4678,27 @@ body[data-page="game"] .chat-button {
   color: var(--green);
 }
 
+.ses-wallet-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0 16px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  margin-top: 4px;
+}
+.ses-wallet-row span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.45);
+}
+.ses-wallet-row strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--green, #00e87a);
+}
+
 .ses-confirm-btn {
   display: flex;
   align-items: center;
@@ -4893,9 +4914,9 @@ body[data-page="game"] .chat-button {
     font-size: clamp(1.6rem, 7vw, 2.2rem);
   }
   .sports-section-head--with-tokens {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
   }
   /* Fix: "Prediction status" row cramping on narrow screens */
   .match-card-topline {
@@ -5005,7 +5026,7 @@ body[data-page="game"] .chat-button {
     grid-template-columns: 1fr;
     gap: 18px;
     min-height: auto;
-    padding: 96px 14px 28px;
+    padding: 12px 14px 28px;
   }
 
   .checkout-copy {
@@ -5277,7 +5298,7 @@ body[data-page="game"] .chat-button {
 
 .account-page .account-section {
   min-height: auto;
-  padding: clamp(34px, 7vw, 70px) clamp(18px, 5vw, 60px) 120px;
+  padding: 16px clamp(18px, 5vw, 60px) 120px;
   background: #f6f7f9;
 }
 
@@ -5618,14 +5639,19 @@ body[data-page="game"] .chat-button {
 .sports-iq-page {
   min-height: 100svh;
   padding-bottom: 104px;
-  background: radial-gradient(circle at 20% 0%, rgba(4, 245, 41, 0.28), transparent 28%), radial-gradient(circle at 84% 12%, rgba(255, 255, 255, 0.12), transparent 22%), linear-gradient(180deg, #020403 0%, #071312 48%, #020403 100%);
+  background: linear-gradient(180deg, #071312 0%, #020403 100%);
   color: white;
   overflow-x: hidden;
 }
 
+/* Live tab — push content below fixed 78px header */
+[data-sports-page="live"] {
+  padding-top: 86px;
+}
+
 .sports-iq-page .sports-topbar {
-  background: linear-gradient(180deg, rgba(2, 4, 3, 0.88), rgba(2, 4, 3, 0.18));
-  backdrop-filter: blur(16px);
+  background: rgba(4, 8, 5, 0.96);
+  backdrop-filter: blur(20px);
 }
 
 .sports-app {
@@ -5679,8 +5705,8 @@ body[data-page="game"] .chat-button {
 .upcoming-fixtures-panel {
   display: grid;
   gap: 16px;
-  margin: 14px 14px 18px;
-  padding: 22px;
+  margin: 14px 10px 18px;
+  padding: 14px;
   border: 1px solid rgba(4, 245, 41, 0.16);
 }
 
@@ -5818,16 +5844,20 @@ body[data-page="game"] .chat-button {
   -webkit-tap-highlight-color: transparent;
 }
 
-.fixture-match-card:hover,
-.fixture-match-card.is-selected {
-  border-color: rgba(4, 245, 41, 0.55);
-  background: rgba(4, 245, 41, 0.08);
+.fixture-match-card:hover {
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
   transform: translateY(-2px);
 }
 
+.fixture-match-card.is-selected {
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.04);
+}
+
 .fixture-match-card.is-live {
-  border-color: rgba(4, 245, 41, 0.4);
-  background: rgba(4, 245, 41, 0.06);
+  border-color: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
 }
 
 .fmc-header {
@@ -5937,6 +5967,20 @@ body[data-page="game"] .chat-button {
   background: rgba(255,255,255,0.06);
   border-color: rgba(255,255,255,0.15);
   color: rgba(255,255,255,0.7);
+}
+
+.fmc-badge--img {
+  object-fit: contain;
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.12);
+  padding: 6px;
+}
+
+.fmc-badge--flag {
+  font-size: 1.7rem;
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.12);
+  line-height: 1;
 }
 
 .fmc-team strong {
@@ -6505,7 +6549,7 @@ body[data-page="game"] .chat-button {
 }
 
 .points-item span {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 760;
   color: rgba(255, 255, 255, 0.58);
   line-height: 1.3;
@@ -8018,9 +8062,10 @@ body[data-page="game"] .chat-button {
 
 .sports-section-head--with-tokens {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
+  width: 100%;
 }
 
 .sports-token-badge {
@@ -8415,7 +8460,43 @@ body[data-page="game"] .chat-button {
   border-top: 1px dashed rgba(4,245,41,0.2);
 }
 
-/* ── Floating sports ticket pill ─────────────────────────── */
+/* ── My Tickets pill — inline in section head ─────────────── */
+.sports-ticket-pill-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px 7px 12px;
+  background: var(--green, #00e87a);
+  color: #061106;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 232, 122, 0.35);
+  transition: transform 0.15s ease;
+  animation: pill-pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.sports-ticket-pill-inline[hidden] { display: none; }
+.sports-ticket-pill-inline:active { transform: scale(0.94); }
+.sports-ticket-pill-inline span {
+  color: #061106 !important;
+  font-size: 0.82rem;
+  letter-spacing: normal;
+  text-transform: none;
+}
+.sports-ticket-pill-inline strong {
+  background: #061106;
+  color: var(--green, #00e87a);
+  border-radius: 50px;
+  padding: 1px 8px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* ── Floating My Tickets pill (fixed top-right) ───────────── */
 .sports-ticket-pill {
   position: fixed;
   top: 14px;
@@ -8438,7 +8519,6 @@ body[data-page="game"] .chat-button {
 }
 .sports-ticket-pill[hidden] { display: none; }
 .sports-ticket-pill:active { transform: scale(0.94); }
-.sports-ticket-pill svg { width: 18px; height: 18px; }
 .sports-ticket-pill strong {
   background: #061106;
   color: var(--green, #00e87a);
@@ -8461,9 +8541,9 @@ body[data-page="game"] .chat-button {
   z-index: 90;
   display: grid;
   width: min(560px, calc(100% - 24px));
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 2px;
-  padding: 10px;
+  padding: 8px 6px;
   border: 1px solid rgba(255,255,255,0.18);
   border-radius: 30px;
   background: rgba(255, 255, 255, 0.1);
@@ -8474,19 +8554,19 @@ body[data-page="game"] .chat-button {
 
 .sports-bottom-nav a {
   display: grid;
-  gap: 4px;
+  gap: 3px;
   justify-items: center;
   min-width: 0;
-  padding: 8px 4px;
+  padding: 6px 2px;
   border-radius: 20px;
   color: rgba(255,255,255,0.72);
-  font-size: 0.66rem;
+  font-size: 0.6rem;
   text-decoration: none;
 }
 
 .sports-bottom-nav svg {
-  width: 21px;
-  height: 21px;
+  width: 18px;
+  height: 18px;
 }
 
 .sports-bottom-nav .active {
@@ -9507,4 +9587,169 @@ body.game-menu-page {
 
 .arcade-hud strong.is-scoring {
   animation: score-pulse 200ms ease-out;
+}
+
+/* ── Wallet ──────────────────────────────────────────────────── */
+.wallet-topbar-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,232,122,0.12);
+  border: 1px solid rgba(0,232,122,0.3);
+  border-radius: 20px;
+  color: #00e87a;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+.wallet-topbar-chip svg,
+.wallet-topbar-chip i { width: 20px; height: 20px; }
+
+/* Wallet chip in sports topbar */
+.sports-topbar .wallet-topbar-chip {
+  margin-left: auto;
+  margin-right: 12px;
+}
+
+/* On game pages the chip sits directly in the header flex row */
+.topbar.is-scrolled > .wallet-topbar-chip {
+  margin-left: auto;
+  margin-right: 12px;
+}
+
+.sports-wallet-section {
+  padding: 80px 14px 24px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.wallet-balance-card {
+  background: linear-gradient(135deg, rgba(0,232,122,0.18), rgba(0,232,122,0.05));
+  border: 1px solid rgba(0,232,122,0.3);
+  border-radius: 20px;
+  padding: 28px 24px;
+  text-align: center;
+  margin-bottom: 28px;
+}
+.wbc-label {
+  display: block;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.wbc-amount {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 24px;
+}
+.wbc-currency {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #00e87a;
+  margin-top: 8px;
+}
+.wbc-value {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+}
+.wbc-topup-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px;
+  border-radius: 12px;
+  background: rgba(0,232,122,0.12);
+  border: 1px solid rgba(0,232,122,0.25);
+  color: rgba(0,232,122,0.5);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: not-allowed;
+}
+.wbc-topup-btn svg { width: 16px; height: 16px; }
+
+.wallet-tx-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.wallet-tx-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wallet-tx-empty {
+  color: rgba(255,255,255,0.35);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 24px 0;
+}
+.wallet-tx-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+.wallet-tx-info { display: flex; flex-direction: column; gap: 2px; }
+.wallet-tx-desc { font-size: 0.85rem; font-weight: 600; }
+.wallet-tx-date { font-size: 0.72rem; color: rgba(255,255,255,0.4); }
+.wallet-tx-amount { font-weight: 800; font-size: 0.95rem; }
+.wallet-tx-amount.credit { color: #00e87a; }
+.wallet-tx-amount.debit  { color: #ff4466; }
+
+/* Wallet balance in game entry */
+.wallet-entry-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0,232,122,0.06);
+  border: 1px solid rgba(0,232,122,0.15);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+}
+.wallet-entry-label { color: rgba(255,255,255,0.6); }
+.wallet-entry-bal   { font-weight: 800; color: #00e87a; }
+.wallet-entry-low   { color: #ff4466; }
+
+/* ── Wallet top-up grid ──────────────────────────────────── */
+.wbc-topup-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.wbc-amount-btn {
+  padding: 10px 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,232,122,0.3);
+  background: rgba(0,232,122,0.1);
+  color: #00e87a;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.wbc-amount-btn:hover { background: rgba(0,232,122,0.22); }
+.wbc-amount-btn:active { transform: scale(0.96); }
+.wbc-topup-note {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+  margin: 0;
 }

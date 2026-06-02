@@ -1,5 +1,5 @@
 -- ============================================================
--- Lockshot Admin Setup SQL  (v2 — run this in full each time)
+-- Lockshot Admin Setup SQL  (v3 — run this in full each time)
 -- Supabase → SQL Editor → paste all → Run
 -- Safe to re-run: uses IF NOT EXISTS / DROP IF EXISTS
 -- ============================================================
@@ -13,39 +13,27 @@ ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS blocked      boolean DEFAULT false,
   ADD COLUMN IF NOT EXISTS skill_score  int DEFAULT 0;
 
--- Make sure skill_score never breaks upsert
 ALTER TABLE public.profiles
   ALTER COLUMN skill_score SET DEFAULT 0;
 
 -- ── 2. RLS on profiles ───────────────────────────────────────
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
--- Users manage their own profile
 DROP POLICY IF EXISTS "Users can upsert own profile" ON public.profiles;
 CREATE POLICY "Users can upsert own profile"
   ON public.profiles FOR ALL
   USING      (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
--- Admin reads ALL profiles
 DROP POLICY IF EXISTS "Admin can read all profiles" ON public.profiles;
 CREATE POLICY "Admin can read all profiles"
   ON public.profiles FOR SELECT
-  USING (
-    auth.uid() IN (
-      SELECT id FROM auth.users WHERE email = 'samuelhyera.hyera7@gmail.com'
-    )
-  );
+  USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');
 
--- Admin updates ANY profile (block/unblock)
 DROP POLICY IF EXISTS "Admin can update all profiles" ON public.profiles;
 CREATE POLICY "Admin can update all profiles"
   ON public.profiles FOR UPDATE
-  USING (
-    auth.uid() IN (
-      SELECT id FROM auth.users WHERE email = 'samuelhyera.hyera7@gmail.com'
-    )
-  );
+  USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');
 
 -- ── 3. entries table ─────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS public.entries (
@@ -72,11 +60,7 @@ CREATE POLICY "Users insert own entries"
 DROP POLICY IF EXISTS "Admin sees all entries" ON public.entries;
 CREATE POLICY "Admin sees all entries"
   ON public.entries FOR SELECT
-  USING (
-    auth.uid() IN (
-      SELECT id FROM auth.users WHERE email = 'samuelhyera.hyera7@gmail.com'
-    )
-  );
+  USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');
 
 -- ── 4. game_scores table ─────────────────────────────────────
 CREATE TABLE IF NOT EXISTS public.game_scores (
@@ -102,11 +86,7 @@ CREATE POLICY "Users read own scores"
 DROP POLICY IF EXISTS "Admin sees all scores" ON public.game_scores;
 CREATE POLICY "Admin sees all scores"
   ON public.game_scores FOR SELECT
-  USING (
-    auth.uid() IN (
-      SELECT id FROM auth.users WHERE email = 'samuelhyera.hyera7@gmail.com'
-    )
-  );
+  USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');
 
 -- ── 5. sports_predictions table ──────────────────────────────
 CREATE TABLE IF NOT EXISTS public.sports_predictions (
@@ -135,24 +115,78 @@ CREATE POLICY "Users read own predictions"
   ON public.sports_predictions FOR SELECT
   USING (auth.uid() = user_id);
 
+-- ── 6. Add missing prediction columns ────────────────────────
+ALTER TABLE public.sports_predictions
+  ADD COLUMN IF NOT EXISTS corners_pred text,
+  ADD COLUMN IF NOT EXISTS cards_pred   text,
+  ADD COLUMN IF NOT EXISTS minute_pred  text,
+  ADD COLUMN IF NOT EXISTS motm_pred    text;
+
 DROP POLICY IF EXISTS "Admin sees all predictions" ON public.sports_predictions;
 CREATE POLICY "Admin sees all predictions"
   ON public.sports_predictions FOR SELECT
-  USING (
-    auth.uid() IN (
-      SELECT id FROM auth.users WHERE email = 'samuelhyera.hyera7@gmail.com'
-    )
-  );
+  USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');
 
 DROP POLICY IF EXISTS "Admin updates predictions" ON public.sports_predictions;
 CREATE POLICY "Admin updates predictions"
   ON public.sports_predictions FOR UPDATE
-  USING (
-    auth.uid() IN (
-      SELECT id FROM auth.users WHERE email = 'samuelhyera.hyera7@gmail.com'
-    )
-  );
+  USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');
+
+DROP POLICY IF EXISTS "Users read graded predictions" ON public.sports_predictions;
+CREATE POLICY "Users read graded predictions"
+  ON public.sports_predictions FOR SELECT
+  USING (status = 'graded');
+
+-- ── 7. wallets table ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.wallets (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    uuid REFERENCES public.profiles(id) ON DELETE CASCADE UNIQUE,
+  balance    numeric(10,2) NOT NULL DEFAULT 0,
+  updated_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.wallets ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users read own wallet" ON public.wallets;
+CREATE POLICY "Users read own wallet"
+  ON public.wallets FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users update own wallet" ON public.wallets;
+CREATE POLICY "Users update own wallet"
+  ON public.wallets FOR UPDATE USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users insert own wallet" ON public.wallets;
+CREATE POLICY "Users insert own wallet"
+  ON public.wallets FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Admin manages all wallets" ON public.wallets;
+CREATE POLICY "Admin manages all wallets"
+  ON public.wallets FOR ALL
+  USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');
+
+-- ── 8. wallet_transactions table ─────────────────────────────
+CREATE TABLE IF NOT EXISTS public.wallet_transactions (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     uuid REFERENCES public.profiles(id) ON DELETE CASCADE,
+  type        text NOT NULL, -- 'topup' | 'spend' | 'win' | 'refund'
+  amount      numeric(10,2) NOT NULL,
+  description text,
+  created_at  timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.wallet_transactions ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users read own transactions" ON public.wallet_transactions;
+CREATE POLICY "Users read own transactions"
+  ON public.wallet_transactions FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users insert own transactions" ON public.wallet_transactions;
+CREATE POLICY "Users insert own transactions"
+  ON public.wallet_transactions FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Admin manages all transactions" ON public.wallet_transactions;
+CREATE POLICY "Admin manages all transactions"
+  ON public.wallet_transactions FOR ALL
+  USING (auth.jwt() ->> 'email' = 'samuelhyera.hyera7@gmail.com');
 
 -- ── Done ─────────────────────────────────────────────────────
--- After running this, reload the admin dashboard.
--- Users will appear once they log in (profile is upserted on login).

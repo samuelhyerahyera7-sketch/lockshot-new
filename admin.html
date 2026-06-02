@@ -208,6 +208,63 @@
     }
     .refresh-btn:hover { background: rgba(0,232,122,0.18); }
 
+    /* ── Grade match ─────────────────────────────────────── */
+    .grade-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 32px;
+    }
+    #grade-match-select {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 9px 12px;
+      font-size: 0.85rem;
+      outline: none;
+      margin-bottom: 18px;
+      cursor: pointer;
+    }
+    #grade-match-select:focus { border-color: var(--green); }
+    .grade-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    @media (max-width: 600px) { .grade-fields { grid-template-columns: 1fr; } }
+    .grade-field label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .grade-field input {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .grade-field input:focus { border-color: var(--green); }
+    #grade-btn {
+      width: 100%;
+      background: rgba(0,232,122,0.15);
+      border: 1px solid rgba(0,232,122,0.3);
+      color: var(--green);
+      padding: 11px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background 0.15s;
+    }
+    #grade-btn:hover { background: rgba(0,232,122,0.25); }
+    #grade-btn:disabled { opacity: 0.5; cursor: default; }
+    .grade-result-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem;
+    }
+    .grade-result-row:last-child { border-bottom: none; }
+    .grade-result-pts { font-weight: 800; color: var(--green); font-size: 1rem; }
+
     /* ── Toast ───────────────────────────────────────────── */
     #toast {
       position: fixed;
@@ -336,6 +393,21 @@
             <tr><td colspan="4" class="tbl-empty">Loading…</td></tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Grade match results -->
+      <div class="section-head">
+        <h2>⚡ Grade match results</h2>
+      </div>
+      <div class="grade-card">
+        <select id="grade-match-select">
+          <option value="">— Select a match to grade —</option>
+        </select>
+        <div id="grade-actions" hidden style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <button id="auto-grade-btn" style="flex:1;background:rgba(0,232,122,0.15);border:1px solid rgba(0,232,122,0.3);color:#00e87a;padding:11px;border-radius:10px;font-size:0.9rem;font-weight:700;cursor:pointer;">🤖 Auto-grade from API</button>
+        </div>
+        <div id="grade-status" style="font-size:0.82rem;color:rgba(255,255,255,0.45);margin-bottom:8px"></div>
+        <div id="grade-result" style="margin-top:8px"></div>
       </div>
 
       <!-- Recent entries table -->
@@ -675,8 +747,199 @@
     await Promise.all([loadUsers(), loadEntryCounts()]);
   }, 30000);
 
+  // ── Grade match results (auto from API) ──────────────────
+  let matchPredictions = {};
+  const SPORTS_API_KEY = window.LOCKSHOT_SPORTS_API?.key || "";
+  const SPORTS_API_URL = window.LOCKSHOT_SPORTS_API?.baseUrl || "https://v3.football.api-sports.io";
+
+  async function loadMatchesForGrading() {
+    const { data, error } = await sb
+      .from("sports_predictions")
+      .select("id, user_id, match, score_pred, possession, first_scorer, corners_pred, cards_pred, minute_pred, motm_pred, pts_awarded, status, profiles(full_name, email)")
+      .order("created_at", { ascending: false });
+    if (error || !data?.length) return;
+    matchPredictions = {};
+    data.forEach(p => {
+      if (!matchPredictions[p.match]) matchPredictions[p.match] = [];
+      matchPredictions[p.match].push(p);
+    });
+    const sel = document.getElementById("grade-match-select");
+    sel.innerHTML = '<option value="">— Select a match to grade —</option>';
+    Object.keys(matchPredictions).forEach(match => {
+      const opt = document.createElement("option");
+      opt.value = match;
+      const graded = matchPredictions[match].every(p => p.status === "graded");
+      opt.textContent = `${match} (${matchPredictions[match].length} player${matchPredictions[match].length === 1 ? "" : "s"}${graded ? " ✓" : ""})`;
+      sel.appendChild(opt);
+    });
+  }
+
+  document.getElementById("grade-match-select").addEventListener("change", (e) => {
+    document.getElementById("grade-actions").hidden = !e.target.value;
+    document.getElementById("grade-result").innerHTML = "";
+    document.getElementById("grade-status").textContent = "";
+  });
+
+  async function fetchFixtureActuals(matchName) {
+    const h = { "x-apisports-key": SPORTS_API_KEY };
+    const status = document.getElementById("grade-status");
+
+    // Parse home vs away from match name
+    const parts = matchName.split(" vs ");
+    const home = parts[0]?.trim();
+    const away = parts[1]?.trim();
+    if (!home || !away) throw new Error("Can't parse match name");
+
+    status.textContent = "Searching API for fixture…";
+
+    // Try to find the fixture — search by home team in UCL (league 2) or all leagues
+    const search = await fetch(`${SPORTS_API_URL}/fixtures?team=85&season=2025&last=5`, { headers: h });
+    const searchData = await search.json();
+    let fixture = searchData.response?.find(f =>
+      (f.teams.home.name.includes("Paris") || f.teams.away.name.includes("Paris")) &&
+      (f.teams.home.name.includes("Arsenal") || f.teams.away.name.includes("Arsenal"))
+    );
+
+    if (!fixture) {
+      // Try Arsenal side
+      const s2 = await fetch(`${SPORTS_API_URL}/fixtures?team=42&season=2025&last=5`, { headers: h });
+      const s2Data = await s2.json();
+      fixture = s2Data.response?.find(f =>
+        (f.teams.home.name.includes("Paris") || f.teams.away.name.includes("Paris")) &&
+        (f.teams.home.name.includes("Arsenal") || f.teams.away.name.includes("Arsenal"))
+      );
+    }
+
+    if (!fixture) throw new Error("Fixture not found in API");
+
+    const fid = fixture.fixture.id;
+    const homeGoals = fixture.goals.home ?? 0;
+    const awayGoals = fixture.goals.away ?? 0;
+    const scoreActual = `${homeGoals} - ${awayGoals}`;
+    status.textContent = `Found fixture #${fid}: ${scoreActual} — fetching stats…`;
+
+    const [statsRes, eventsRes] = await Promise.all([
+      fetch(`${SPORTS_API_URL}/fixtures/statistics?fixture=${fid}`, { headers: h }).then(r => r.json()).catch(() => null),
+      fetch(`${SPORTS_API_URL}/fixtures/events?fixture=${fid}`, { headers: h }).then(r => r.json()).catch(() => null)
+    ]);
+
+    // Possession
+    let homePoss = null, awayPoss = null;
+    if (statsRes?.response) {
+      const homeStats = statsRes.response.find(t => t.team.id === fixture.teams.home.id)?.statistics || [];
+      const awayStats = statsRes.response.find(t => t.team.id === fixture.teams.away.id)?.statistics || [];
+      const hp = homeStats.find(s => s.type === "Ball Possession")?.value;
+      const ap = awayStats.find(s => s.type === "Ball Possession")?.value;
+      if (hp) homePoss = parseInt(hp);
+      if (ap) awayPoss = parseInt(ap);
+    }
+    const possActual = homePoss != null ? `${homePoss}% - ${awayPoss ?? (100 - homePoss)}%` : null;
+
+    // Corners
+    let totalCorners = null;
+    if (statsRes?.response) {
+      let hc = 0, ac = 0;
+      const homeStats = statsRes.response.find(t => t.team.id === fixture.teams.home.id)?.statistics || [];
+      const awayStats = statsRes.response.find(t => t.team.id === fixture.teams.away.id)?.statistics || [];
+      hc = parseInt(homeStats.find(s => s.type === "Corner Kicks")?.value) || 0;
+      ac = parseInt(awayStats.find(s => s.type === "Corner Kicks")?.value) || 0;
+      totalCorners = String(hc + ac);
+    }
+
+    // Cards
+    let totalCards = null;
+    if (eventsRes?.response) {
+      const cards = eventsRes.response.filter(e => e.type === "Card");
+      totalCards = String(cards.length);
+    }
+
+    // First scorer & minute
+    let firstScorer = null, firstMinute = null;
+    if (eventsRes?.response) {
+      const goals = eventsRes.response.filter(e => e.type === "Goal" && e.detail !== "Own Goal").sort((a, b) => a.time.elapsed - b.time.elapsed);
+      if (goals.length) {
+        firstScorer = goals[0].player?.name || null;
+        firstMinute = String(goals[0].time.elapsed);
+      }
+    }
+
+    return { scoreActual, possActual, totalCorners, totalCards, firstScorer, firstMinute };
+  }
+
+  function gradeOne(p, actual) {
+    let pts = 0;
+    const norm = s => s.replace(/\s/g, "");
+    const last = n => n.trim().split(" ").pop().toLowerCase();
+
+    if (actual.scoreActual && p.score_pred)
+      if (norm(p.score_pred) === norm(actual.scoreActual)) pts += 10;
+
+    if (actual.possActual && p.possession) {
+      const uP = parseInt(p.possession), aP = parseInt(actual.possActual);
+      if (!isNaN(uP) && !isNaN(aP) && (uP >= 50) === (aP >= 50)) pts += 5;
+    }
+
+    if (actual.totalCorners && p.corners_pred && p.corners_pred !== "—")
+      if (p.corners_pred.trim() === actual.totalCorners) pts += 3;
+
+    if (actual.totalCards && p.cards_pred && p.cards_pred !== "—")
+      if (p.cards_pred.trim() === actual.totalCards) pts += 3;
+
+    if (actual.firstScorer && p.first_scorer && p.first_scorer !== "—")
+      if (last(p.first_scorer) === last(actual.firstScorer)) pts += 4;
+
+    if (actual.firstMinute && p.minute_pred && p.minute_pred !== "—") {
+      const uM = parseInt(p.minute_pred), aM = parseInt(actual.firstMinute);
+      if (!isNaN(uM) && !isNaN(aM) && Math.abs(uM - aM) <= 5) pts += 2;
+    }
+
+    return pts;
+  }
+
+  document.getElementById("auto-grade-btn").addEventListener("click", async () => {
+    const match = document.getElementById("grade-match-select").value;
+    if (!match) return;
+    const btn = document.getElementById("auto-grade-btn");
+    btn.textContent = "Fetching from API…"; btn.disabled = true;
+
+    try {
+      const actual = await fetchFixtureActuals(match);
+      document.getElementById("grade-status").textContent =
+        `✓ Score: ${actual.scoreActual} · Possession: ${actual.possActual || "—"} · Corners: ${actual.totalCorners || "—"} · Cards: ${actual.totalCards || "—"} · First scorer: ${actual.firstScorer || "—"} (${actual.firstMinute ? actual.firstMinute + "'" : "—"})`;
+
+      const predictions = matchPredictions[match] || [];
+      const results = [];
+      for (const p of predictions) {
+        const pts = gradeOne(p, actual);
+        results.push({ prediction: p, pts });
+        await sb.from("sports_predictions").update({ pts_awarded: pts, status: "graded" }).eq("id", p.id);
+      }
+
+      document.getElementById("grade-result").innerHTML = `
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px">Points awarded for <strong style="color:var(--text)">${match}</strong></p>
+        ${results.map(r => `
+          <div class="grade-result-row">
+            <div>
+              <strong>${r.prediction.profiles?.full_name || "Player"}</strong>
+              <small style="color:var(--muted);display:block">${r.prediction.profiles?.email || ""}</small>
+            </div>
+            <span class="grade-result-pts">+${r.pts} pts</span>
+          </div>`).join("")}
+      `;
+      await loadPredictions();
+      await loadMatchesForGrading();
+      showToast(`Auto-graded ${results.length} prediction${results.length === 1 ? "" : "s"} ✓`);
+    } catch (err) {
+      document.getElementById("grade-status").textContent = "⚠ " + err.message;
+      showToast("Auto-grade failed: " + err.message);
+    }
+
+    btn.textContent = "🤖 Auto-grade from API"; btn.disabled = false;
+  });
+
   // ── Initial load ──────────────────────────────────────────
   await Promise.all([loadUsers(), loadEntryCounts(), loadPredictions(), loadRecentEntries(), loadRecentScores()]);
+  loadMatchesForGrading();
 
 })();
 </script>

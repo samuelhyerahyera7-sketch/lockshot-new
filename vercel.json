@@ -1,4 +1,19 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "builds": [
+    { "src": "api/auto-grade.js", "use": "@vercel/node" },
+    { "src": "*.html", "use": "@vercel/static" },
+    { "src": "**/*.{js,css,jpg,jpeg,png,svg,ico,sql}", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/auto-grade", "dest": "/api/auto-grade.js" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ],
+  "crons": [
+    {
+      "path": "/api/auto-grade",
+      "schedule": "0 * * * *"
+    }
+  ]
 }
