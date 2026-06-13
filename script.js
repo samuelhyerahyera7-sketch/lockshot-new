@@ -422,54 +422,51 @@ function getUpcomingDemoFixtures(sport = "soccer") {
       { home: "Real Madrid",       away: "Barcelona",          league: "La Liga",        status: "Upcoming", score: "TBC" },
     ],
     rugby: [
-      // URC 2025/26 Playoffs
-      { home: "Leinster",               away: "Bulls",              league: "URC Semi-Final",            status: "Sat 30 May", score: "19:00" },
-      { home: "Glasgow Warriors",       away: "Stormers",           league: "URC Semi-Final",            status: "Sun 31 May", score: "17:00" },
-      // Super Rugby Pacific 2026 Playoffs
-      { home: "Blues",                  away: "Hurricanes",         league: "Super Rugby Pacific SF",    status: "Sat 30 May", score: "09:35" },
-      { home: "Chiefs",                 away: "Crusaders",          league: "Super Rugby Pacific SF",    status: "Sat 30 May", score: "11:45" },
-      // URC Final + Super Rugby Final
-      { home: "URC Final",              away: "TBD",                league: "URC Final",                 status: "Sat 13 Jun", score: "17:00" },
-      { home: "Super Rugby Final",      away: "TBD",                league: "Super Rugby Pacific Final", status: "Sat 6 Jun",  score: "09:35" },
-      // June 2026 Internationals
-      { home: "South Africa",           away: "Italy",              league: "June Internationals",       status: "Sat 6 Jun",  score: "17:00" },
+      // URC Final 2025/26 — today
+      { home: "Leinster",               away: "Glasgow Warriors",   league: "URC Final",                 status: "Sat 13 Jun", score: "17:00" },
+      // June 2026 Internationals — Round 2 (today / tomorrow)
       { home: "South Africa",           away: "Georgia",            league: "June Internationals",       status: "Sat 13 Jun", score: "17:00" },
-      { home: "New Zealand",            away: "France",             league: "June Internationals",       status: "Sat 6 Jun",  score: "10:05" },
-      { home: "Australia",              away: "England",            league: "June Internationals",       status: "Sat 6 Jun",  score: "12:00" },
-      { home: "Argentina",              away: "Scotland",           league: "June Internationals",       status: "Sat 6 Jun",  score: "00:10" },
-      { home: "Ireland",                away: "Fiji",               league: "June Internationals",       status: "Sat 6 Jun",  score: "19:10" },
+      { home: "Australia",              away: "England",            league: "June Internationals",       status: "Sat 13 Jun", score: "12:00" },
+      { home: "New Zealand",            away: "France",             league: "June Internationals",       status: "Sun 14 Jun", score: "10:05" },
+      { home: "Argentina",              away: "Scotland",           league: "June Internationals",       status: "Sun 14 Jun", score: "00:10" },
+      { home: "Ireland",                away: "Fiji",               league: "June Internationals",       status: "Sun 14 Jun", score: "19:10" },
+      // June 2026 Internationals — Round 3
+      { home: "South Africa",           away: "Georgia",            league: "June Internationals",       status: "Sat 20 Jun", score: "17:00" },
+      { home: "Australia",              away: "England",            league: "June Internationals",       status: "Sat 20 Jun", score: "12:00" },
+      { home: "Argentina",              away: "Scotland",           league: "June Internationals",       status: "Sat 20 Jun", score: "00:10" },
+      { home: "New Zealand",            away: "France",             league: "June Internationals",       status: "Sun 21 Jun", score: "10:05" },
+      { home: "Ireland",                away: "Fiji",               league: "June Internationals",       status: "Sun 21 Jun", score: "19:10" },
     ],
     cricket: [
-      // IPL 2026 (late May / early June)
-      { home: "Royal Challengers Bengaluru", away: "Mumbai Indians",       league: "IPL 2026",       status: "Sat 30 May", score: "15:30" },
-      { home: "Kolkata Knight Riders",       away: "Sunrisers Hyderabad",  league: "IPL 2026",       status: "Sun 31 May", score: "11:00" },
-      // International Tests & Series
-      { home: "England",            away: "West Indies",        league: "Test Series",               status: "Thu 4 Jun",  score: "11:00" },
-      { home: "India",              away: "Sri Lanka",          league: "ODI Series",                status: "Fri 5 Jun",  score: "13:00" },
-      { home: "Australia",          away: "Pakistan",           league: "T20I Series",               status: "Wed 10 Jun", score: "12:00" },
-      { home: "South Africa",       away: "Zimbabwe",           league: "T20I Series",               status: "Fri 12 Jun", score: "16:00" },
-      { home: "New Zealand",        away: "Bangladesh",         league: "Test Series",               status: "Thu 18 Jun", score: "03:00" },
-      { home: "Pakistan",           away: "Afghanistan",        league: "ODI Series",                status: "Sun 7 Jun",  score: "13:00" },
+      // International Tests & Series — June 2026
+      { home: "England",            away: "West Indies",        league: "Test Series · 2nd Test",    status: "Thu 14 Jun", score: "11:00" },
+      { home: "India",              away: "Sri Lanka",          league: "ODI Series · 2nd ODI",      status: "Fri 14 Jun", score: "13:00" },
+      { home: "South Africa",       away: "Zimbabwe",           league: "T20I Series · 2nd T20I",    status: "Sun 15 Jun", score: "16:00" },
+      { home: "Australia",          away: "Pakistan",           league: "T20I Series · 2nd T20I",    status: "Mon 16 Jun", score: "12:00" },
+      { home: "New Zealand",        away: "Bangladesh",         league: "Test Series · 1st Test",    status: "Thu 18 Jun", score: "03:00" },
+      { home: "England",            away: "West Indies",        league: "Test Series · 3rd Test",    status: "Thu 26 Jun", score: "11:00" },
+      { home: "India",              away: "Sri Lanka",          league: "ODI Series · 3rd ODI",      status: "Sun 22 Jun", score: "13:00" },
+      { home: "South Africa",       away: "Zimbabwe",           league: "T20I Series · 3rd T20I",    status: "Tue 17 Jun", score: "16:00" },
     ],
     "formula-one": [
       // 2026 F1 Season – upcoming races (fallback if Ergast API is unavailable)
-      { home: "Monaco Grand Prix",        away: "Monte Carlo",          league: "Formula One · Round 8",  status: "Sun 7 Jun",   score: "15:00" },
-      { home: "Canadian Grand Prix",      away: "Montréal",             league: "Formula One · Round 9",  status: "Sun 15 Jun",  score: "20:00" },
-      { home: "Austrian Grand Prix",      away: "Spielberg",            league: "Formula One · Round 10", status: "Sun 29 Jun",  score: "15:00" },
-      { home: "British Grand Prix",       away: "Silverstone",          league: "Formula One · Round 11", status: "Sun 6 Jul",   score: "16:00" },
-      { home: "Hungarian Grand Prix",     away: "Budapest",             league: "Formula One · Round 12", status: "Sun 27 Jul",  score: "15:00" },
-      { home: "Belgian Grand Prix",       away: "Spa-Francorchamps",    league: "Formula One · Round 13", status: "Sun 3 Aug",   score: "15:00" },
-      { home: "Dutch Grand Prix",         away: "Zandvoort",            league: "Formula One · Round 14", status: "Sun 31 Aug",  score: "15:00" },
-      { home: "Italian Grand Prix",       away: "Monza",                league: "Formula One · Round 15", status: "Sun 7 Sep",   score: "15:00" },
+      { home: "Spanish Grand Prix",       away: "Circuit de Barcelona-Catalunya", league: "Formula One · Round 9",  status: "Sun 14 Jun",  score: "15:00" },
+      { home: "Canadian Grand Prix",      away: "Circuit Gilles Villeneuve",      league: "Formula One · Round 10", status: "Sun 21 Jun",  score: "20:00" },
+      { home: "Austrian Grand Prix",      away: "Red Bull Ring",                  league: "Formula One · Round 11", status: "Sun 29 Jun",  score: "15:00" },
+      { home: "British Grand Prix",       away: "Silverstone Circuit",            league: "Formula One · Round 12", status: "Sun 6 Jul",   score: "16:00" },
+      { home: "Hungarian Grand Prix",     away: "Hungaroring",                    league: "Formula One · Round 13", status: "Sun 27 Jul",  score: "15:00" },
+      { home: "Belgian Grand Prix",       away: "Circuit de Spa-Francorchamps",   league: "Formula One · Round 14", status: "Sun 3 Aug",   score: "15:00" },
+      { home: "Dutch Grand Prix",         away: "Circuit Zandvoort",              league: "Formula One · Round 15", status: "Sun 31 Aug",  score: "15:00" },
+      { home: "Italian Grand Prix",       away: "Autodromo di Monza",             league: "Formula One · Round 16", status: "Sun 7 Sep",   score: "15:00" },
     ],
     netball: [
       // Super Netball 2026 (times shown in SAST — games played in Australia)
-      { home: "NSW Swifts",               away: "Melbourne Vixens",     league: "Super Netball 2026",  status: "Sat 30 May", score: "09:00" },
-      { home: "Queensland Firebirds",     away: "West Coast Fever",     league: "Super Netball 2026",  status: "Sun 31 May", score: "07:00" },
-      { home: "Adelaide Thunderbirds",    away: "Giants Netball",       league: "Super Netball 2026",  status: "Sat 6 Jun",  score: "09:00" },
-      { home: "Sunshine Coast Lightning", away: "Collingwood Magpies",  league: "Super Netball 2026",  status: "Sun 7 Jun",  score: "07:00" },
       { home: "NSW Swifts",               away: "West Coast Fever",     league: "Super Netball 2026",  status: "Sat 13 Jun", score: "09:00" },
       { home: "Melbourne Vixens",         away: "Giants Netball",       league: "Super Netball 2026",  status: "Sun 14 Jun", score: "07:00" },
+      { home: "Queensland Firebirds",     away: "Collingwood Magpies",  league: "Super Netball 2026",  status: "Sat 20 Jun", score: "09:00" },
+      { home: "Adelaide Thunderbirds",    away: "Sunshine Coast Lightning", league: "Super Netball 2026", status: "Sun 21 Jun", score: "07:00" },
+      { home: "NSW Swifts",               away: "Melbourne Vixens",     league: "Super Netball 2026",  status: "Sat 27 Jun", score: "09:00" },
+      { home: "West Coast Fever",         away: "Giants Netball",       league: "Super Netball 2026",  status: "Sun 28 Jun", score: "07:00" },
       // International Netball
       { home: "South Africa",             away: "Jamaica",              league: "International",       status: "Fri 19 Jun", score: "18:00" },
       { home: "Australia Diamonds",       away: "England Roses",        league: "Nations Cup",         status: "Sat 20 Jun", score: "12:00" },
@@ -685,7 +682,7 @@ async function loadF1Fixtures() {
         const dateLabel = `${days[raceDate.getDay()]} ${raceDate.getDate()} ${months[raceDate.getMonth()]}`;
         const circuit = race.Circuit || {};
         const loc = circuit.Location || {};
-        const city = loc.locality || loc.country || circuit.circuitName || "Circuit";
+        const city = circuit.circuitName || loc.locality || loc.country || "Circuit";
 
         // Ergast sometimes provides race.time in UTC — convert to SAST (UTC+2)
         let timeLabel = "Race day";
@@ -889,7 +886,8 @@ function renderSportsFixtures(fixtures, emptyMessage = "No real scores available
     const isLive = (fixture.status || "").toLowerCase() === "live" || fixture.isLive;
     const statusLabel = isLive ? "Live now" : escapeHtml(fixture.status || "Upcoming");
     const hasPaid = getStoredPaidAttempts({ name: "Sports Predict", game: "sports" }) > 0;
-    const btnLabel = hasPaid ? "Predict this match" : "Predict this match — R5";
+    const eventWord = activeSportsFilter === "formula-one" ? "race" : "match";
+    const btnLabel = hasPaid ? `Predict this ${eventWord}` : `Predict this ${eventWord} — R5`;
     const kickoffMs = fixture.sortTime || parseDemoKickoffMs(fixture.status, fixture.score) || 0;
     // Flags take priority for international teams; logos for clubs; initials as fallback
     const homeFlag = FLAG_MAP[fixture.home.toLowerCase()];
@@ -3703,31 +3701,63 @@ async function renderWalletPage() {
 }
 
 function initTopupButtons() {
+  // Show banner based on Ozow redirect result
+  const params = new URLSearchParams(window.location.search);
+  const topupState = params.get("topup");
+  const banner = document.getElementById("topup-banner");
+  if (banner && topupState) {
+    if (topupState === "success") {
+      banner.style.cssText = "display:block;background:#0e3d1a;color:#4ade80;border:1px solid #166534;margin-bottom:1rem;padding:.85rem 1.1rem;border-radius:.75rem;font-weight:600;font-size:.95rem;text-align:center;";
+      banner.textContent = "Payment successful! Your wallet will update shortly.";
+    } else if (topupState === "cancelled") {
+      banner.style.cssText = "display:block;background:#2d1a0e;color:#f97316;border:1px solid #7c2d12;margin-bottom:1rem;padding:.85rem 1.1rem;border-radius:.75rem;font-weight:600;font-size:.95rem;text-align:center;";
+      banner.textContent = "Payment was cancelled. No funds were added.";
+    } else if (topupState === "error") {
+      banner.style.cssText = "display:block;background:#2d0e0e;color:#f87171;border:1px solid #7f1d1d;margin-bottom:1rem;padding:.85rem 1.1rem;border-radius:.75rem;font-weight:600;font-size:.95rem;text-align:center;";
+      banner.textContent = "Payment failed. Please try again or contact support.";
+    }
+    // Clean URL without reload
+    window.history.replaceState({}, "", window.location.pathname);
+  }
+
   document.querySelectorAll("[data-topup-amount]").forEach(btn => {
     if (btn._topupBound) return;
     btn._topupBound = true;
     btn.addEventListener("click", async () => {
       const amount = parseFloat(btn.dataset.topupAmount);
-      if (!amount || !currentUser?.id) { alert("Please log in to top up your wallet."); return; }
-      const client = getSupabaseClient();
-      if (!client) return;
+      if (!amount || !currentUser?.id) { alert("Please log in to add funds."); return; }
 
+      const orig = btn.textContent;
       btn.disabled = true;
-      btn.textContent = "Adding…";
+      btn.textContent = "Redirecting…";
 
-      const { data: walletData } = await client.from("wallets").select("balance").eq("user_id", currentUser.id).maybeSingle();
-      const current = parseFloat(walletData?.balance ?? 0);
-      const newBalance = parseFloat((current + amount).toFixed(2));
+      try {
+        const res = await fetch("/api/ozow-init", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount, userId: currentUser.id }),
+        });
+        const data = await res.json();
+        if (!data.payUrl || !data.fields) throw new Error(data.error || "Init failed");
 
-      await client.from("wallets").upsert({ user_id: currentUser.id, balance: newBalance, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
-      await client.from("wallet_transactions").insert({ user_id: currentUser.id, type: "topup", amount, description: `Top up R${amount}` });
-
-      _walletBalance = newBalance;
-      updateWalletUI();
-      await renderWalletPage();
-
-      btn.disabled = false;
-      btn.textContent = `+ R${amount}`;
+        // Build hidden form and submit to Ozow
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = data.payUrl;
+        Object.entries(data.fields).forEach(([key, value]) => {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = key;
+          input.value = value;
+          form.appendChild(input);
+        });
+        document.body.appendChild(form);
+        form.submit();
+      } catch {
+        btn.disabled = false;
+        btn.textContent = orig;
+        alert("Could not start payment. Please try again.");
+      }
     });
   });
 }

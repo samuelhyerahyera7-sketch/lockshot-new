@@ -2,12 +2,16 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "builds": [
-    { "src": "api/auto-grade.js", "use": "@vercel/node" },
+    { "src": "api/auto-grade.js",   "use": "@vercel/node" },
+    { "src": "api/ozow-init.js",    "use": "@vercel/node" },
+    { "src": "api/ozow-notify.js",  "use": "@vercel/node" },
     { "src": "*.html", "use": "@vercel/static" },
     { "src": "**/*.{js,css,jpg,jpeg,png,svg,ico,sql}", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/api/auto-grade", "dest": "/api/auto-grade.js" },
+    { "src": "/api/auto-grade",   "dest": "/api/auto-grade.js" },
+    { "src": "/api/ozow-init",    "dest": "/api/ozow-init.js" },
+    { "src": "/api/ozow-notify",  "dest": "/api/ozow-notify.js" },
     { "src": "/(.*)", "dest": "/$1" }
   ],
   "crons": [
