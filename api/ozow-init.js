@@ -35,6 +35,9 @@ module.exports = async function handler(req, res) {
     Optional1:            userId,
     Optional2:            '',
     Optional3:            '',
+    Optional4:            '',
+    Optional5:            '',
+    Customer:             '',
     CancelUrl:            `${SITE_URL}/wallet.html?topup=cancelled`,
     ErrorUrl:             `${SITE_URL}/wallet.html?topup=error`,
     SuccessUrl:           `${SITE_URL}/wallet.html?topup=success`,
@@ -46,6 +49,7 @@ module.exports = async function handler(req, res) {
     f.SiteCode, f.CountryCode, f.CurrencyCode, f.Amount,
     f.TransactionReference, f.BankReference,
     f.Optional1, f.Optional2, f.Optional3,
+    f.Optional4, f.Optional5, f.Customer,
     f.CancelUrl, f.ErrorUrl, f.SuccessUrl, f.NotifyUrl,
     f.IsTest, PRIVATE_KEY,
   ].join('').toLowerCase();
