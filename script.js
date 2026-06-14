@@ -3716,7 +3716,6 @@ function initTopupButtons() {
       banner.style.cssText = "display:block;background:#2d0e0e;color:#f87171;border:1px solid #7f1d1d;margin-bottom:1rem;padding:.85rem 1.1rem;border-radius:.75rem;font-weight:600;font-size:.95rem;text-align:center;";
       banner.textContent = "Payment failed. Please try again or contact support.";
     }
-    // Clean URL without reload
     window.history.replaceState({}, "", window.location.pathname);
   }
 
@@ -3740,7 +3739,6 @@ function initTopupButtons() {
         const data = await res.json();
         if (!data.payUrl || !data.fields) throw new Error(data.error || "Init failed");
 
-        // Build hidden form and submit to Ozow
         const form = document.createElement("form");
         form.method = "POST";
         form.action = data.payUrl;

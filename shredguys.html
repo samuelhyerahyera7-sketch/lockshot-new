@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shred Guys – Secure Document & Hard Drive Shredding</title>
+  <meta name="description" content="Shred Guys provides certified on-site and off-site document shredding, hard drive destruction, and records management services. HIPAA & FACTA compliant." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      color: #1a1a2e;
+      background: #fff;
+      line-height: 1.6;
+    }
+    img { max-width: 100%; display: block; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    /* ── Color tokens ── */
+    :root {
+      --navy:   #0f1f3d;
+      --navy2:  #162850;
+      --orange: #f4821f;
+      --orange2:#e06a08;
+      --light:  #f7f9fc;
+      --grey:   #6b7280;
+      --border: #e5e7eb;
+      --white:  #ffffff;
+      --green:  #15803d;
+    }
+
+    /* ── Utility ── */
+    .container { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+    .btn {
+      display: inline-block;
+      padding: 14px 30px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+      border: none;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-orange { background: var(--orange); color: #fff; }
+    .btn-orange:hover { background: var(--orange2); }
+    .btn-outline {
+      background: transparent;
+      color: #fff;
+      border: 2px solid #fff;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,.12); }
+    .btn-navy { background: var(--navy); color: #fff; }
+    .btn-navy:hover { background: var(--navy2); }
+
+    .section-label {
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--orange);
+      margin-bottom: 10px;
+    }
+    .section-title {
+      font-size: clamp(26px, 4vw, 40px);
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--navy);
+    }
+    .section-sub {
+      font-size: 17px;
+      color: var(--grey);
+      margin-top: 14px;
+      max-width: 620px;
+    }
+    .text-center { text-align: center; }
+    .text-center .section-sub { margin-left: auto; margin-right: auto; }
+
+    /* ── Top Bar ── */
+    .topbar {
+      background: var(--navy);
+      color: #c9d3e8;
+      font-size: 13px;
+      padding: 9px 0;
+    }
+    .topbar .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .topbar a { color: #c9d3e8; }
+    .topbar a:hover { color: #fff; }
+    .topbar-left, .topbar-right { display: flex; align-items: center; gap: 20px; }
+    .topbar-item { display: flex; align-items: center; gap: 6px; }
+    .topbar-item svg { flex-shrink: 0; }
+
+    /* ── Header / Nav ── */
+    header {
+      background: #fff;
+      border-bottom: 2px solid var(--orange);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      max-width: 1160px;
+      margin: 0 auto;
+      height: 72px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .logo-icon {
+      width: 46px;
+      height: 46px;
+      background: var(--orange);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-icon svg { color: #fff; }
+    .logo span.highlight { color: var(--orange); }
+
+    nav { display: flex; align-items: center; gap: 4px; }
+    .nav-link {
+      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--navy);
+      border-radius: 5px;
+      transition: background .15s, color .15s;
+      position: relative;
+    }
+    .nav-link:hover { background: var(--light); color: var(--orange); }
+
+    /* Dropdown */
+    .nav-item { position: relative; }
+    .nav-item:hover .dropdown { display: block; }
+    .dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      min-width: 220px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.12);
+      z-index: 100;
+      overflow: hidden;
+    }
+    .dropdown a {
+      display: block;
+      padding: 11px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+    }
+    .dropdown a:last-child { border-bottom: none; }
+    .dropdown a:hover { background: var(--light); color: var(--orange); }
+
+    .nav-cta { margin-left: 12px; }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 8px;
+      border: none;
+      background: none;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--navy);
+      transition: all .3s;
+    }
+    .mobile-menu {
+      display: none;
+      background: #fff;
+      border-top: 1px solid var(--border);
+      padding: 16px 24px 24px;
+    }
+    .mobile-menu.open { display: block; }
+    .mobile-menu a {
+      display: block;
+      padding: 12px 0;
+      font-weight: 600;
+      color: var(--navy);
+      border-bottom: 1px solid var(--border);
+      font-size: 15px;
+    }
+    .mobile-menu a:hover { color: var(--orange); }
+    .mobile-menu .btn { margin-top: 16px; width: 100%; text-align: center; }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #1e3a6e 60%, #2a4f94 100%);
+      color: #fff;
+      padding: 96px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-inner {
+      max-width: 1160px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      position: relative;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(244,130,31,.2);
+      border: 1px solid rgba(244,130,31,.4);
+      color: #fdb97d;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .hero h1 .accent { color: var(--orange); }
+    .hero p {
+      font-size: 18px;
+      color: #b8cce8;
+      margin-bottom: 36px;
+      max-width: 500px;
+    }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+    .hero-trust {
+      display: flex;
+      gap: 28px;
+      margin-top: 44px;
+      flex-wrap: wrap;
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #b8cce8;
+    }
+    .trust-icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Hero right panel */
+    .hero-card {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.15);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 36px;
+    }
+    .hero-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .hero-card .form-group { margin-bottom: 14px; }
+    .hero-card label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: #8fadd0;
+      margin-bottom: 6px;
+    }
+    .hero-card input,
+    .hero-card select,
+    .hero-card textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 7px;
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border .2s;
+    }
+    .hero-card input::placeholder,
+    .hero-card select option,
+    .hero-card textarea::placeholder { color: #8fadd0; }
+    .hero-card select { cursor: pointer; }
+    .hero-card input:focus,
+    .hero-card select:focus,
+    .hero-card textarea:focus { border-color: var(--orange); }
+    .hero-card textarea { resize: vertical; min-height: 80px; }
+    .hero-card .btn { width: 100%; text-align: center; margin-top: 4px; font-size: 16px; padding: 15px; }
+
+    /* ── Stats Bar ── */
+    .stats-bar {
+      background: var(--orange);
+      color: #fff;
+      padding: 32px 24px;
+    }
+    .stats-inner {
+      max-width: 1160px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      text-align: center;
+    }
+    .stat-item { padding: 8px; }
+    .stat-num {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label { font-size: 14px; font-weight: 500; opacity: .85; }
+    .stat-divider {
+      border-left: 1px solid rgba(255,255,255,.3);
+    }
+
+    /* ── Services ── */
+    .services { padding: 90px 24px; background: var(--light); }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      margin-top: 52px;
+    }
+    .service-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 36px 30px;
+      box-shadow: 0 2px 16px rgba(0,0,0,.06);
+      transition: transform .25s, box-shadow .25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--orange);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .3s;
+    }
+    .service-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(0,0,0,.12); }
+    .service-card:hover::before { transform: scaleX(1); }
+    .service-icon {
+      width: 58px;
+      height: 58px;
+      background: linear-gradient(135deg, #fff5eb, #ffe8cc);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 22px;
+    }
+    .service-icon svg { color: var(--orange); }
+    .service-card h3 {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
+    .service-card p {
+      font-size: 15px;
+      color: var(--grey);
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+    .service-link {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--orange);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .service-link:hover { gap: 10px; }
+
+    /* ── How It Works ── */
+    .hiw { padding: 90px 24px; background: #fff; }
+    .hiw-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 28px;
+      margin-top: 52px;
+      position: relative;
+    }
+    .hiw-steps::before {
+      content: '';
+      position: absolute;
+      top: 32px;
+      left: calc(12.5% + 28px);
+      right: calc(12.5% + 28px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--orange), #ffd9b0);
+      z-index: 0;
+    }
+    .step {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .step-num {
+      width: 64px;
+      height: 64px;
+      background: var(--navy);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 800;
+      margin: 0 auto 20px;
+      border: 4px solid var(--orange);
+    }
+    .step h4 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+    .step p { font-size: 14px; color: var(--grey); }
+
+    /* ── Why Choose Us ── */
+    .why {
+      padding: 90px 24px;
+      background: var(--navy);
+      color: #fff;
+    }
+    .why-inner {
+      max-width: 1160px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .why .section-title { color: #fff; }
+    .why .section-label { color: #fdb97d; }
+    .why-points { margin-top: 36px; display: flex; flex-direction: column; gap: 22px; }
+    .why-point {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+    }
+    .why-check {
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+      background: rgba(244,130,31,.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .why-point h4 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .why-point p { font-size: 14px; color: #8fadd0; }
+    .why-certs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .cert-card {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      transition: background .2s;
+    }
+    .cert-card:hover { background: rgba(255,255,255,.1); }
+    .cert-card .cert-icon {
+      width: 52px;
+      height: 52px;
+      background: rgba(244,130,31,.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+    }
+    .cert-card h4 { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .cert-card p { font-size: 13px; color: #8fadd0; }
+
+    /* ── Certificate of Destruction ── */
+    .certificate { padding: 80px 24px; background: var(--light); }
+    .cert-of-dest {
+      max-width: 1160px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .cert-visual {
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 40px;
+      position: relative;
+      box-shadow: 0 4px 24px rgba(0,0,0,.07);
+    }
+    .cert-visual::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--navy), var(--orange));
+      border-radius: 16px 16px 0 0;
+    }
+    .cert-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .cert-logo-row .logo-icon { width: 38px; height: 38px; }
+    .cert-logo-row span { font-size: 18px; font-weight: 800; color: var(--navy); }
+    .cert-logo-row span .highlight { color: var(--orange); }
+    .cert-title-row {
+      text-align: center;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 2px dashed var(--border);
+    }
+    .cert-title-row h3 {
+      font-size: 20px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--navy);
+    }
+    .cert-title-row p { font-size: 13px; color: var(--grey); margin-top: 4px; }
+    .cert-rows { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .cert-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      border-bottom: 1px solid #f0f0f0;
+      padding-bottom: 10px;
+    }
+    .cert-row span { color: var(--grey); }
+    .cert-row strong { color: var(--navy); }
+    .cert-stamp {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px;
+      background: linear-gradient(135deg, #f0fff4, #dcfce7);
+      border: 2px solid #86efac;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--green);
+    }
+    .cert-content { }
+    .cert-points { margin-top: 32px; display: flex; flex-direction: column; gap: 18px; }
+    .cert-point {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .cert-point-icon {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #fff5eb, #ffe8cc);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cert-point h4 { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+    .cert-point p { font-size: 14px; color: var(--grey); }
+    @media (max-width: 768px) {
+      .cert-of-dest { grid-template-columns: 1fr; gap: 40px; }
+    }
+
+    /* ── Testimonials ── */
+    .testimonials { padding: 90px 24px; background: #fff; }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      margin-top: 52px;
+    }
+    .testimonial-card {
+      background: var(--light);
+      border-radius: 14px;
+      padding: 32px 28px;
+      position: relative;
+    }
+    .stars { display: flex; gap: 3px; margin-bottom: 16px; }
+    .star { color: #f4b60e; font-size: 18px; }
+    .testimonial-card blockquote {
+      font-size: 15px;
+      color: #374151;
+      font-style: italic;
+      line-height: 1.7;
+      margin-bottom: 22px;
+    }
+    .reviewer {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .reviewer-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: #fff;
+      font-weight: 700;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .reviewer-name { font-weight: 700; font-size: 15px; color: var(--navy); }
+    .reviewer-title { font-size: 13px; color: var(--grey); }
+
+    /* ── Price List ── */
+    .pricelist { padding: 80px 24px; background: var(--light); }
+    .pl-intro { margin-bottom: 52px; }
+    .pl-vat-note {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--grey);
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 14px;
+    }
+    .pl-section { margin-bottom: 56px; }
+    .pl-section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .pl-section-head h3 {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--navy);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .pl-section-head .pl-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: var(--orange);
+      color: #fff;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+    .pl-desc {
+      font-size: 14px;
+      color: var(--grey);
+      margin-bottom: 14px;
+    }
+    /* generic price table */
+    .pl-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 14px rgba(0,0,0,.06);
+      font-size: 14px;
+    }
+    .pl-table thead th {
+      background: var(--navy);
+      color: #fff;
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+    }
+    .pl-table thead th:not(:first-child) { text-align: right; }
+    .pl-table tbody td {
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      color: #374151;
+    }
+    .pl-table tbody td:not(:first-child) { text-align: right; font-weight: 600; color: var(--navy); }
+    .pl-table tbody tr:last-child td { border-bottom: none; }
+    .pl-table tbody tr:hover td { background: #fafafa; }
+    .pl-table .pl-subhead td {
+      background: #f0f4ff;
+      font-weight: 700;
+      color: var(--navy);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      padding: 9px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .pl-table .pl-min td {
+      background: #fff8f0;
+      font-weight: 700;
+      color: var(--orange2);
+    }
+    .pl-table .pl-highlight td { background: #fff8f0; }
+    /* Two-column layout for ad hoc left/right */
+    .pl-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    /* Recurring table — more columns */
+    .pl-table.pl-recurring thead th { font-size: 11px; }
+    .pl-note {
+      font-size: 13px;
+      color: var(--grey);
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: #fff;
+      border-left: 3px solid var(--orange);
+      border-radius: 0 6px 6px 0;
+    }
+    .pl-special {
+      background: linear-gradient(135deg, #fff8f0, #fff3e6);
+      border: 1px solid #fdd5aa;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 18px;
+      font-size: 14px;
+      color: var(--navy);
+    }
+    .pl-special strong { color: var(--orange2); }
+    .price-note {
+      text-align: center;
+      font-size: 13px;
+      color: var(--grey);
+      margin-top: 18px;
+    }
+    @media (max-width: 768px) {
+      .pl-two-col { grid-template-columns: 1fr; }
+      .pl-table { font-size: 13px; }
+      .pl-table thead th, .pl-table tbody td { padding: 9px 10px; }
+      .pl-table.pl-recurring { display: block; overflow-x: auto; }
+    }
+
+    /* ── CTA Banner ── */
+    .cta-banner {
+      background: linear-gradient(135deg, var(--orange) 0%, #e06a08 100%);
+      padding: 72px 24px;
+      text-align: center;
+      color: #fff;
+    }
+    .cta-banner h2 {
+      font-size: clamp(26px, 4vw, 40px);
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .cta-banner p {
+      font-size: 18px;
+      opacity: .9;
+      margin-bottom: 36px;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cta-banner .btn-navy { padding: 16px 40px; font-size: 17px; }
+
+    /* ── Footer ── */
+    footer {
+      background: #0a1628;
+      color: #8fadd0;
+      padding: 64px 24px 0;
+    }
+    .footer-grid {
+      max-width: 1160px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      padding-bottom: 52px;
+    }
+    .footer-brand .logo { color: #fff; margin-bottom: 16px; }
+    .footer-brand p { font-size: 14px; line-height: 1.7; margin-bottom: 24px; }
+    .footer-social { display: flex; gap: 10px; }
+    .social-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s;
+    }
+    .social-btn:hover { background: var(--orange); }
+    .social-btn svg { color: #fff; }
+
+    footer h4 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    footer ul li { margin-bottom: 10px; }
+    footer ul a {
+      font-size: 14px;
+      color: #8fadd0;
+      transition: color .15s;
+    }
+    footer ul a:hover { color: var(--orange); }
+    .footer-contact li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    .footer-contact svg { flex-shrink: 0; margin-top: 2px; color: var(--orange); }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.07);
+      padding: 22px 24px;
+      max-width: 1160px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-bottom-links { display: flex; gap: 20px; }
+    .footer-bottom-links a { color: #8fadd0; }
+    .footer-bottom-links a:hover { color: var(--orange); }
+
+    /* ── Service Card Images ── */
+    .service-card-img {
+      width: calc(100% + 60px);
+      height: 190px;
+      margin: -36px -30px 26px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 14px 14px 0 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ── Gallery ── */
+    .gallery { padding: 90px 24px; background: var(--navy); }
+    .gallery .section-title { color: #fff; }
+    .gallery .section-label { color: #fdb97d; }
+    .gallery .section-sub { color: #8fadd0; }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr;
+      grid-template-rows: 240px 240px;
+      gap: 16px;
+      margin-top: 52px;
+    }
+    .gallery-item {
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+    }
+    .gallery-item--tall { grid-row: span 2; }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .45s ease;
+    }
+    .gallery-item:hover img { transform: scale(1.06); }
+    .gallery-item-caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 12px 16px;
+      background: linear-gradient(transparent, rgba(0,0,0,.65));
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      border-radius: 0 0 14px 14px;
+    }
+    @media (max-width: 768px) {
+      .gallery-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 180px 180px 180px;
+      }
+      .gallery-item--tall { grid-row: span 1; }
+      .gallery-item--wide { grid-column: span 2; }
+    }
+    @media (max-width: 520px) {
+      .gallery-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(4, 200px);
+      }
+      .gallery-item--wide { grid-column: span 1; }
+    }
+
+    /* ── Scroll to Top ── */
+    #scrollTop {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 46px;
+      height: 46px;
+      background: var(--orange);
+      color: #fff;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(244,130,31,.4);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity .3s, transform .3s;
+      z-index: 999;
+    }
+    #scrollTop.visible { opacity: 1; transform: translateY(0); }
+    #scrollTop:hover { background: var(--orange2); }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .services-grid { grid-template-columns: 1fr 1fr; }
+      .hiw-steps { grid-template-columns: 1fr 1fr; }
+      .hiw-steps::before { display: none; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .compliance-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+      nav { display: none; }
+      .nav-cta { display: none; }
+      .hamburger { display: flex; }
+      .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+      .why-inner { grid-template-columns: 1fr; gap: 48px; }
+      .stats-inner { grid-template-columns: 1fr 1fr; }
+      .stat-divider:nth-child(odd) { border-left: none; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      .why-certs { grid-template-columns: 1fr 1fr; }
+      .compliance-grid { grid-template-columns: 1fr 1fr; }
+      .topbar .container { justify-content: center; }
+      .topbar-right { display: none; }
+    }
+    @media (max-width: 520px) {
+      .services-grid { grid-template-columns: 1fr; }
+      .why-certs { grid-template-columns: 1fr; }
+      .stats-inner { grid-template-columns: 1fr; }
+      .stat-divider { border-left: none; border-top: 1px solid rgba(255,255,255,.3); }
+      .compliance-grid { grid-template-columns: 1fr 1fr; }
+      .hiw-steps { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container">
+      <div class="topbar-left">
+        <span class="topbar-item">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11.5a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .84h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          <a href="tel:+18005550199">(800) 555-0199</a>
+        </span>
+        <span class="topbar-item">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <a href="mailto:info@shredguys.com">info@shredguys.com</a>
+        </span>
+      </div>
+      <div class="topbar-right">
+        <span>Mon–Fri 8:00 AM – 5:00 PM</span>
+        <span>|</span>
+        <span>Serving Gauteng</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="nav-inner">
+      <a href="#" class="logo">
+        <div class="logo-icon">
+          <svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
+        </div>
+        Shred <span class="highlight">Guys</span>
+      </a>
+
+      <nav>
+        <div class="nav-item">
+          <a href="#services" class="nav-link">Services ▾</a>
+          <div class="dropdown">
+            <a href="#services">On-Site Shredding</a>
+            <a href="#services">Off-Site Shredding</a>
+            <a href="#services">Hard Drive Destruction</a>
+            <a href="#services">Recurring Shredding</a>
+            <a href="#services">One-Time Purge</a>
+            <a href="#services">Records Management</a>
+          </div>
+        </div>
+        <a href="#why" class="nav-link">Why Shred Guys</a>
+        <a href="#how" class="nav-link">How It Works</a>
+        <a href="#certificate" class="nav-link">Certificate</a>
+        <a href="#pricing" class="nav-link">Pricing</a>
+        <a href="#contact" class="nav-link">Contact</a>
+        <a href="#quote" class="nav-link nav-cta btn btn-orange" style="padding:10px 20px;">Get a Free Quote</a>
+      </nav>
+
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#services">Services</a>
+      <a href="#why">Why Shred Guys</a>
+      <a href="#how">How It Works</a>
+      <a href="#certificate">Certificate</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#contact">Contact</a>
+      <a href="#quote" class="btn btn-orange">Get a Free Quote</a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" id="home">
+    <div class="hero-inner">
+      <div>
+        <h1>Secure Document<br />&amp; Data <span class="accent">Destruction</span><br />You Can Trust</h1>
+        <p>Shred Guys provides on-site and off-site paper shredding and records management across Gauteng — certified, secure, and eco-friendly.</p>
+        <div class="hero-actions">
+          <a href="#quote" class="btn btn-orange">Get a Free Quote</a>
+          <a href="tel:+18005550199" class="btn btn-outline">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:inline;vertical-align:middle;margin-right:6px"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11.5 19.79 19.79 0 01.4 2.83 2 2 0 012.4.84h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            Call Us Now
+          </a>
+        </div>
+        <div class="hero-trust">
+          <div class="trust-item">
+            <div class="trust-icon">
+              <svg width="16" height="16" fill="none" stroke="#fdb97d" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            100% Secure
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon">
+              <svg width="16" height="16" fill="none" stroke="#fdb97d" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            Gauteng
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon">
+              <svg width="16" height="16" fill="none" stroke="#fdb97d" stroke-width="2" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+            </div>
+            Eco-Friendly
+          </div>
+        </div>
+      </div>
+
+      <!-- Quote form -->
+      <div class="hero-card" id="quote">
+        <h3>Get Your Free Quote</h3>
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" placeholder="John Smith" />
+        </div>
+        <div class="form-group">
+          <label>Business / Company</label>
+          <input type="text" placeholder="Acme Corp" />
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" placeholder="john@company.com" />
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" placeholder="(555) 000-0000" />
+        </div>
+        <div class="form-group">
+          <label>Service Needed</label>
+          <select>
+            <option value="" disabled selected>Select a service…</option>
+            <option>On-Site Shredding</option>
+            <option>Off-Site Shredding</option>
+            <option>Hard Drive Destruction</option>
+            <option>Recurring Scheduled Shredding</option>
+            <option>One-Time Document Purge</option>
+            <option>Records Management</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Message (Optional)</label>
+          <textarea placeholder="Tell us about your shredding needs…"></textarea>
+        </div>
+        <button class="btn btn-orange" onclick="handleQuote(this)">Request My Free Quote →</button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Services -->
+  <section class="services" id="services">
+    <div class="container">
+      <div class="text-center">
+        <div class="section-label">What We Do</div>
+        <h2 class="section-title">Shredding Services Built<br />for Your Business</h2>
+        <p class="section-sub">From a single box of documents to an entire office purge, Shred Guys has a service to fit your needs — and your budget.</p>
+      </div>
+      <div class="services-grid">
+
+        <div class="service-card">
+          <div class="service-card-img" style="background-image:url('https://images.unsplash.com/photo-1779096944060-4f5ce1f84828?auto=format&fit=crop&w=600&q=80')"></div>
+          <div class="service-icon">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          </div>
+          <h3>On-Site Shredding</h3>
+          <p>Our shredding truck comes directly to your location. Watch your documents destroyed on the spot — ideal for businesses that need witnessed, high-security destruction.</p>
+          <a href="#quote" class="service-link">Get a Quote →</a>
+        </div>
+
+        <div class="service-card">
+          <div class="service-card-img" style="background-image:url('https://images.unsplash.com/photo-1715522594847-67c90b5b8667?auto=format&fit=crop&w=600&q=80')"></div>
+          <div class="service-icon">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l2-1.14"/><path d="M16.5 9.4L7.55 4.24"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/><circle cx="18.5" cy="15.5" r="2.5"/><path d="M20.27 17.27L22 19"/></svg>
+          </div>
+          <h3>Off-Site Shredding</h3>
+          <p>We collect your documents in secure, sealed bins and transport them to our certified facility for destruction. A Certificate of Destruction is issued after every job.</p>
+          <a href="#quote" class="service-link">Get a Quote →</a>
+        </div>
+
+        <div class="service-card">
+          <div class="service-card-img" style="background-image:url('https://images.unsplash.com/photo-1654567573565-c9731427201d?auto=format&fit=crop&w=600&q=80')"></div>
+          <div class="service-icon">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <h3>Hard Drive Destruction</h3>
+          <p>Physical hard drive and media destruction ensures your data is truly unrecoverable. We handle HDDs, SSDs, USB drives, backup tapes, and more — with certification.</p>
+          <a href="#quote" class="service-link">Get a Quote →</a>
+        </div>
+
+        <div class="service-card">
+          <div class="service-card-img" style="background-image:url('https://images.unsplash.com/photo-1628297167427-597e677e4a41?auto=format&fit=crop&w=600&q=80')"></div>
+          <div class="service-icon">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <h3>Recurring Shredding</h3>
+          <p>Set up a regular shredding schedule — weekly, bi-weekly, or monthly. We provide locking consoles for your office and empty them on every visit for ongoing compliance.</p>
+          <a href="#quote" class="service-link">Get a Quote →</a>
+        </div>
+
+        <div class="service-card">
+          <div class="service-card-img" style="background-image:url('https://images.unsplash.com/photo-1724395263732-65eb1af7b668?auto=format&fit=crop&w=600&q=80')"></div>
+          <div class="service-icon">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <h3>One-Time Purge</h3>
+          <p>Moving offices? End-of-year cleanout? Our one-time purge service handles any volume of documents quickly and securely — no ongoing commitment required.</p>
+          <a href="#quote" class="service-link">Get a Quote →</a>
+        </div>
+
+        <div class="service-card">
+          <div class="service-card-img" style="background-image:url('https://images.unsplash.com/photo-1715522594847-67c90b5b8667?auto=format&fit=crop&w=600&q=80')"></div>
+          <div class="service-icon">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          </div>
+          <h3>Records Management</h3>
+          <p>Securely store, index, retrieve, and ultimately destroy your physical and digital records with our full-cycle records management program.</p>
+          <a href="#quote" class="service-link">Get a Quote →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="hiw" id="how">
+    <div class="container">
+      <div class="text-center">
+        <div class="section-label">Simple Process</div>
+        <h2 class="section-title">Get Started in 4 Easy Steps</h2>
+        <p class="section-sub">From your first call to your Certificate of Destruction, we make secure shredding effortless.</p>
+      </div>
+      <div class="hiw-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h4>Request a Quote</h4>
+          <p>Fill out the form or call us. We'll confirm service options and pricing — no obligation, no pressure.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h4>Schedule Your Service</h4>
+          <p>Choose your date and time. Our team arrives in a branded, GPS-tracked vehicle at your location.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h4>Watch It Get Done</h4>
+          <p>We shred everything on-site or transport it securely. The process is fast, thorough, and witnessed.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <h4>Receive Your Certificate</h4>
+          <p>Your Certificate of Destruction is emailed the same day — your proof of compliance for audits.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Us -->
+  <section class="why" id="why">
+    <div class="why-inner">
+      <div>
+        <div class="section-label">Why Shred Guys</div>
+        <h2 class="section-title">Your Privacy Is Our Priority</h2>
+        <p class="section-sub" style="color:#8fadd0">We built Shred Guys around one simple mission: make information security accessible, affordable, and trustworthy for every business.</p>
+        <div class="why-points">
+          <div class="why-point">
+            <div class="why-check">
+              <svg width="20" height="20" fill="none" stroke="var(--orange)" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <h4>100% Recycled Materials</h4>
+              <p>Every shredded document is baled and recycled. We're committed to zero landfill from your paper waste.</p>
+            </div>
+          </div>
+          <div class="why-point">
+            <div class="why-check">
+              <svg width="20" height="20" fill="none" stroke="var(--orange)" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <h4>Flat, Transparent Pricing</h4>
+              <p>One simple price — no hidden surcharges, fuel fees, or surprise invoices. What we quote is what you pay.</p>
+            </div>
+          </div>
+          <div class="why-point">
+            <div class="why-check">
+              <svg width="20" height="20" fill="none" stroke="var(--orange)" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <h4>Same-Day Certificate of Destruction</h4>
+              <p>Electronically issued on completion — your compliance record is ready for any audit or legal requirement.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="why-certs">
+        <div class="cert-card">
+          <div class="cert-icon">
+            <svg width="24" height="24" fill="none" stroke="var(--orange)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h4>Secure Destruction</h4>
+          <p>Documents are shredded beyond recovery — guaranteed</p>
+        </div>
+        <div class="cert-card">
+          <div class="cert-icon">
+            <svg width="24" height="24" fill="none" stroke="var(--orange)" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+          </div>
+          <h4>Certificate Issued</h4>
+          <p>Official Certificate of Destruction emailed same day</p>
+        </div>
+        <div class="cert-card">
+          <div class="cert-icon">
+            <svg width="24" height="24" fill="none" stroke="var(--orange)" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <h4>On-Site or Off-Site</h4>
+          <p>We come to you, or you drop off — both fully certified</p>
+        </div>
+        <div class="cert-card">
+          <div class="cert-icon">
+            <svg width="24" height="24" fill="none" stroke="var(--orange)" stroke-width="2" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          </div>
+          <h4>100% Recycled</h4>
+          <p>All shredded paper is baled and sent for recycling</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Certificate of Destruction -->
+  <section class="certificate" id="certificate">
+    <div class="container text-center">
+      <div class="section-label">Proof of Destruction</div>
+      <h2 class="section-title">Certificate of Destruction Included</h2>
+      <p class="section-sub">Upon completion of every shredding job, you will receive a Certificate of Destruction confirming that your documents have been securely and permanently destroyed.</p>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials" id="testimonials">
+    <div class="container">
+      <div class="text-center">
+        <div class="section-label">Client Reviews</div>
+        <h2 class="section-title">Trusted by Businesses<br />Across Gauteng</h2>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <blockquote>"Shred Guys showed up on time, were professional, and had everything done in under an hour. The Certificate of Destruction was in my inbox before they left the parking lot."</blockquote>
+          <div class="reviewer">
+            <div class="reviewer-avatar">JT</div>
+            <div>
+              <div class="reviewer-name">James T.</div>
+              <div class="reviewer-title">Office Manager, Atlas Financial Group</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <blockquote>"We've used Shred Guys for recurring service for two years. They're reliable, the pricing is exactly as quoted, and our HIPAA audits have been seamless thanks to their documentation."</blockquote>
+          <div class="reviewer">
+            <div class="reviewer-avatar">ML</div>
+            <div>
+              <div class="reviewer-name">Maria L.</div>
+              <div class="reviewer-title">Compliance Director, Coastal Medical Partners</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+          </div>
+          <blockquote>"When we moved offices we had 30 years of old files. One call to Shred Guys, one visit, and it was all gone. No stress, no hassle — highly recommend for anyone doing a big purge."</blockquote>
+          <div class="reviewer">
+            <div class="reviewer-avatar">RW</div>
+            <div>
+              <div class="reviewer-name">Robert W.</div>
+              <div class="reviewer-title">Principal, Harborview Law Firm</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section class="gallery" id="gallery">
+    <div class="container">
+      <div class="text-center">
+        <div class="section-label">In Action</div>
+        <h2 class="section-title">Shredding You Can See</h2>
+        <p class="section-sub">From our mobile shred trucks to secure office consoles, certified destruction happens right before your eyes.</p>
+      </div>
+      <div class="gallery-grid">
+        <div class="gallery-item gallery-item--tall">
+          <img src="https://images.unsplash.com/photo-1779096944060-4f5ce1f84828?auto=format&fit=crop&w=800&q=80" alt="Stacked documents ready for shredding" loading="lazy" />
+          <div class="gallery-item-caption">Documents Ready for Destruction</div>
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1715522594847-67c90b5b8667?auto=format&fit=crop&w=600&q=80" alt="Confidential paper files" loading="lazy" />
+          <div class="gallery-item-caption">Confidential Files Secured</div>
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1628297167427-597e677e4a41?auto=format&fit=crop&w=600&q=80" alt="Office paper documents" loading="lazy" />
+          <div class="gallery-item-caption">Office Paper Purge</div>
+        </div>
+        <div class="gallery-item gallery-item--wide">
+          <img src="https://images.unsplash.com/photo-1654567573565-c9731427201d?auto=format&fit=crop&w=900&q=80" alt="Hard drive and media destruction" loading="lazy" />
+          <div class="gallery-item-caption">Hard Drive &amp; Media Destruction</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricelist" id="pricing">
+    <div class="container">
+
+      <div class="pl-intro text-center">
+        <div class="section-label">Transparent Pricing</div>
+        <h2 class="section-title">Shredding Services Price List</h2>
+        <p class="section-sub">Effective 1 Jan 2026 – 31 Dec 2026. All prices exclude VAT.</p>
+        <span class="pl-vat-note">Prices exclude VAT &nbsp;|&nbsp; Volume discounts available on large quantities</span>
+      </div>
+
+      <!-- 1. Ad Hoc / Once Off -->
+      <div class="pl-section">
+        <div class="pl-section-head">
+          <h3>Ad Hoc / Once-Off Service</h3>
+          <span class="pl-tag">On-Demand</span>
+        </div>
+        <p class="pl-desc">Price per kg / file / box / bin. Minimum charge applies. Volume discounts apply automatically as quantities increase.</p>
+
+        <div class="pl-two-col">
+
+          <!-- Left: weight + lever arch + archive -->
+          <div>
+            <table class="pl-table" style="margin-bottom:20px">
+              <thead>
+                <tr>
+                  <th>Volume (Weight)</th>
+                  <th>On-Site</th>
+                  <th>Off-Site</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="pl-min">
+                  <td><strong>Minimum Charge</strong></td>
+                  <td>R1,433</td>
+                  <td>R1,082</td>
+                </tr>
+                <tr><td>1 – 150 kgs</td><td>R19.66 / kg</td><td>R15.00 / kg</td></tr>
+                <tr><td>151 – 300 kgs</td><td>R18.56 / kg</td><td>R13.35 / kg</td></tr>
+                <tr><td>301 – 450 kgs</td><td>R17.47 / kg</td><td>R11.88 / kg</td></tr>
+                <tr><td>451 – 600 kgs</td><td>R15.29 / kg</td><td>R10.57 / kg</td></tr>
+                <tr><td>601 – 750 kgs</td><td>R14.24 / kg</td><td>R9.41 / kg</td></tr>
+              </tbody>
+            </table>
+
+            <table class="pl-table" style="margin-bottom:20px">
+              <thead>
+                <tr>
+                  <th>Lever Arch Files <small style="font-weight:400;opacity:.7">(29×32×7cm)</small></th>
+                  <th>On-Site</th>
+                  <th>Off-Site</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>1 – 50 files</td><td>R50</td><td>R37</td></tr>
+                <tr><td>51 – 100 files</td><td>R46</td><td>R26</td></tr>
+                <tr><td>101 – 150 files</td><td>R42</td><td>R23</td></tr>
+                <tr><td>151 – 200 files</td><td>R38</td><td>R21</td></tr>
+                <tr><td>201 – 250 files</td><td>R35</td><td>R18</td></tr>
+              </tbody>
+            </table>
+
+            <table class="pl-table">
+              <thead>
+                <tr>
+                  <th>Archive Boxes <small style="font-weight:400;opacity:.7">(25×33×10.5cm)</small></th>
+                  <th>On-Site</th>
+                  <th>Off-Site</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>1 – 50 boxes</td><td>R62</td><td>R46</td></tr>
+                <tr><td>51 – 100 boxes</td><td>R57</td><td>R33</td></tr>
+                <tr><td>101 – 150 boxes</td><td>R52</td><td>R29</td></tr>
+                <tr><td>151 – 200 boxes</td><td>R48</td><td>R26</td></tr>
+                <tr><td>201 – 250 boxes</td><td>R44</td><td>R23</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Right: Typek + Bankers + 240L Wheelie -->
+          <div>
+            <table class="pl-table" style="margin-bottom:20px">
+              <thead>
+                <tr>
+                  <th>Typek A4 Boxes <small style="font-weight:400;opacity:.7">(27×30×22cm)</small></th>
+                  <th>On-Site</th>
+                  <th>Off-Site</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>1 – 20 boxes</td><td>R213</td><td>R161</td></tr>
+                <tr><td>21 – 40 boxes</td><td>R196</td><td>R100</td></tr>
+                <tr><td>41 – 60 boxes</td><td>R180</td><td>R89</td></tr>
+                <tr><td>61 – 80 boxes</td><td>R166</td><td>R79</td></tr>
+                <tr><td>81 – 100 boxes</td><td>R153</td><td>R71</td></tr>
+              </tbody>
+            </table>
+
+            <table class="pl-table" style="margin-bottom:20px">
+              <thead>
+                <tr>
+                  <th>Bankers Boxes <small style="font-weight:400;opacity:.7">(42×34×26cm)</small></th>
+                  <th>On-Site</th>
+                  <th>Off-Site</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>1 – 10 boxes</td><td>R373</td><td>R281</td></tr>
+                <tr><td>11 – 20 boxes</td><td>R343</td><td>R200</td></tr>
+                <tr><td>21 – 30 boxes</td><td>R315</td><td>R178</td></tr>
+                <tr><td>31 – 40 boxes</td><td>R290</td><td>R159</td></tr>
+                <tr><td>41 – 50 boxes</td><td>R267</td><td>R141</td></tr>
+              </tbody>
+            </table>
+
+            <table class="pl-table">
+              <thead>
+                <tr>
+                  <th>240L Wheelie Bins</th>
+                  <th>On-Site</th>
+                  <th>Off-Site</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>1 – 2 bins</td><td>R1,491</td><td>R1,125</td></tr>
+                <tr><td>3 – 4 bins</td><td>R1,371</td><td>R1,001</td></tr>
+                <tr><td>5 – 6 bins</td><td>R1,262</td><td>R891</td></tr>
+                <tr><td>7 – 8 bins</td><td>R1,161</td><td>R793</td></tr>
+                <tr><td>9 – 10 bins</td><td>R1,068</td><td>R706</td></tr>
+                <tr class="pl-highlight"><td><strong>Large Quantities</strong></td><td colspan="2" style="text-align:right;color:var(--orange2)">Volume Discount — Contact Us</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 2. Purge / Office Cleanup -->
+      <div class="pl-section">
+        <div class="pl-section-head">
+          <h3>Purge / Office Cleanup</h3>
+          <span class="pl-tag">240L Wheelie Bin</span>
+        </div>
+        <p class="pl-desc">Wheelie bin provided for office cleanup. Rates per bin include drop-off, collection &amp; shredding.</p>
+        <table class="pl-table" style="max-width:640px">
+          <thead>
+            <tr>
+              <th>240L Wheelie Bins</th>
+              <th>On-Site Price</th>
+              <th>Off-Site Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 – 2 Bins</td><td>R1,835</td><td>R1,446</td></tr>
+            <tr><td>3 – 4 Bins</td><td>R1,535</td><td>R1,162</td></tr>
+            <tr><td>5 – 6 Bins</td><td>R1,344</td><td>R971</td></tr>
+            <tr><td>7 – 8 Bins</td><td>R1,215</td><td>R846</td></tr>
+            <tr><td>9 – 10 Bins</td><td>R1,106</td><td>R743</td></tr>
+          </tbody>
+        </table>
+        <p class="pl-note">Bins can be kept for <strong>two weeks</strong>. Thereafter, a storage fee of <strong>R20 per bin per day</strong> applies.</p>
+      </div>
+
+      <!-- 3. Client Delivers / Walk In -->
+      <div class="pl-section">
+        <div class="pl-section-head">
+          <h3>Client Delivers / Walk-In</h3>
+          <span class="pl-tag">Drop-Off</span>
+        </div>
+        <p class="pl-desc">We help you offload your vehicle, weigh it on our scale, and you are welcome to witness the shredding. Price per kg.</p>
+        <table class="pl-table" style="max-width:640px">
+          <thead>
+            <tr>
+              <th>Weight Tier</th>
+              <th>Price per kg</th>
+              <th>Weight Tier</th>
+              <th>Price per kg</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>0 – 50 kgs</td><td>R10.00</td><td>351 – 400 kgs</td><td>R6.96</td></tr>
+            <tr><td>51 – 100 kgs</td><td>R9.57</td><td>401 – 450 kgs</td><td>R6.52</td></tr>
+            <tr><td>101 – 150 kgs</td><td>R9.13</td><td>451 – 500 kgs</td><td>R6.09</td></tr>
+            <tr><td>151 – 200 kgs</td><td>R8.70</td><td>501 – 550 kgs</td><td>R5.65</td></tr>
+            <tr><td>201 – 250 kgs</td><td>R8.26</td><td>551 – 600 kgs</td><td>R5.22</td></tr>
+            <tr><td>251 – 300 kgs</td><td>R7.83</td><td>601 – 650 kgs</td><td>R4.75</td></tr>
+            <tr><td>301 – 350 kgs</td><td>R7.39</td><td>651 kgs +</td><td>R4.35</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 4. Recurring Service & Bin Rental -->
+      <div class="pl-section">
+        <div class="pl-section-head">
+          <h3>Recurring Service &amp; Bin Rental</h3>
+          <span class="pl-tag">Monthly</span>
+        </div>
+        <div class="pl-special">
+          <strong>Special Offer:</strong> Lockable 240L wheelie bin — pay <strong>R1,125</strong> per ad-hoc off-site service. <strong>Zero monthly rental fee.</strong>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="pl-table pl-recurring">
+            <thead>
+              <tr>
+                <th>Bin Size &amp; Type</th>
+                <th>Dimensions</th>
+                <th>Material</th>
+                <th>Monthly Rental</th>
+                <th>Monthly On-Site</th>
+                <th>Monthly Off-Site</th>
+                <th>Ad-Hoc On-Site</th>
+                <th>Ad-Hoc Off-Site</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Wheelie Bin 120L</strong></td>
+                <td>85×55×47cm</td>
+                <td>Plastic</td>
+                <td>R84</td>
+                <td>R688</td>
+                <td>R562</td>
+                <td>R1,147</td>
+                <td>R900</td>
+              </tr>
+              <tr class="pl-highlight">
+                <td><strong>Wheelie Bin 240L</strong></td>
+                <td>100×72×58cm</td>
+                <td>Plastic</td>
+                <td>R112</td>
+                <td>R1,147</td>
+                <td>R900</td>
+                <td>R1,491</td>
+                <td>R1,125</td>
+              </tr>
+              <tr>
+                <td><strong>Leather Touch Maxi</strong></td>
+                <td>60×40×45cm</td>
+                <td>ABS Plastic</td>
+                <td>R157</td>
+                <td>R631</td>
+                <td>R506</td>
+                <td>R917</td>
+                <td>R675</td>
+              </tr>
+              <tr>
+                <td><strong>Leather Touch Medi</strong></td>
+                <td>80×40×45cm</td>
+                <td>ABS Plastic</td>
+                <td>R180</td>
+                <td>R699</td>
+                <td>R562</td>
+                <td>R1,147</td>
+                <td>R900</td>
+              </tr>
+              <tr>
+                <td><strong>Junior Console</strong></td>
+                <td>64×60×50cm</td>
+                <td>Melamine Wood</td>
+                <td>R101</td>
+                <td>R654</td>
+                <td>R506</td>
+                <td>R917</td>
+                <td>R675</td>
+              </tr>
+              <tr>
+                <td><strong>Standard Console</strong></td>
+                <td>90×50×50cm</td>
+                <td>Melamine Wood</td>
+                <td>R135</td>
+                <td>R803</td>
+                <td>R562</td>
+                <td>R1,147</td>
+                <td>R900</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="pl-note">
+          <strong>Monthly service:</strong> Scheduled last week of the month. &nbsp;|&nbsp;
+          <strong>Ad-Hoc:</strong> Whenever required. &nbsp;|&nbsp;
+          <strong>Billing:</strong> Monthly bin rental + service fees. No service = no service fee.
+        </p>
+      </div>
+
+      <p class="price-note" style="margin-top:0">All prices exclude VAT. Pricing effective 1 Jan 2026 – 31 Dec 2026. <a href="#quote" style="color:var(--orange);font-weight:600">Request a free quote →</a></p>
+
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="cta-banner">
+    <h2>Ready to Shred? Let's Get Started.</h2>
+    <p>Get a free, no-obligation quote in minutes. Same-week appointments available.</p>
+    <a href="#quote" class="btn btn-navy">Request a Free Quote</a>
+  </section>
+
+  <!-- Footer -->
+  <footer id="contact">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="logo">
+          <div class="logo-icon">
+            <svg width="22" height="22" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          </div>
+          Shred <span class="highlight">Guys</span>
+        </a>
+        <p>Shred Guys is a certified document and data destruction company serving businesses across Gauteng. Trusted, secure, and eco-friendly.</p>
+        <div class="footer-social">
+          <a href="#" class="social-btn" aria-label="Facebook">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          </a>
+          <a href="#" class="social-btn" aria-label="Twitter">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg>
+          </a>
+          <a href="#" class="social-btn" aria-label="LinkedIn">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <h4>Services</h4>
+        <ul>
+          <li><a href="#services">On-Site Shredding</a></li>
+          <li><a href="#services">Off-Site Shredding</a></li>
+          <li><a href="#services">Hard Drive Destruction</a></li>
+          <li><a href="#services">Recurring Shredding</a></li>
+          <li><a href="#services">One-Time Purge</a></li>
+          <li><a href="#services">Records Management</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#why">Why Shred Guys</a></li>
+          <li><a href="#how">How It Works</a></li>
+          <li><a href="#certificate">Certificate of Destruction</a></li>
+          <li><a href="#testimonials">Reviews</a></li>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Contact Us</h4>
+        <ul class="footer-contact">
+          <li>
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11.5 19.79 19.79 0 01.4 2.83 2 2 0 012.4.84h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            <a href="tel:+18005550199">(800) 555-0199</a>
+          </li>
+          <li>
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <a href="mailto:info@shredguys.com">info@shredguys.com</a>
+          </li>
+          <li>
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Mon–Fri: 8:00 AM – 5:00 PM
+          </li>
+          <li>
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Serving Gauteng
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 Shred Guys Inc. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Policy</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scroll to Top -->
+  <button id="scrollTop" aria-label="Scroll to top">
+    <svg width="18" height="18" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
+  <script>
+    // Mobile menu toggle
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      mobileMenu.classList.toggle('open');
+    });
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => mobileMenu.classList.remove('open'));
+    });
+
+    // Scroll to top button
+    const scrollBtn = document.getElementById('scrollTop');
+    window.addEventListener('scroll', () => {
+      scrollBtn.classList.toggle('visible', window.scrollY > 400);
+    });
+    scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    // Quote form submit
+    function handleQuote(btn) {
+      const form = btn.closest('.hero-card');
+      const inputs = form.querySelectorAll('input, select, textarea');
+      let valid = true;
+      inputs.forEach(input => {
+        if (input.hasAttribute('required') || input.type !== 'hidden') {
+          if (!input.value.trim() && input.tagName !== 'TEXTAREA') {
+            input.style.borderColor = '#ef4444';
+            valid = false;
+          } else {
+            input.style.borderColor = '';
+          }
+        }
+      });
+      btn.textContent = 'Thank you! We\'ll be in touch shortly.';
+      btn.style.background = '#15803d';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = 'Request My Free Quote →';
+        btn.style.background = '';
+        btn.disabled = false;
+        inputs.forEach(i => { i.value = ''; i.style.borderColor = ''; });
+      }, 4000);
+    }
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
